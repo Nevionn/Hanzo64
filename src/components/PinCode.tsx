@@ -40,7 +40,6 @@ const PinCode: React.FC<PinInputProps> = ({onComplete}) => {
       }
     } else {
       if (confirmPin === initialPin) {
-        console.log(`PIN-код успешно подтверждён! запись в базу ${initialPin}`);
         Alert.alert('Переход в галлерею');
         if (onComplete) {
           onComplete(initialPin);

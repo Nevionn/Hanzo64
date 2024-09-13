@@ -14,22 +14,30 @@ const {width} = Dimensions.get('window');
 const {height} = Dimensions.get('window');
 import Cbutton from '../components/Cbutton';
 import PinCode from '../components/PinCode';
+import {usePinCodeRequest} from '../hooks/usePinCodeRequest';
 
 const LoginPage = () => {
-  const navigation: any = useNavigation();
-  const [installationPinStage, setInstallationPinStage] = useState(false);
-  const [pinCode, setPinCode] = useState('');
+  const {getPinCodefromTable} = usePinCodeRequest();
+  const [rightPinCodeFromDb, setRightPinCodeFromDb] = useState('');
+  const [inputPinCode, setInputPinCode] = useState('');
 
   const handlePinComplete = (pin: string) => {
-    setPinCode(pin);
-    console.log('PIN-код, полученный из PinCode компонента:', pin);
+    setInputPinCode(pin);
   };
 
   useEffect(() => {
-    if (pinCode) {
-      navigation.replace('MainPage');
+    getPinCodefromTable(setRightPinCodeFromDb);
+  }, []);
+
+  useEffect(() => {
+    if (inputPinCode) {
+      if (rightPinCodeFromDb === inputPinCode) {
+        console.log('пин код совпадает');
+      } else {
+        console.log('неверный пин код');
+      }
     }
-  }, [pinCode]);
+  }, [inputPinCode]);
 
   return (
     <ImageBackground
@@ -40,40 +48,7 @@ const LoginPage = () => {
         translucent
         backgroundColor="transparent"
       />
-      {!installationPinStage ? (
-        <View style={styles.greetingsItem}>
-          <Text style={styles.text}>
-            Добро пожаловать в защищенную галерею{'\n'}
-            Для безопасности <Text style={styles.highlight}>
-              рекомендуется
-            </Text>{' '}
-            установить пин код
-          </Text>
-          <View style={styles.buttonsItem}>
-            <Cbutton
-              styleButton={styles.startButton}
-              colorButton={{backgroundColor: COLOR.BUTTON_COLOR_INACTIVE}}
-              isShadow={true}
-              isVisible={true}
-              name={'Пропустить'}
-              onPress={() => {}}
-            />
-            <Cbutton
-              styleButton={styles.startButton}
-              styleText={styles.textButtonSetPinCode}
-              colorButton={{backgroundColor: COLOR.BUTTON_COLOR}}
-              isShadow={true}
-              isVisible={true}
-              name={'Установить пин-код'}
-              onPress={() => {
-                setInstallationPinStage(true);
-              }}
-            />
-          </View>
-        </View>
-      ) : (
-        <PinCode onComplete={handlePinComplete} />
-      )}
+      <PinCode onComplete={handlePinComplete} />
     </ImageBackground>
   );
 };
@@ -97,7 +72,7 @@ const styles = StyleSheet.create({
   buttonsItem: {
     justifyContent: 'space-between',
     alignItems: 'center',
-    flexDirection: 'row',
+    flexDirection: 'column', // row
     position: 'absolute',
     bottom: 10,
   },
