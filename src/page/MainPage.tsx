@@ -16,6 +16,7 @@ import NaviBar from '../components/Navibar';
 import Cbutton from '../components/Cbutton';
 import {usePinCodeRequest} from '../hooks/usePinCodeRequest';
 import ImageViewer from '../components/ImageViewer';
+import NewAlbumModal from '../components/NewAlbumModal';
 import {Image as SvgImage} from 'react-native-svg';
 const {width} = Dimensions.get('window');
 const {height} = Dimensions.get('window');
@@ -23,29 +24,23 @@ const {height} = Dimensions.get('window');
 interface Album {
   id: string;
   title: string;
-  img: string;
+  countPhoto: number;
 }
-const albums: Album[] = [
-  // {id: '1', title: 'Item 1', img: 'https://via.placeholder.com/150'},
-  // {id: '2', title: 'Item 2', img: 'https://via.placeholder.com/150'},
-  // {id: '3', title: 'Item 3', img: 'https://via.placeholder.com/150'},
-  // {id: '4', title: 'Item 4', img: 'https://via.placeholder.com/150'},
-  // {id: '5', title: 'Item 5', img: 'https://via.placeholder.com/150'},
-  // {id: '6', title: 'Item 6', img: 'https://via.placeholder.com/150'},
-  // {id: '7', title: 'Item 7', img: 'https://via.placeholder.com/150'},
-  // {id: '8', title: 'Item 8', img: 'https://via.placeholder.com/150'},
-  // {id: '9', title: 'Item 9', img: 'https://via.placeholder.com/150'},
-];
 
 const MainPage: React.FC = () => {
   const {showTableContent, dropTable} = usePinCodeRequest();
 
-  const renderItem = ({item}: {item: Album}) => (
-    <View style={styles.item}>
-      <Image source={{uri: item.img}} style={styles.image} />
-      <Text style={styles.text}>{item.title}</Text>
-    </View>
-  );
+  const [albums, setAlbums] = useState<Album[]>([]);
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  const handleAddAlbum = (newAlbum: {title: string}) => {
+    const newId = (albums.length + 1).toString();
+    setAlbums([...albums, {id: newId, title: newAlbum.title, countPhoto: 12}]);
+  };
+
+  const openCreateAlbumModal = () => {
+    setModalVisible(true);
+  };
 
   return (
     <View style={[styles.root, {backgroundColor: COLOR.MAIN_COLOR}]}>
@@ -57,12 +52,35 @@ const MainPage: React.FC = () => {
       <View style={styles.topSpacer} />
       <FlatList
         data={albums}
-        renderItem={renderItem}
-        keyExtractor={(item: Album) => item.id}
         numColumns={2}
-        contentContainerStyle={styles.container}
+        keyExtractor={item => item.id}
+        renderItem={({item}) => (
+          <View style={styles.placeHolder}>
+            <View style={styles.imagePlace}>
+              <Image
+                source={require('../../assets/images/not_img_default.png')}
+                style={styles.image}
+              />
+            </View>
+            <View style={styles.textImageHolder}>
+              <Text style={styles.textNameAlbum}>
+                {item.title.length > 12
+                  ? `${item.title.substring(0, 20)}...`
+                  : item.title}
+              </Text>
+              <Text
+                style={
+                  styles.textCountPhoto
+                }>{`фотографий ${item.countPhoto}`}</Text>
+            </View>
+          </View>
+        )}
       />
-
+      <NewAlbumModal
+        visible={isModalVisible}
+        onClose={() => setModalVisible(false)}
+        onSubmit={handleAddAlbum}
+      />
       {/* <View>
         <ImageViewer />
       </View> */}
@@ -90,7 +108,7 @@ const MainPage: React.FC = () => {
           }}
         />
       </View>
-      <NaviBar />
+      <NaviBar openModalAlbum={openCreateAlbumModal} />
     </View>
   );
 };
@@ -103,25 +121,47 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   topSpacer: {
-    height: '12%',
+    height: '15%',
   },
   container: {
     paddingHorizontal: 10,
     paddingVertical: 10,
   },
-  item: {
-    backgroundColor: '#ccc',
+  placeHolder: {
     flex: 1,
-    margin: 10,
-    padding: 20,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'transparent',
+    margin: 10,
+    height: 220,
+  },
+  imagePlace: {
+    flex: 1,
+    width: '100%',
+    borderWidth: 0.5,
+    borderColor: 'white',
     borderRadius: 10,
   },
   image: {
-    width: 100,
-    height: 100,
-    marginBottom: 10,
+    height: '100%',
+    width: '100%',
+    borderRadius: 10,
+  },
+  textImageHolder: {
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    paddingLeft: 2,
+    height: 40,
+    width: '100%',
+    zIndex: 10,
+  },
+  textNameAlbum: {
+    fontSize: 14,
+    color: 'white',
+  },
+  textCountPhoto: {
+    fontSize: 12,
+    color: '#ACACAC',
   },
   text: {
     color: 'white',
