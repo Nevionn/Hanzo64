@@ -1,6 +1,5 @@
 import React from 'react';
 import {View, Text, StyleSheet, FlatList, Image} from 'react-native';
-
 interface GridItem {
   id: string;
   title: string;

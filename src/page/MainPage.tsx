@@ -15,6 +15,7 @@ import {COLOR} from '../../assets/colorTheme';
 import NaviBar from '../components/Navibar';
 import Cbutton from '../components/Cbutton';
 import {usePinCodeRequest} from '../hooks/usePinCodeRequest';
+import {useAlbumsRequest} from '../hooks/useAlbumsRequest';
 import ImageViewer from '../components/ImageViewer';
 import NewAlbumModal from '../components/NewAlbumModal';
 import {Image as SvgImage} from 'react-native-svg';
@@ -25,17 +26,30 @@ interface Album {
   id: string;
   title: string;
   countPhoto: number;
+  created_at: string;
 }
 
 const MainPage: React.FC = () => {
   const {showTableContent, dropTable} = usePinCodeRequest();
+  const {addAlbum, getAllAlbums, showAlbums, showShemeAlbumsTable} =
+    useAlbumsRequest();
 
-  const [albums, setAlbums] = useState<Album[]>([]);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [albums, setAlbums] = useState<Album[]>([]);
+
+  useEffect(() => {
+    getAllAlbums(setAlbums);
+  }, []);
 
   const handleAddAlbum = (newAlbum: {title: string}) => {
-    const newId = (albums.length + 1).toString();
-    setAlbums([...albums, {id: newId, title: newAlbum.title, countPhoto: 12}]);
+    const currentDate = new Date();
+
+    const albumToInsert = {
+      title: newAlbum.title,
+      countPhoto: 0,
+      created_at: currentDate.toLocaleString(),
+    };
+    addAlbum(albumToInsert), getAllAlbums(setAlbums);
   };
 
   const openCreateAlbumModal = () => {
@@ -91,9 +105,9 @@ const MainPage: React.FC = () => {
           colorButton={{backgroundColor: COLOR.BUTTON_COLOR}}
           isShadow={true}
           isVisible={true}
-          name={'Проверить пинкод'}
+          name={'альбомы'}
           onPress={() => {
-            showTableContent();
+            showAlbums(); // showShemeAlbumsTable('AlbumsTable')
           }}
         />
         <Cbutton

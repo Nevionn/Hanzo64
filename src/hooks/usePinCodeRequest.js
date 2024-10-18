@@ -7,7 +7,7 @@ db.transaction(tx => {
     'CREATE TABLE IF NOT EXISTS PinCodeTable (id INTEGER PRIMARY KEY AUTOINCREMENT, pinCode TEXT, isActive INTEGER DEFAULT 0, isSkip INTEGER DEFAULT 0)',
     [],
     (tx, results) => {
-      console.log('Table created successfully');
+      console.log('Таблица пин кода создана');
     },
   );
 });
