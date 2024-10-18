@@ -129,8 +129,6 @@ const styles = StyleSheet.create({
   },
   placeHolder: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: 'transparent',
     margin: 10,
     height: 220,
@@ -141,6 +139,7 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: 'white',
     borderRadius: 10,
+    aspectRatio: 1,
   },
   image: {
     height: '100%',
