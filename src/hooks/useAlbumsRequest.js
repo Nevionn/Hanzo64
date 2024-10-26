@@ -33,15 +33,14 @@ const useGetAllAlbums = () => {
   return setAlbums => {
     db.transaction(tx => {
       tx.executeSql(
-        'SELECT * FROM AlbumsTable',
+        'SELECT * FROM AlbumsTable ORDER BY created_at DESC', // Сначала новые записи
         [],
         (tx, results) => {
           const albumsList = [];
 
           for (let i = 0; i < results.rows.length; i++) {
-            albumsList.push(results.rows.item(i));
+            albumsList.unshift(results.rows.item(i));
           }
-
           setAlbums(albumsList);
         },
         error => {

@@ -1,13 +1,7 @@
 import React, {useState} from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Modal,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
-import {COLOR} from '../../assets/colorTheme';
+import {View, Text, TextInput, Modal, StyleSheet} from 'react-native';
+import {Button} from 'react-native-paper';
+import {COLOR} from '../../../assets/colorTheme';
 
 interface NewAlbumModalProps {
   visible: boolean;
@@ -46,12 +40,12 @@ const NewAlbumModal: React.FC<NewAlbumModalProps> = ({
             onChangeText={setTitle}
           />
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={handleSave}>
-              <Text style={styles.buttonText}>Сохранить</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={onClose}>
-              <Text style={styles.buttonText}>Отмена</Text>
-            </TouchableOpacity>
+            <Button mode="contained" onPress={handleSave}>
+              Сохранить
+            </Button>
+            <Button mode="contained" onPress={onClose}>
+              Отмена
+            </Button>
           </View>
         </View>
       </View>
@@ -93,18 +87,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  button: {
-    backgroundColor: '#007BFF',
-    padding: 10,
-    borderRadius: 5,
-    width: '48%',
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    justifyContent: 'space-around',
   },
 });
 

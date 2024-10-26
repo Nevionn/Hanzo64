@@ -10,7 +10,10 @@ import {
 import SvgSettings from './icons/SvgSettings';
 import NaviBarProps from '../types/NaviBarProps';
 
-const NaviBar: React.FC<NaviBarProps> = ({openModalAlbum}) => {
+const NaviBar: React.FC<NaviBarProps> = ({
+  openModalAlbum,
+  openModalSettings,
+}) => {
   const statusBarHeight: any = StatusBar.currentHeight;
 
   return (
@@ -23,7 +26,9 @@ const NaviBar: React.FC<NaviBarProps> = ({openModalAlbum}) => {
             <Text style={styles.textAddNewAlbum}>+</Text>
           </TouchableOpacity>
           <Text style={styles.textHead}>Альбомы</Text>
-          <TouchableOpacity style={styles.touchArea}>
+          <TouchableOpacity
+            onPress={openModalSettings}
+            style={styles.touchArea}>
             <SvgSettings />
           </TouchableOpacity>
         </ImageBackground>

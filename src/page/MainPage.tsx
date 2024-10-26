@@ -17,7 +17,8 @@ import Cbutton from '../components/Cbutton';
 import {usePinCodeRequest} from '../hooks/usePinCodeRequest';
 import {useAlbumsRequest} from '../hooks/useAlbumsRequest';
 import ImageViewer from '../components/ImageViewer';
-import NewAlbumModal from '../components/NewAlbumModal';
+import NewAlbumModal from '../components/modals/NewAlbumModal';
+import SettingsModal from '../components/modals/SettingsModal';
 import {Image as SvgImage} from 'react-native-svg';
 const {width} = Dimensions.get('window');
 const {height} = Dimensions.get('window');
@@ -35,11 +36,35 @@ const MainPage: React.FC = () => {
     useAlbumsRequest();
 
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
+  const [appSettings, setAppSettings] = useState({
+    darkMode: false,
+    sortOrder: 'newest' as 'newest' | 'oldest',
+  });
   const [albums, setAlbums] = useState<Album[]>([]);
 
   useEffect(() => {
-    getAllAlbums(setAlbums);
-  }, []);
+    getAllAlbums((fetchedAlbums: Album[]) => {
+      const sortedAlbums =
+        appSettings.sortOrder === 'oldest'
+          ? [...fetchedAlbums].reverse()
+          : fetchedAlbums;
+      setAlbums(sortedAlbums);
+    });
+  }, [appSettings.sortOrder]);
+
+  // useEffect(() => {
+  //   getAllAlbums(setAlbums);
+  // }, []);
+
+  const openSettings = () => setIsSettingsModalVisible(true);
+
+  const saveSettings = (newSettings: typeof appSettings) => {
+    setAppSettings(newSettings);
+    console.log('Настройки сохранены:', newSettings);
+  };
+
+  const openCreateAlbumModal = () => setModalVisible(true);
 
   const handleAddAlbum = (newAlbum: {title: string}) => {
     const currentDate = new Date();
@@ -52,12 +77,8 @@ const MainPage: React.FC = () => {
     addAlbum(albumToInsert), getAllAlbums(setAlbums);
   };
 
-  const openCreateAlbumModal = () => {
-    setModalVisible(true);
-  };
-
   return (
-    <View style={[styles.root, {backgroundColor: COLOR.MAIN_COLOR}]}>
+    <View style={styles.root}>
       <StatusBar
         barStyle="light-content"
         translucent
@@ -95,6 +116,11 @@ const MainPage: React.FC = () => {
         onClose={() => setModalVisible(false)}
         onSubmit={handleAddAlbum}
       />
+      <SettingsModal
+        visible={isSettingsModalVisible}
+        onClose={() => setIsSettingsModalVisible(false)}
+        onSave={saveSettings}
+      />
       {/* <View>
         <ImageViewer />
       </View> */}
@@ -118,11 +144,14 @@ const MainPage: React.FC = () => {
           isVisible={true}
           name={'drop table'}
           onPress={() => {
-            dropTable('PinCodeTable');
+            dropTable('AlbumsTable');
           }}
         />
       </View>
-      <NaviBar openModalAlbum={openCreateAlbumModal} />
+      <NaviBar
+        openModalAlbum={openCreateAlbumModal}
+        openModalSettings={openSettings}
+      />
     </View>
   );
 };
@@ -133,6 +162,7 @@ const styles = StyleSheet.create({
   root: {
     flexGrow: 1,
     justifyContent: 'center',
+    backgroundColor: COLOR.MAIN_COLOR,
   },
   topSpacer: {
     height: '15%',
