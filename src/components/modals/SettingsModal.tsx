@@ -1,8 +1,9 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, Text, Switch, StyleSheet, Modal} from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import {Button} from 'react-native-paper';
 import {COLOR} from '../../../assets/colorTheme';
+import {useSettingsRequest} from '../../hooks/useSettingsRequest';
 
 interface SettingsModalProps {
   visible: boolean;
@@ -20,6 +21,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   onClose,
   onSave,
 }) => {
+  const {getSettings} = useSettingsRequest();
   const [settings, setSettings] = useState<Settings>({
     darkMode: false,
     sortOrder: 'newest',
@@ -36,6 +38,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     onSave(settings);
     onClose();
   };
+
+  useEffect(() => {
+    getSettings(setSettings);
+  }, []);
 
   return (
     <Modal

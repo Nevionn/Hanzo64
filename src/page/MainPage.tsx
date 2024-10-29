@@ -16,10 +16,12 @@ import NaviBar from '../components/Navibar';
 import Cbutton from '../components/Cbutton';
 import {usePinCodeRequest} from '../hooks/usePinCodeRequest';
 import {useAlbumsRequest} from '../hooks/useAlbumsRequest';
+import {useSettingsRequest} from '../hooks/useSettingsRequest';
 import ImageViewer from '../components/ImageViewer';
 import NewAlbumModal from '../components/modals/NewAlbumModal';
 import SettingsModal from '../components/modals/SettingsModal';
 import {Image as SvgImage} from 'react-native-svg';
+import {Button} from 'react-native-paper';
 const {width} = Dimensions.get('window');
 const {height} = Dimensions.get('window');
 
@@ -34,6 +36,7 @@ const MainPage: React.FC = () => {
   const {showTableContent, dropTable} = usePinCodeRequest();
   const {addAlbum, getAllAlbums, showAlbums, showShemeAlbumsTable} =
     useAlbumsRequest();
+  const {acceptSettings, getSettings, showSettings} = useSettingsRequest();
 
   const [isModalVisible, setModalVisible] = useState(false);
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
@@ -42,6 +45,10 @@ const MainPage: React.FC = () => {
     sortOrder: 'newest' as 'newest' | 'oldest',
   });
   const [albums, setAlbums] = useState<Album[]>([]);
+
+  useEffect(() => {
+    getSettings(setAppSettings);
+  }, []);
 
   useEffect(() => {
     getAllAlbums((fetchedAlbums: Album[]) => {
@@ -53,15 +60,12 @@ const MainPage: React.FC = () => {
     });
   }, [appSettings.sortOrder]);
 
-  // useEffect(() => {
-  //   getAllAlbums(setAlbums);
-  // }, []);
-
   const openSettings = () => setIsSettingsModalVisible(true);
 
   const saveSettings = (newSettings: typeof appSettings) => {
     setAppSettings(newSettings);
     console.log('Настройки сохранены:', newSettings);
+    acceptSettings(newSettings); // Передаём настройки в базу данных
   };
 
   const openCreateAlbumModal = () => setModalVisible(true);
@@ -125,28 +129,20 @@ const MainPage: React.FC = () => {
         <ImageViewer />
       </View> */}
       <View style={styles.testBlock}>
-        <Cbutton
-          styleButton={{height: 40}}
-          styleText={{}}
-          colorButton={{backgroundColor: COLOR.BUTTON_COLOR}}
-          isShadow={true}
-          isVisible={true}
-          name={'альбомы'}
+        <Button
+          mode="contained"
           onPress={() => {
-            showAlbums(); // showShemeAlbumsTable('AlbumsTable')
-          }}
-        />
-        <Cbutton
-          styleButton={{height: 40}}
-          styleText={{}}
-          colorButton={{backgroundColor: COLOR.BUTTON_COLOR}}
-          isShadow={true}
-          isVisible={true}
-          name={'drop table'}
+            showSettings(); // showShemeAlbumsTable('AlbumsTable')
+          }}>
+          настройки
+        </Button>
+        <Button
+          mode="contained"
           onPress={() => {
             dropTable('AlbumsTable');
-          }}
-        />
+          }}>
+          Дропнуть таблицу
+        </Button>
       </View>
       <NaviBar
         openModalAlbum={openCreateAlbumModal}
