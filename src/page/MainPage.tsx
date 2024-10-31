@@ -40,6 +40,8 @@ const MainPage: React.FC = () => {
 
   const [isModalVisible, setModalVisible] = useState(false);
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
+  const [isDarkTheme, setIsDarkTheme] = useState(true);
+
   const [appSettings, setAppSettings] = useState({
     darkMode: false,
     sortOrder: 'newest' as 'newest' | 'oldest',
@@ -48,7 +50,8 @@ const MainPage: React.FC = () => {
 
   useEffect(() => {
     getSettings(setAppSettings);
-  }, []);
+    setIsDarkTheme(appSettings.darkMode);
+  }, [appSettings.darkMode]);
 
   useEffect(() => {
     getAllAlbums((fetchedAlbums: Album[]) => {
@@ -80,6 +83,8 @@ const MainPage: React.FC = () => {
     };
     addAlbum(albumToInsert), getAllAlbums(setAlbums);
   };
+
+  const styles = getStyles(isDarkTheme);
 
   return (
     <View style={styles.root}>
@@ -151,65 +156,128 @@ const MainPage: React.FC = () => {
     </View>
   );
 };
-
 export default MainPage;
 
-const styles = StyleSheet.create({
-  root: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    backgroundColor: COLOR.MAIN_COLOR,
-  },
-  topSpacer: {
-    height: '15%',
-  },
-  container: {
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-  },
-  placeHolder: {
-    flex: 1,
-    backgroundColor: 'transparent',
-    margin: 10,
-    height: 220,
-  },
-  imagePlace: {
-    flex: 1,
-    width: '100%',
-    borderWidth: 0.5,
-    borderColor: 'white',
-    borderRadius: 10,
-    aspectRatio: 1,
-  },
-  image: {
-    height: '100%',
-    width: '100%',
-    borderRadius: 10,
-  },
-  textImageHolder: {
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    paddingLeft: 2,
-    height: 40,
-    width: '100%',
-    zIndex: 10,
-  },
-  textNameAlbum: {
-    fontSize: 14,
-    color: 'white',
-  },
-  textCountPhoto: {
-    fontSize: 12,
-    color: '#ACACAC',
-  },
-  text: {
-    color: 'white',
-    alignItems: 'center',
-    fontSize: 18,
-  },
-  testBlock: {
-    justifyContent: 'center',
-    flexDirection: 'row',
-    marginBottom: 200,
-  },
-});
+const getStyles = (isDarkTheme: boolean) => {
+  return StyleSheet.create({
+    root: {
+      flexGrow: 1,
+      justifyContent: 'center',
+      backgroundColor: isDarkTheme
+        ? COLOR.dark.MAIN_COLOR
+        : COLOR.light.MAIN_COLOR,
+    },
+    topSpacer: {
+      height: '15%',
+    },
+    container: {
+      paddingHorizontal: 10,
+      paddingVertical: 10,
+    },
+    placeHolder: {
+      flex: 1,
+      backgroundColor: 'transparent',
+      margin: 10,
+      height: 220,
+    },
+    imagePlace: {
+      flex: 1,
+      width: '100%',
+      borderWidth: 0.5,
+      borderColor: 'white',
+      borderRadius: 10,
+      aspectRatio: 1,
+    },
+    image: {
+      height: '100%',
+      width: '100%',
+      borderRadius: 10,
+    },
+    textImageHolder: {
+      justifyContent: 'flex-start',
+      alignItems: 'flex-start',
+      paddingLeft: 2,
+      height: 40,
+      width: '100%',
+      zIndex: 10,
+    },
+    textNameAlbum: {
+      fontSize: 14,
+      color: isDarkTheme ? 'white' : 'black',
+    },
+    textCountPhoto: {
+      fontSize: 12,
+      color: isDarkTheme ? '#ACACAC' : 'grey',
+    },
+    testBlock: {
+      justifyContent: 'center',
+      flexDirection: 'row',
+      marginBottom: 200,
+    },
+  });
+};
+
+// const styles = StyleSheet.create({
+//   rootDark: {
+//     flexGrow: 1,
+//     justifyContent: 'center',
+//     backgroundColor: COLOR.dark.MAIN_COLOR,
+//   },
+//   rootLight: {
+//     flexGrow: 1,
+//     justifyContent: 'center',
+//     backgroundColor: COLOR.light.MAIN_COLOR,
+//   },
+//   topSpacer: {
+//     height: '15%',
+//   },
+//   container: {
+//     paddingHorizontal: 10,
+//     paddingVertical: 10,
+//   },
+//   placeHolder: {
+//     flex: 1,
+//     backgroundColor: 'transparent',
+//     margin: 10,
+//     height: 220,
+//   },
+//   imagePlace: {
+//     flex: 1,
+//     width: '100%',
+//     borderWidth: 0.5,
+//     borderColor: 'white',
+//     borderRadius: 10,
+//     aspectRatio: 1,
+//   },
+//   image: {
+//     height: '100%',
+//     width: '100%',
+//     borderRadius: 10,
+//   },
+//   textImageHolder: {
+//     justifyContent: 'flex-start',
+//     alignItems: 'flex-start',
+//     paddingLeft: 2,
+//     height: 40,
+//     width: '100%',
+//     zIndex: 10,
+//   },
+//   textNameAlbum: {
+//     fontSize: 14,
+//     color: 'white',
+//   },
+//   textCountPhoto: {
+//     fontSize: 12,
+//     color: '#ACACAC',
+//   },
+//   text: {
+//     color: 'white',
+//     alignItems: 'center',
+//     fontSize: 18,
+//   },
+//   testBlock: {
+//     justifyContent: 'center',
+//     flexDirection: 'row',
+//     marginBottom: 200,
+//   },
+// });

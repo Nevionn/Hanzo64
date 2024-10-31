@@ -85,6 +85,33 @@ const useGetSettings = () => {
   };
 };
 
+const useGetSettingsWithoutSetter = () => {
+  return () =>
+    new Promise((resolve, reject) => {
+      db.transaction(tx => {
+        tx.executeSql(
+          'SELECT * FROM SettingsTable LIMIT 1',
+          [],
+          (tx, results) => {
+            if (results.rows.length > 0) {
+              const row = results.rows.item(0);
+              const settingsObject = {
+                darkMode: !!row.darkMode,
+              };
+              resolve(settingsObject.darkMode);
+            } else {
+              resolve(false); // Если данных нет, возвращаем false как дефолт
+            }
+          },
+          error => {
+            console.error('Ошибка при получении darkMode:', error);
+            reject(error);
+          },
+        );
+      });
+    });
+};
+
 const useShowSettings = () => {
   return () => {
     db.transaction(tx => {
@@ -112,10 +139,12 @@ const useShowSettings = () => {
 export function useSettingsRequest() {
   const acceptSettings = useAcceptSettings();
   const getSettings = useGetSettings();
+  const getColorTheme = useGetSettingsWithoutSetter();
   const showSettings = useShowSettings();
   return {
     acceptSettings,
     getSettings,
+    getColorTheme,
     showSettings,
   };
 }

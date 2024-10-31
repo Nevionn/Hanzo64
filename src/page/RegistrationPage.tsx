@@ -86,7 +86,7 @@ const RegistrationPage = () => {
           <View style={styles.buttonsItem}>
             <Cbutton
               styleButton={styles.startButton}
-              colorButton={{backgroundColor: COLOR.BUTTON_COLOR_INACTIVE}}
+              colorButton={{backgroundColor: COLOR.dark.BUTTON_COLOR_INACTIVE}}
               isShadow={true}
               isVisible={true}
               name={'Пропустить'}
@@ -97,7 +97,7 @@ const RegistrationPage = () => {
             <Cbutton
               styleButton={styles.startButton}
               styleText={styles.textButtonSetPinCode}
-              colorButton={{backgroundColor: COLOR.BUTTON_COLOR}}
+              colorButton={{backgroundColor: COLOR.dark.BUTTON_COLOR}}
               isShadow={true}
               isVisible={true}
               name={'Установить пин-код'}
@@ -108,7 +108,7 @@ const RegistrationPage = () => {
             <Cbutton
               styleButton={styles.startButton}
               styleText={styles.textButtonSetPinCode}
-              colorButton={{backgroundColor: COLOR.BUTTON_COLOR}}
+              colorButton={{backgroundColor: COLOR.dark.BUTTON_COLOR}}
               isShadow={true}
               isVisible={true}
               name={'Проверить таблицу'}
@@ -119,7 +119,7 @@ const RegistrationPage = () => {
             <Cbutton
               styleButton={styles.startButton}
               styleText={styles.textButtonSetPinCode}
-              colorButton={{backgroundColor: COLOR.BUTTON_COLOR}}
+              colorButton={{backgroundColor: COLOR.dark.BUTTON_COLOR}}
               isShadow={true}
               isVisible={true}
               name={'Проверить пинкод'}
@@ -130,7 +130,7 @@ const RegistrationPage = () => {
             <Cbutton
               styleButton={styles.startButton}
               styleText={styles.textButtonSetPinCode}
-              colorButton={{backgroundColor: COLOR.BUTTON_COLOR}}
+              colorButton={{backgroundColor: COLOR.dark.BUTTON_COLOR}}
               isShadow={true}
               isVisible={true}
               name={'Удалить таблицу'}
@@ -141,7 +141,7 @@ const RegistrationPage = () => {
             <Cbutton
               styleButton={styles.startButton}
               styleText={styles.textButtonSetPinCode}
-              colorButton={{backgroundColor: COLOR.BUTTON_COLOR}}
+              colorButton={{backgroundColor: COLOR.dark.BUTTON_COLOR}}
               isShadow={true}
               isVisible={true}
               name={'Схема'}
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLOR.MAIN_COLOR,
+    backgroundColor: COLOR.dark.MAIN_COLOR,
   },
   greetingsItem: {
     justifyContent: 'center',

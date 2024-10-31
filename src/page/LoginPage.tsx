@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLOR.MAIN_COLOR,
+    backgroundColor: COLOR.dark.MAIN_COLOR,
   },
   greetingsItem: {
     justifyContent: 'center',

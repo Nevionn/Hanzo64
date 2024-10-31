@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   modalContainer: {
     width: '80%',
     padding: 20,
-    backgroundColor: COLOR.SECONDARY_COLOR,
+    backgroundColor: COLOR.dark.SECONDARY_COLOR,
     borderRadius: 10,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
