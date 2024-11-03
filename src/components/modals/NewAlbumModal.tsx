@@ -40,6 +40,7 @@ const NewAlbumModal: React.FC<NewAlbumModalProps> = ({
           <Text style={styles.title}>Создать новый альбом</Text>
           <TextInput
             style={styles.input}
+            placeholderTextColor={'#ccc'}
             placeholder="Название альбома"
             value={title}
             onChangeText={setTitle}

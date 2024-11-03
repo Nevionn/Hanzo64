@@ -83,7 +83,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           <Text style={styles.modalTitle}>Настройки</Text>
 
           <View style={styles.setting}>
-            <Text>Темная тема</Text>
+            <Text style={styles.smallText}>Темная тема</Text>
             <Switch
               value={settings.darkMode}
               onValueChange={() => toggleSwitch('darkMode')}
@@ -92,24 +92,33 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           <Divider />
           <View style={styles.topSpacer} />
           <View style={styles.sortItem}>
-            <Text>Сортировка:</Text>
+            <Text style={styles.smallText}>Сортировка:</Text>
             <Picker
               selectedValue={settings.sortOrder}
               style={styles.pickerItem}
+              dropdownIconColor={'white'}
               onValueChange={itemValue =>
                 setSettings(prevSettings => ({
                   ...prevSettings,
                   sortOrder: itemValue as 'newest' | 'oldest',
                 }))
               }>
-              <Picker.Item label="Новые альбомы" value="newest" />
-              <Picker.Item label="Старые альбомы" value="oldest" />
+              <Picker.Item
+                style={styles.text}
+                label="Новые альбомы"
+                value="newest"
+              />
+              <Picker.Item
+                style={styles.text}
+                label="Старые альбомы"
+                value="oldest"
+              />
             </Picker>
           </View>
           <Divider />
           {safetyVisible && (
             <View style={styles.securItem}>
-              <Text>Безопасность:</Text>
+              <Text style={styles.smallText}>Безопасность:</Text>
               <View style={styles.topSpacer} />
               <Button
                 textColor={COLOR.dark.BUTTON_TEXT}
@@ -153,6 +162,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
+    color: 'white',
   },
   setting: {
     flexDirection: 'row',
@@ -182,6 +192,12 @@ const styles = StyleSheet.create({
   },
   topSpacer: {
     height: 10,
+  },
+  text: {
+    color: 'white',
+  },
+  smallText: {
+    color: '#BABABA',
   },
 });
 
