@@ -18,7 +18,7 @@ interface SettingsModalProps {
 
 interface Settings {
   darkMode: boolean;
-  sortOrder: 'newest' | 'oldest';
+  sortOrder: 'newest' | 'oldest' | 'byName';
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -113,7 +113,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               onValueChange={itemValue =>
                 setSettings(prevSettings => ({
                   ...prevSettings,
-                  sortOrder: itemValue as 'newest' | 'oldest',
+                  sortOrder: itemValue as Settings['sortOrder'],
                 }))
               }>
               <Picker.Item
@@ -125,6 +125,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 style={styles.text}
                 label="Старые альбомы"
                 value="oldest"
+              />
+              <Picker.Item
+                style={styles.text}
+                label="По имени"
+                value="byName"
               />
             </Picker>
           </View>

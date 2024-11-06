@@ -45,7 +45,7 @@ const MainPage: React.FC = () => {
 
   const [appSettings, setAppSettings] = useState({
     darkMode: false,
-    sortOrder: 'newest' as 'newest' | 'oldest',
+    sortOrder: 'newest' as 'newest' | 'oldest' | 'byName',
   });
   const [albums, setAlbums] = useState<Album[]>([]);
 
@@ -56,13 +56,7 @@ const MainPage: React.FC = () => {
 
   useEffect(() => {
     const updateAlbums = () => {
-      getAllAlbums((fetchedAlbums: Album[]) => {
-        const sortedAlbums =
-          appSettings.sortOrder === 'oldest'
-            ? [...fetchedAlbums].reverse()
-            : fetchedAlbums;
-        setAlbums(sortedAlbums);
-      });
+      getAllAlbums(setAlbums, appSettings.sortOrder);
     };
 
     updateAlbums();
@@ -78,7 +72,7 @@ const MainPage: React.FC = () => {
   const saveSettings = (newSettings: typeof appSettings) => {
     setAppSettings(newSettings);
     console.log('Настройки сохранены:', newSettings);
-    acceptSettings(newSettings); // Передаём настройки в базу данных
+    acceptSettings(newSettings);
   };
 
   const openCreateAlbumModal = () => setModalAddAlbumVisible(true);
@@ -91,7 +85,7 @@ const MainPage: React.FC = () => {
       countPhoto: 0,
       created_at: currentDate.toLocaleString(),
     };
-    addAlbum(albumToInsert), getAllAlbums(setAlbums);
+    addAlbum(albumToInsert), getAllAlbums(setAlbums, appSettings.sortOrder);
   };
 
   const styles = getStyles(isDarkTheme);

@@ -30,16 +30,28 @@ const useAddNewAlbumToTable = () => {
 };
 
 const useGetAllAlbums = () => {
-  return setAlbums => {
+  return (setAlbums, orderState) => {
+    // Определяем порядок сортировки и столбец
+    let sortColumn = 'created_at';
+    let sortOrder = 'DESC';
+
+    if (orderState === 'oldest') {
+      sortOrder = 'DESC';
+    } else if (orderState === 'newest') {
+      sortOrder = 'ASC';
+    } else {
+      sortColumn = 'title';
+      sortOrder = 'ASC';
+    }
+
     db.transaction(tx => {
       tx.executeSql(
-        'SELECT * FROM AlbumsTable ORDER BY created_at DESC', // Сначала новые записи
+        `SELECT * FROM AlbumsTable ORDER BY ${sortColumn} ${sortOrder}`,
         [],
         (tx, results) => {
           const albumsList = [];
-
           for (let i = 0; i < results.rows.length; i++) {
-            albumsList.unshift(results.rows.item(i));
+            albumsList.push(results.rows.item(i));
           }
           setAlbums(albumsList);
         },
