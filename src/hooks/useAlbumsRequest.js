@@ -80,6 +80,23 @@ const useDeleteAllAlbums = () => {
   };
 };
 
+const useDeleteAlbum = () => {
+  return id => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'DELETE FROM AlbumsTable WHERE id = ?',
+        [id],
+        (_, results) => {
+          console.log(`Альбом с id ${id} удален из таблицы.`);
+        },
+        error => {
+          console.error('Ошибка при удалении альбома:', error);
+        },
+      );
+    });
+  };
+};
+
 const useShowAlbums = () => {
   return () => {
     db.transaction(tx => {
@@ -129,6 +146,7 @@ export function useAlbumsRequest() {
   const addAlbum = useAddNewAlbumToTable();
   const showAlbums = useShowAlbums();
   const deleteAllAlbums = useDeleteAllAlbums();
+  const deleteAlbum = useDeleteAlbum();
   const showShemeAlbumsTable = useShowShemeAlbumsTable();
   const getAllAlbums = useGetAllAlbums();
 
@@ -136,6 +154,7 @@ export function useAlbumsRequest() {
     addAlbum,
     showAlbums,
     deleteAllAlbums,
+    deleteAlbum,
     showShemeAlbumsTable,
     getAllAlbums,
   };

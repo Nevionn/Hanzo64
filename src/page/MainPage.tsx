@@ -19,7 +19,6 @@ import {useNavigation} from '@react-navigation/native';
 import {usePinCodeRequest} from '../hooks/usePinCodeRequest';
 import {useAlbumsRequest} from '../hooks/useAlbumsRequest';
 import {useSettingsRequest} from '../hooks/useSettingsRequest';
-import ImageViewer from '../components/ImageViewer';
 import NewAlbumModal from '../components/modals/NewAlbumModal';
 import SettingsModal from '../components/modals/SettingsModal';
 import PhotoPage from './PhotoPage';
@@ -93,8 +92,9 @@ const MainPage: React.FC = () => {
     addAlbum(albumToInsert), getAllAlbums(setAlbums, appSettings.sortOrder);
   };
 
-  const openAlbum = () => {
-    navigation.navigate('PhotoPage');
+  const openAlbum = (album: Album) => {
+    // console.log('Информация об альбоме:', album);
+    navigation.navigate('PhotoPage', {album}); // Можно использовать для перехода на другую страницу с передачей данных
   };
 
   const styles = getStyles(isDarkTheme);
@@ -114,7 +114,7 @@ const MainPage: React.FC = () => {
         renderItem={({item}) => (
           <TouchableOpacity
             style={styles.placeHolder}
-            onPress={() => openAlbum()}>
+            onPress={() => openAlbum(item)}>
             <View style={styles.imagePlace}>
               <Image
                 source={require('../../assets/images/not_img_default.png')}
@@ -145,16 +145,13 @@ const MainPage: React.FC = () => {
         onClose={() => setIsSettingsModalVisible(false)}
         onSave={saveSettings}
       />
-      {/* <View>
-        <ImageViewer />
-      </View> */}
-      {/* <View style={styles.testBlock}>
+      <View style={styles.testBlock}>
         <Button
           mode="contained"
           onPress={() => {
             showAlbums(); // showShemeAlbumsTable('AlbumsTable')
           }}>
-          настройки
+          посмотреть таблицу
         </Button>
         <Button
           mode="contained"
@@ -163,7 +160,7 @@ const MainPage: React.FC = () => {
           }}>
           Дропнуть таблицу
         </Button>
-      </View> */}
+      </View>
       <NaviBar
         openModalAlbum={openCreateAlbumModal}
         openModalSettings={openSettings}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,16 +6,38 @@ import {
   TouchableOpacity,
   StatusBar,
   ImageBackground,
+  Modal,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import SvgLeftArrow from './icons/SvgLeftArrow';
 import SvgDotsVertical from './icons/SvgDotsVertical';
 import NaviBarPhotoProps from '../types/NaviBarPhotoProps';
 import {IconButton} from 'react-native-paper';
+import AcceptMoveModal from './modals/AcceptMoveModal';
+import {useAlbumsRequest} from '../hooks/useAlbumsRequest';
+import {ModalText} from '../../assets/textForModal';
 
-const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({}) => {
+const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({titleAlbum, idAlbum}) => {
   const navigation: any = useNavigation();
   const statusBarHeight: any = StatusBar.currentHeight;
+
+  const {} = useAlbumsRequest();
+
+  const [isMiniModalVisible, setIsMiniModalVisible] = useState(false);
+  const [isAcceptMoveModalVisible, setIsAcceptMoveModalVisible] =
+    useState(false);
+
+  const toggleMiniModal = () => {
+    setIsMiniModalVisible(!isMiniModalVisible);
+  };
+
+  const handleOpenAcceptMoveModal = () => {
+    setIsAcceptMoveModalVisible(true);
+  };
+
+  const handleCloseAcceptMoveModal = () => {
+    setIsAcceptMoveModalVisible(false);
+  };
 
   return (
     <>
@@ -29,13 +51,50 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({}) => {
           <IconButton
             icon={() => <SvgDotsVertical />}
             size={30}
-            onPress={() => console.log('Pressed')}
+            onPress={toggleMiniModal}
           />
         </View>
         <View style={styles.titleAlbumItem}>
-          <Text style={styles.title}>Test</Text>
+          <Text style={styles.title}>
+            {titleAlbum}
+            {'  '}
+            {idAlbum}
+          </Text>
         </View>
       </View>
+
+      <Modal
+        visible={isMiniModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={toggleMiniModal}>
+        <TouchableOpacity
+          style={styles.overlay}
+          onPress={toggleMiniModal} // Закрытие модалки при нажатии вне
+        >
+          <View style={styles.modalContent}>
+            <TouchableOpacity onPress={() => console.log('Добавить фото')}>
+              <Text style={styles.modalItem}>Добавить фото</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => console.log('Редактировать')}>
+              <Text style={styles.modalItem}>Редактировать</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                handleOpenAcceptMoveModal(), toggleMiniModal();
+              }}>
+              <Text style={styles.modalItem}>Удалить</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+      <AcceptMoveModal
+        visible={isAcceptMoveModalVisible}
+        onClose={handleCloseAcceptMoveModal}
+        title={ModalText.deleteAlbum.title}
+        textBody={ModalText.deleteAlbum.textBody}
+        idAlbum={idAlbum}
+      />
     </>
   );
 };
@@ -77,9 +136,23 @@ const styles = StyleSheet.create({
     fontWeight: 'medium',
     marginLeft: 24,
   },
-  touchArea: {
-    backgroundColor: 'transparent',
-    padding: 8,
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-start',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 10,
+    borderRadius: 8,
+    position: 'absolute',
+    right: 10,
+    top: 50, // Здесь задается примерная позиция
+  },
+  modalItem: {
+    padding: 10,
+    fontSize: 16,
+    color: 'black',
   },
 });
 

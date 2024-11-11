@@ -1,5 +1,6 @@
 interface NaviBarPhotoProps {
-  goBack: () => void;
+  titleAlbum: string;
+  idAlbum: string;
 }
 
 export default NaviBarPhotoProps;

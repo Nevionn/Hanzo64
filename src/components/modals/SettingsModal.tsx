@@ -3,6 +3,7 @@ import {View, Text, Switch, StyleSheet, Modal} from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import {Button, Divider} from 'react-native-paper';
 import {COLOR} from '../../../assets/colorTheme';
+import {ModalText} from '../../../assets/textForModal';
 import {useSettingsRequest} from '../../hooks/useSettingsRequest';
 import {usePinCodeRequest} from '../../hooks/usePinCodeRequest';
 import {useNavigation} from '@react-navigation/native';
@@ -171,6 +172,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         <AcceptMoveModal
           visible={isVisibleAcceptModal}
           onClose={handleCloseAcceptModal}
+          title={ModalText.deleteAllAlbums.title}
+          textBody={ModalText.deleteAllAlbums.textBody}
         />
       </View>
     </Modal>
