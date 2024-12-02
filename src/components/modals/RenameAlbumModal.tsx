@@ -36,7 +36,7 @@ const RenameAlbumModal: React.FC<RenameAlbumModalProps> = ({
 
   const handleCloseModal = () => {
     onClose();
-    setTitleAlbum('');
+    setTitleAlbum(title);
   };
 
   return (
