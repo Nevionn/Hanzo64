@@ -94,6 +94,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const deleteAllAlbumsExpand = () => {
     deleteAllAlbums(),
+      deleteAllPhotos(),
       handleCloseAcceptModal(),
       eventEmitter.emit('albumsUpdated');
   };

@@ -121,6 +121,23 @@ const useGetPhotoFromAlbum = () => {
 };
 
 const useDeleteAllPhotos = () => {
+  return () => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'DELETE FROM PhotosTable',
+        [],
+        (_, results) => {
+          console.log(`Все фотографии, всех альбомов успешно удалены.`);
+        },
+        error => {
+          console.error('Ошибка при удалении фотографий:', error);
+        },
+      );
+    });
+  };
+};
+
+const useDeleteAllPhotosCurrentAlbum = () => {
   return albumId => {
     db.transaction(tx => {
       tx.executeSql(
@@ -242,6 +259,7 @@ export function usePhotoRequest() {
   const addPhoto = useAddPhotoInAlbum();
   const getPhoto = useGetPhotoFromAlbum();
   const deleteAllPhotos = useDeleteAllPhotos();
+  const deleteAllPhotosCurrentAlbum = useDeleteAllPhotosCurrentAlbum();
   const deletePhoto = useDeletePhoto();
   const dropTable = useClearTable();
   const showTable = useShowPhotos();
@@ -250,6 +268,7 @@ export function usePhotoRequest() {
     addPhoto,
     getPhoto,
     deleteAllPhotos,
+    deleteAllPhotosCurrentAlbum,
     deletePhoto,
     dropTable,
     showTable,

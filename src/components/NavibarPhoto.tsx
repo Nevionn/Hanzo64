@@ -22,7 +22,7 @@ import RenameAlbumModal from './modals/RenameAlbumModal';
 
 const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({titleAlbum, idAlbum}) => {
   const {deleteAlbum} = useAlbumsRequest();
-  const {addPhoto, deleteAllPhotos} = usePhotoRequest();
+  const {addPhoto, deleteAllPhotosCurrentAlbum} = usePhotoRequest();
 
   const navigation: any = useNavigation();
   const statusBarHeight: any = StatusBar.currentHeight;
@@ -85,7 +85,7 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({titleAlbum, idAlbum}) => {
   };
 
   const deleteAlbumExpand = () => {
-    deleteAllPhotos(idAlbum);
+    deleteAllPhotosCurrentAlbum(idAlbum);
     deleteAlbum(idAlbum);
     handleCloseAcceptMoveModal();
     eventEmitter.emit('albumsUpdated');
