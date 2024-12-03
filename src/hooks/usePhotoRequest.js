@@ -21,28 +21,6 @@ db.transaction(tx => {
   );
 });
 
-// const useAddPhotoInAlbum = () => {
-//   return photoData => {
-//     db.transaction(tx => {
-//       tx.executeSql(
-//         'INSERT INTO PhotosTable (album_id, title, photo, created_at) VALUES (?, ?, ?, ?)',
-//         [
-//           photoData.album_id,
-//           photoData.title,
-//           photoData.photo,
-//           photoData.created_at,
-//         ],
-//         (_, results) => {
-//           console.log('Фотография успешно добавлена в альбом.');
-//         },
-//         error => {
-//           console.error('Ошибка при добавлении фотографии:', error);
-//         },
-//       );
-//     });
-//   };
-// };
-
 const useAddPhotoInAlbum = () => {
   return photoData => {
     db.transaction(tx => {
@@ -109,7 +87,7 @@ const useGetPhotoFromAlbum = () => {
   };
 };
 
-const useDeletePhotosByAlbumId = () => {
+const useDeleteAllPhotos = () => {
   return albumId => {
     db.transaction(tx => {
       tx.executeSql(
@@ -129,13 +107,28 @@ const useDeletePhotosByAlbumId = () => {
 const useDeletePhoto = () => {
   return (albumId, photoId) => {
     db.transaction(tx => {
+      // Удаление фотографии
       tx.executeSql(
-        'DELETE FROM PhotosTable WHERE album_id = ? AND id = ?', // SQL-запрос
-        [albumId, photoId], // Параметры для подстановки в запрос
+        'DELETE FROM PhotosTable WHERE album_id = ? AND id = ?',
+        [albumId, photoId],
         (_, results) => {
           if (results.rowsAffected > 0) {
             console.log(
               `Фотография с ID ${photoId} из альбома с ID ${albumId} успешно удалена.`,
+            );
+            // После успешного удаления обновляем счётчик фотографий
+            tx.executeSql(
+              'UPDATE AlbumsTable SET countPhoto = countPhoto - 1 WHERE id = ? AND countPhoto > 0',
+              [albumId],
+              (_, updateResults) => {
+                console.log('Счётчик фотографий успешно обновлён.');
+              },
+              error => {
+                console.error(
+                  'Ошибка при обновлении счётчика фотографий:',
+                  error,
+                );
+              },
             );
           } else {
             console.log('Фотография не найдена.');
@@ -215,7 +208,7 @@ export const useShowShemePhotoTable = () => {
 export function usePhotoRequest() {
   const addPhoto = useAddPhotoInAlbum();
   const getPhoto = useGetPhotoFromAlbum();
-  const deleteAllPhotos = useDeletePhotosByAlbumId();
+  const deleteAllPhotos = useDeleteAllPhotos();
   const deletePhoto = useDeletePhoto();
   const dropTable = useClearTable();
   const pidoras = useShowPhotos();

@@ -33,10 +33,11 @@ const EditPhotoMiniModal: React.FC<EditPhotoMiniModalProps> = ({
   };
 
   const deletePhotoExpand = () => {
-    deletePhoto(idAlbum, idPhoto);
+    deletePhoto(idAlbum, idPhoto); // дописать метод (понизить счетчик фотографий - 1) !
     handleCloseAcceptMoveModal();
     onCloseImgViewer();
     eventEmitter.emit('photosUpdated');
+    eventEmitter.emit('albumsUpdated');
   };
 
   return (
