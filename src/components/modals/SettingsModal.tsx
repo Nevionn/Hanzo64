@@ -5,6 +5,7 @@ import {Button, Divider} from 'react-native-paper';
 import {COLOR} from '../../../assets/colorTheme';
 import {ModalText} from '../../../assets/textForModal';
 import {useAlbumsRequest} from '../../hooks/useAlbumsRequest';
+import {usePhotoRequest} from '../../hooks/usePhotoRequest';
 import {useSettingsRequest} from '../../hooks/useSettingsRequest';
 import {usePinCodeRequest} from '../../hooks/usePinCodeRequest';
 import {useNavigation} from '@react-navigation/native';
@@ -30,6 +31,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   onSave,
 }) => {
   const {deleteAllAlbums} = useAlbumsRequest();
+  const {deleteAllPhotos} = usePhotoRequest();
+
   const navigation: any = useNavigation();
 
   const {checkActivePinCode} = usePinCodeRequest();

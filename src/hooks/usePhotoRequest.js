@@ -24,7 +24,7 @@ db.transaction(tx => {
 const useAddPhotoInAlbum = () => {
   return photoData => {
     db.transaction(tx => {
-      // Добавление фотографии
+      // Добавление новой фотографии
       tx.executeSql(
         'INSERT INTO PhotosTable (album_id, title, photo, created_at) VALUES (?, ?, ?, ?)',
         [
@@ -35,7 +35,8 @@ const useAddPhotoInAlbum = () => {
         ],
         (_, results) => {
           console.log('Фотография успешно добавлена в альбом.');
-          // После успешного добавления обновляем счётчик фотографий
+
+          // Обновление счётчика фотографий
           tx.executeSql(
             'UPDATE AlbumsTable SET countPhoto = countPhoto + 1 WHERE id = ?',
             [photoData.album_id],
@@ -45,6 +46,38 @@ const useAddPhotoInAlbum = () => {
             error => {
               console.error(
                 'Ошибка при обновлении счётчика фотографий:',
+                error,
+              );
+            },
+          );
+
+          // Проверка и установка обложки, если её нет
+          tx.executeSql(
+            'SELECT coverPhoto FROM AlbumsTable WHERE id = ?',
+            [photoData.album_id],
+            (_, selectResults) => {
+              const coverPhoto = selectResults.rows.item(0)?.coverPhoto;
+
+              if (!coverPhoto) {
+                // Устанавливаем текущую фотографию как обложку
+                tx.executeSql(
+                  'UPDATE AlbumsTable SET coverPhoto = ? WHERE id = ?',
+                  [photoData.photo, photoData.album_id],
+                  () => {
+                    console.log('Обложка альбома обновлена.');
+                  },
+                  error => {
+                    console.error(
+                      'Ошибка при обновлении обложки альбома:',
+                      error,
+                    );
+                  },
+                );
+              }
+            },
+            error => {
+              console.error(
+                'Ошибка при проверке текущей обложки альбома:',
                 error,
               );
             },
@@ -211,7 +244,7 @@ export function usePhotoRequest() {
   const deleteAllPhotos = useDeleteAllPhotos();
   const deletePhoto = useDeletePhoto();
   const dropTable = useClearTable();
-  const pidoras = useShowPhotos();
+  const showTable = useShowPhotos();
   const showSheme = useShowShemePhotoTable();
   return {
     addPhoto,
@@ -219,7 +252,7 @@ export function usePhotoRequest() {
     deleteAllPhotos,
     deletePhoto,
     dropTable,
-    pidoras,
+    showTable,
     showSheme,
   };
 }

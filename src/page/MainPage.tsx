@@ -34,6 +34,7 @@ interface Album {
   title: string;
   countPhoto: number;
   created_at: string;
+  coverPhoto: string;
 }
 
 const MainPage: React.FC = () => {
@@ -43,7 +44,7 @@ const MainPage: React.FC = () => {
   const {addAlbum, getAllAlbums, showAlbums, showShemeAlbumsTable} =
     useAlbumsRequest();
   const {acceptSettings, getSettings, showSettings} = useSettingsRequest();
-  const {dropTable} = usePhotoRequest();
+  const {dropTable, showTable} = usePhotoRequest();
 
   const [isModalAddAlbumVisible, setModalAddAlbumVisible] = useState(false);
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
@@ -113,16 +114,23 @@ const MainPage: React.FC = () => {
       <FlatList
         data={albums}
         numColumns={2}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item.id.toString()}
         renderItem={({item}) => (
           <TouchableOpacity
             style={styles.placeHolder}
             onPress={() => openAlbum(item)}>
             <View style={styles.imagePlace}>
-              <Image
-                source={require('../../assets/images/not_img_default.png')}
-                style={styles.image}
-              />
+              {item.coverPhoto ? (
+                <Image
+                  source={{uri: `data:image/jpeg;base64,${item.coverPhoto}`}}
+                  style={styles.image}
+                />
+              ) : (
+                <Image
+                  source={require('../../assets/images/not_img_default.png')}
+                  style={styles.image}
+                />
+              )}
             </View>
             <View style={styles.textImageHolder}>
               <Text style={styles.textNameAlbum}>
@@ -152,7 +160,7 @@ const MainPage: React.FC = () => {
         <Button
           mode="contained"
           onPress={() => {
-            showAlbums(); // showShemeAlbumsTable('AlbumsTable')
+            showTable(); // showShemeAlbumsTable('AlbumsTable')
           }}>
           посмотреть таблицу
         </Button>

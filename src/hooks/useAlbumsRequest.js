@@ -4,7 +4,7 @@ const db = SQLite.openDatabase({name: 'database.db', location: 'default'});
 
 db.transaction(tx => {
   tx.executeSql(
-    'CREATE TABLE IF NOT EXISTS AlbumsTable (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, countPhoto INTEGER, created_at TEXT)',
+    'CREATE TABLE IF NOT EXISTS AlbumsTable (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, countPhoto INTEGER, created_at TEXT, coverPhoto TEXT)',
     [],
     (tx, results) => {
       console.log('Таблица альбомов создана');
