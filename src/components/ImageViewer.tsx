@@ -1,48 +1,136 @@
-import React, {useState, useEffect} from 'react';
-import {Modal, StyleSheet, Text, View, Dimensions} from 'react-native';
+import React, {useState, useEffect, useRef} from 'react';
+import {
+  View,
+  Text,
+  Modal,
+  Dimensions,
+  FlatList,
+  StyleSheet,
+  Image,
+} from 'react-native';
 import {ReactNativeZoomableView} from '@openspacelabs/react-native-zoomable-view';
-import FastImage from 'react-native-fast-image';
-import Video from 'react-native-video';
-import EditPhotoMiniModal from './modals/EditPhotoMiniModal';
 import {IconButton} from 'react-native-paper';
 import SvgDotsVertical from './icons/SvgDotsVertical';
 import SvgLeftArrow from './icons/SvgLeftArrow';
+import EditPhotoMiniModal from './modals/EditPhotoMiniModal';
 
 const {width, height} = Dimensions.get('window');
 const INFOBAR_HEIGHT = 60;
 
+interface PhotoItem {
+  id: number;
+  photo: string;
+}
+
 interface ImageViewerProps {
   visible: boolean;
   onCloseImgViewer: () => void;
-  infoAboutPhoto: {
-    imageSource: string;
-    countAllImages: number;
-    countPhoto: number;
-    idPhoto: number;
-    idAlbum: number;
-  };
+  photos: PhotoItem[];
+  initialIndex: number;
+  idAlbum: number;
+  idPhoto: number;
 }
 
 const ImageViewer: React.FC<ImageViewerProps> = ({
   visible,
   onCloseImgViewer,
-  infoAboutPhoto,
+  photos,
+  initialIndex,
+  idAlbum,
+  idPhoto,
 }) => {
+  const [imageDimensions, setImageDimensions] = useState({
+    width: 1,
+    height: 1,
+  });
   const [isMiniModalVisible, setIsMiniModalVisible] = useState(false);
-  const [imageDimensions, setImageDimensions] = useState({width: 1, height: 1});
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [currentPhoto, setCurrentPhoto] = useState<PhotoItem | null>(
+    photos[initialIndex] || null,
+  );
+  const flatListRef = useRef<FlatList>(null);
 
   const handleOpenMiniModal = () => setIsMiniModalVisible(true);
   const handleCloseMiniModal = () => setIsMiniModalVisible(false);
 
-  const handleImageLoad = (event: any) => {
-    const {width: imgWidth, height: imgHeight} = event.nativeEvent;
-    setImageDimensions({width: imgWidth, height: imgHeight});
-  };
+  useEffect(() => {
+    const getSizeAndCalculateView = () => {
+      if (currentPhoto?.photo) {
+        Image.getSize(
+          `data:image/jpeg;base64,${currentPhoto.photo}`,
+          (imgWidth, imgHeight) => {
+            console.log('Image dimensions:', imgWidth, imgHeight);
 
-  const aspectRatio = imageDimensions.width / imageDimensions.height;
+            // Вычисляем масштабирование
+            const aspectRatio = imgWidth / imgHeight;
+            const maxWidth = width;
+            const maxHeight = height;
+            const displayWidth = Math.min(maxWidth, maxHeight * aspectRatio);
+            const displayHeight = Math.min(maxHeight, maxWidth / aspectRatio);
 
-  const contentWidth = width;
-  const contentHeight = Math.min(width / aspectRatio, height - INFOBAR_HEIGHT);
+            setImageDimensions({
+              width: displayWidth,
+              height: displayHeight,
+            });
+          },
+          error => {
+            console.error('Ошибка при получении размеров изображения:', error);
+          },
+        );
+      }
+    };
+
+    getSizeAndCalculateView();
+  }, [currentPhoto]);
+
+  // синхронизируем текущее фото с изменениями индекса
+  useEffect(
+    function changeIndexCarousel() {
+      if (photos[currentIndex]) {
+        setCurrentPhoto(photos[currentIndex]);
+      }
+    },
+    [currentIndex, photos],
+  );
+
+  // запускаем компонент с выбраной фотографией
+  useEffect(
+    function openViewerAtIndex() {
+      if (visible && flatListRef.current) {
+        flatListRef.current.scrollToIndex({
+          index: initialIndex,
+          animated: false,
+        });
+        setCurrentIndex(initialIndex);
+        setCurrentPhoto(photos[initialIndex]);
+      }
+    },
+    [visible, initialIndex, photos],
+  );
+
+  const renderItem = ({item}: {item: PhotoItem}) => (
+    <View style={styles.zoomableViewContainer}>
+      <View style={styles.swipeZoneLeft} />
+      <ReactNativeZoomableView
+        maxZoom={2.5}
+        minZoom={1}
+        zoomStep={1}
+        initialZoom={1}
+        bindToBorders={true}
+        disablePanOnInitialZoom={false}
+        contentWidth={imageDimensions.width}
+        contentHeight={imageDimensions.height}>
+        <Image
+          style={{width: width, height: height}}
+          source={{
+            uri: `data:image/jpeg;base64,${item.photo}`,
+          }}
+          resizeMode="contain"
+        />
+      </ReactNativeZoomableView>
+      <View style={styles.swipeZoneRight} />
+    </View>
+  );
 
   return (
     <Modal
@@ -58,7 +146,9 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
             onPress={onCloseImgViewer}
           />
           <Text style={styles.infoText}>
-            {`${infoAboutPhoto.countPhoto} из ${infoAboutPhoto.countAllImages}`}
+            {`${currentIndex + 1} из ${photos.length} (id: ${
+              currentPhoto?.id
+            })`}
           </Text>
           <IconButton
             icon={() => <SvgDotsVertical />}
@@ -67,33 +157,43 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
           />
         </View>
 
-        <View style={styles.zoomableViewContainer}>
-          <ReactNativeZoomableView
-            maxZoom={2.5}
-            minZoom={1}
-            zoomStep={0.5}
-            initialZoom={1}
-            bindToBorders={true}
-            contentWidth={contentWidth}
-            contentHeight={contentHeight}>
-            <FastImage
-              style={{width: contentWidth, height: contentHeight}}
-              source={{
-                uri: `data:image/jpeg;base64,${infoAboutPhoto.imageSource}`,
-              }}
-              resizeMode={FastImage.resizeMode.contain}
-              onLoad={handleImageLoad}
-            />
-          </ReactNativeZoomableView>
-        </View>
+        {/* Карусель фотографий */}
+        <FlatList
+          ref={flatListRef}
+          data={photos}
+          horizontal
+          windowSize={3}
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          initialScrollIndex={initialIndex}
+          keyExtractor={item => item.id.toString()}
+          renderItem={renderItem}
+          getItemLayout={(data, index) => ({
+            length: width,
+            offset: width * index,
+            index,
+          })}
+          onMomentumScrollEnd={event => {
+            const index = Math.round(event.nativeEvent.contentOffset.x / width);
+            setCurrentIndex(index);
+          }}
+          onScrollToIndexFailed={info => {
+            setTimeout(() => {
+              flatListRef.current?.scrollToIndex({
+                index: info.index,
+                animated: true,
+              });
+            }, 500);
+          }}
+        />
       </View>
 
       <EditPhotoMiniModal
         visible={isMiniModalVisible}
         onCloseEditModal={handleCloseMiniModal}
         onCloseImgViewer={onCloseImgViewer}
-        idPhoto={infoAboutPhoto.idPhoto}
-        idAlbum={infoAboutPhoto.idAlbum}
+        idPhoto={currentPhoto?.id || idPhoto}
+        idAlbum={idAlbum}
       />
     </Modal>
   );
@@ -114,7 +214,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     zIndex: 10,
-    height: 60,
+    height: INFOBAR_HEIGHT,
     width: '100%',
     backgroundColor: 'black',
   },
@@ -126,5 +226,20 @@ const styles = StyleSheet.create({
   zoomableViewContainer: {
     flex: 1,
     marginTop: INFOBAR_HEIGHT,
+    backgroundColor: 'green',
+  },
+  swipeZoneLeft: {
+    position: 'absolute',
+    left: 0,
+    width: 50,
+    height: '100%',
+    zIndex: 10,
+  },
+  swipeZoneRight: {
+    position: 'absolute',
+    right: 0,
+    width: 50,
+    height: '100%',
+    zIndex: 10,
   },
 });

@@ -66,6 +66,7 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({titleAlbum, idAlbum}) => {
 
     if (result.assets && result.assets.length > 0) {
       const {base64, uri, fileName} = result.assets[0];
+      console.log(result);
 
       if (base64) {
         try {
