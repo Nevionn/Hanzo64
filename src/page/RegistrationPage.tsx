@@ -25,9 +25,14 @@ const RegistrationPage = () => {
   const [installationPinStage, setInstallationPinStage] = useState(false);
   const [instruction, setInstruction] = useState('');
   const [pinCode, setPinCode] = useState('');
+  const [shouldResetPin, setShouldResetPin] = useState(false);
 
   const handlePinComplete = (pin: string) => {
     setPinCode(pin);
+  };
+
+  const handleResetPin = () => {
+    setShouldResetPin(true);
   };
 
   const skipInstallPinCode = () => {
@@ -47,6 +52,7 @@ const RegistrationPage = () => {
       }
     } catch (error) {
       Alert.alert('Введенный пин-код не совпадает с сохраненным');
+      handleResetPin();
     }
   };
 
@@ -120,7 +126,11 @@ const RegistrationPage = () => {
           </View>
         </View>
       ) : (
-        <PinCode onComplete={handlePinComplete} inputMode={inputMode} />
+        <PinCode
+          onComplete={handlePinComplete}
+          inputMode={inputMode}
+          onReset={shouldResetPin ? () => setShouldResetPin(false) : undefined}
+        />
       )}
     </ImageBackground>
   );

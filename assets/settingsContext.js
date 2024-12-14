@@ -5,8 +5,8 @@ const AppSettingsContext = createContext();
 
 export const AppSettingsProvider = ({children}) => {
   const [appSettings, setAppSettings] = useState({
-    darkMode: false,
-    sortOrder: 'newest', // 'newest' | 'oldest' | 'byName'
+    darkMode: null,
+    sortOrder: null,
   });
 
   const saveAppSettings = newSettings => {
