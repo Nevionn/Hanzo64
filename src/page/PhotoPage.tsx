@@ -9,9 +9,10 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {usePhotoRequest} from '../hooks/usePhotoRequest';
+import {useAppSettings} from '../../assets/settingsContext';
 import {COLOR} from '../../assets/colorTheme';
 import eventEmitter from '../../assets/eventEmitter';
-import {useRoute} from '@react-navigation/native';
+import {DarkTheme, useRoute} from '@react-navigation/native';
 import NavibarPhoto from '../components/NavibarPhoto';
 import ImageViewer from '../components/ImageViewer';
 import FastImage from 'react-native-fast-image';
@@ -25,11 +26,11 @@ interface PhotoObjectArray {
 }
 
 const PhotoPage = () => {
+  const {appSettings} = useAppSettings();
   const {getPhoto} = usePhotoRequest();
   const route: any = useRoute();
   const dataAlbum = route?.params;
 
-  const [isDarkTheme, setIsDarkTheme] = useState(true);
   const [isVisibleImageViewer, setIsVisibleImageViewer] = useState(false);
   const [photos, setPhotos] = useState<PhotoObjectArray[]>([]);
 
@@ -61,7 +62,7 @@ const PhotoPage = () => {
     };
   }, []);
 
-  const styles = getStyles(isDarkTheme);
+  const styles = getStyles(appSettings.darkMode);
 
   return (
     <View style={styles.root}>
@@ -89,7 +90,7 @@ const PhotoPage = () => {
         />
       ) : (
         <View style={styles.emptyDataItem}>
-          <Text>Тут пусто</Text>
+          <Text style={styles.text}>Тут пусто</Text>
         </View>
       )}
       <NavibarPhoto
@@ -108,13 +109,13 @@ const PhotoPage = () => {
   );
 };
 
-const getStyles = (isDarkTheme: boolean) => {
+const getStyles = (darkMode: boolean) => {
   return StyleSheet.create({
     root: {
       flexGrow: 1,
       justifyContent: 'center',
       paddingBottom: 62,
-      backgroundColor: isDarkTheme
+      backgroundColor: darkMode
         ? COLOR.dark.MAIN_COLOR
         : COLOR.light.MAIN_COLOR,
     },
@@ -135,6 +136,9 @@ const getStyles = (isDarkTheme: boolean) => {
     emptyDataItem: {
       justifyContent: 'center',
       alignItems: 'center',
+    },
+    text: {
+      color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
     },
   });
 };

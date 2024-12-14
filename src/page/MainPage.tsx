@@ -1,12 +1,9 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   StatusBar,
   StyleSheet,
   Text,
   View,
-  ScrollView,
-  RefreshControl,
-  ImageBackground,
   Dimensions,
   Image,
   FlatList,
@@ -14,19 +11,15 @@ import {
 } from 'react-native';
 import {COLOR} from '../../assets/colorTheme';
 import NaviBar from '../components/Navibar';
-import Cbutton from '../components/Cbutton';
 import {useNavigation} from '@react-navigation/native';
-import {usePinCodeRequest} from '../hooks/usePinCodeRequest';
 import {useAlbumsRequest} from '../hooks/useAlbumsRequest';
 import {useSettingsRequest} from '../hooks/useSettingsRequest';
 import {usePhotoRequest} from '../hooks/usePhotoRequest';
+import {useAppSettings, setButtonColor} from '../../assets/settingsContext';
 import NewAlbumModal from '../components/modals/NewAlbumModal';
 import SettingsModal from '../components/modals/SettingsModal';
-import PhotoPage from './PhotoPage';
-import {Image as SvgImage} from 'react-native-svg';
 import {Button} from 'react-native-paper';
-const {width} = Dimensions.get('window');
-const {height} = Dimensions.get('window');
+const {height, width} = Dimensions.get('window');
 import eventEmitter from '../../assets/eventEmitter';
 
 interface Album {
@@ -40,31 +33,23 @@ interface Album {
 const MainPage: React.FC = () => {
   const navigation: any = useNavigation();
 
-  const {showTableContent} = usePinCodeRequest();
-  const {addAlbum, getAllAlbums, showAlbums, showShemeAlbumsTable} =
-    useAlbumsRequest();
-  const {acceptSettings, getSettings, showSettings} = useSettingsRequest();
+  const {addAlbum, getAllAlbums} = useAlbumsRequest();
+  const {acceptSettings, getSettings} = useSettingsRequest();
   const {dropTable, showTable} = usePhotoRequest();
+  const {appSettings, saveAppSettings} = useAppSettings();
 
   const [isModalAddAlbumVisible, setModalAddAlbumVisible] = useState(false);
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
-  const [isDarkTheme, setIsDarkTheme] = useState(true);
 
-  const [appSettings, setAppSettings] = useState({
-    darkMode: false,
-    sortOrder: 'newest' as 'newest' | 'oldest' | 'byName',
-  });
   const [albums, setAlbums] = useState<Album[]>([]);
 
   useEffect(() => {
-    getSettings(setAppSettings);
-    setIsDarkTheme(appSettings.darkMode);
+    getSettings(saveAppSettings);
   }, [appSettings.darkMode]);
 
   useEffect(() => {
     const updateAlbums = () => {
       getAllAlbums(setAlbums, appSettings.sortOrder);
-      console.log(albums);
     };
 
     updateAlbums();
@@ -78,7 +63,7 @@ const MainPage: React.FC = () => {
   const openSettings = () => setIsSettingsModalVisible(true);
 
   const saveSettings = (newSettings: typeof appSettings) => {
-    setAppSettings(newSettings);
+    saveAppSettings(newSettings);
     console.log('Настройки сохранены:', newSettings);
     acceptSettings(newSettings);
   };
@@ -97,11 +82,10 @@ const MainPage: React.FC = () => {
   };
 
   const openAlbum = (album: Album) => {
-    // console.log('Информация об альбоме:', album);
     navigation.navigate('PhotoPage', {album});
   };
 
-  const styles = getStyles(isDarkTheme);
+  const styles = getStyles(appSettings.darkMode);
 
   return (
     <View style={styles.root}>
@@ -159,13 +143,15 @@ const MainPage: React.FC = () => {
       <View style={styles.testBlock}>
         <Button
           mode="contained"
+          buttonColor={setButtonColor(appSettings.darkMode)}
           onPress={() => {
-            showTable(); // showShemeAlbumsTable('AlbumsTable')
+            showTable();
           }}>
           посмотреть таблицу
         </Button>
         <Button
           mode="contained"
+          buttonColor={setButtonColor(appSettings.darkMode)}
           onPress={() => {
             dropTable('PhotosTable');
           }}>
@@ -181,12 +167,12 @@ const MainPage: React.FC = () => {
 };
 export default MainPage;
 
-const getStyles = (isDarkTheme: boolean) => {
+const getStyles = (darkMode: boolean) => {
   return StyleSheet.create({
     root: {
       flexGrow: 1,
       justifyContent: 'center',
-      backgroundColor: isDarkTheme
+      backgroundColor: darkMode
         ? COLOR.dark.MAIN_COLOR
         : COLOR.light.MAIN_COLOR,
     },
@@ -221,11 +207,11 @@ const getStyles = (isDarkTheme: boolean) => {
     },
     textNameAlbum: {
       fontSize: 14,
-      color: isDarkTheme ? 'white' : 'black',
+      color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
     },
     textCountPhoto: {
       fontSize: 12,
-      color: isDarkTheme ? '#ACACAC' : 'grey',
+      color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,
     },
     testBlock: {
       justifyContent: 'center',

@@ -8,6 +8,13 @@ import {useAlbumsRequest} from '../../hooks/useAlbumsRequest';
 import {usePhotoRequest} from '../../hooks/usePhotoRequest';
 import {useSettingsRequest} from '../../hooks/useSettingsRequest';
 import {usePinCodeRequest} from '../../hooks/usePinCodeRequest';
+import {
+  useAppSettings,
+  setButtonColor,
+  setButtonTextColorRecommendation,
+  setSvgIconColor,
+  setAlertColor,
+} from '../../../assets/settingsContext';
 import {useNavigation} from '@react-navigation/native';
 import eventEmitter from '../../../assets/eventEmitter';
 import SvgPassword from '../icons/SvgPassword';
@@ -34,6 +41,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   const {deleteAllPhotos} = usePhotoRequest();
   const {checkActivePinCode} = usePinCodeRequest();
   const {getSettings} = useSettingsRequest();
+  const {appSettings} = useAppSettings();
 
   const navigation: any = useNavigation();
 
@@ -109,6 +117,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     getSettings(setSettings);
   }, []);
 
+  const styles = getStyles(appSettings.darkMode);
+
   return (
     <Modal
       visible={visible}
@@ -133,7 +143,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             <Picker
               selectedValue={settings.sortOrder}
               style={styles.pickerItem}
-              dropdownIconColor={'white'}
+              dropdownIconColor={appSettings.darkMode ? 'white' : 'black'}
               onValueChange={itemValue =>
                 setSettings(prevSettings => ({
                   ...prevSettings,
@@ -163,16 +173,22 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             <View style={styles.topSpacer} />
             {safetyVisible ? (
               <Button
-                textColor={COLOR.dark.BUTTON_TEXT}
-                icon={() => <SvgPassword />}
+                textColor={setButtonTextColorRecommendation(
+                  appSettings.darkMode,
+                )}
+                icon={() => (
+                  <SvgPassword color={setSvgIconColor(appSettings.darkMode)} />
+                )}
                 mode="text"
                 onPress={() => setPinCode()}>
                 Установить ПИН-код
               </Button>
             ) : (
               <Button
-                textColor={COLOR.dark.BUTTON_TEXT}
-                icon={() => <SvgPassword />}
+                textColor={setAlertColor(appSettings.darkMode)}
+                icon={() => (
+                  <SvgPassword color={setSvgIconColor(appSettings.darkMode)} />
+                )}
                 mode="text"
                 onPress={() => deletePinCode()}>
                 Удалить ПИН-код
@@ -184,18 +200,28 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             <Text style={styles.smallText}>Очистка:</Text>
             <View style={styles.topSpacer} />
             <Button
-              textColor={COLOR.alertColor}
-              icon={() => <SvgDeleteAlbums />}
+              textColor={setAlertColor(appSettings.darkMode)}
+              icon={() => (
+                <SvgDeleteAlbums
+                  color={setSvgIconColor(appSettings.darkMode)}
+                />
+              )}
               mode="text"
               onPress={() => handleOpenAcceptModal()}>
               Удалить все альбомы
             </Button>
           </View>
           <View style={styles.buttonsItem}>
-            <Button mode="contained" onPress={() => handleSave()}>
+            <Button
+              mode="contained"
+              buttonColor={setButtonColor(appSettings.darkMode)}
+              onPress={() => handleSave()}>
               Сохранить
             </Button>
-            <Button mode="contained" onPress={() => handleCloseSettingsModal()}>
+            <Button
+              mode="contained"
+              buttonColor={setButtonColor(appSettings.darkMode)}
+              onPress={() => handleCloseSettingsModal()}>
               Отмена
             </Button>
           </View>
@@ -212,67 +238,77 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  modalBackground: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContainer: {
-    width: '80%',
-    backgroundColor: COLOR.dark.SECONDARY_COLOR,
-    padding: 20,
-    borderRadius: 8,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-    color: 'white',
-  },
-  setting: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  sortItem: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-  },
-  securItem: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    marginTop: 10,
-  },
-  deleteAlbumsItem: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    marginTop: 10,
-  },
-  pickerItem: {
-    height: 50,
-    width: 190,
-  },
-  buttonsItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 20,
-  },
-  topSpacer: {
-    height: 10,
-  },
-  text: {
-    color: 'white',
-  },
-  smallText: {
-    color: COLOR.dark.TEXT_DIM,
-  },
-});
+const getStyles = (darkMode: boolean) => {
+  return StyleSheet.create({
+    modalBackground: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContainer: {
+      width: '80%',
+      backgroundColor: darkMode
+        ? COLOR.dark.SECONDARY_COLOR
+        : COLOR.light.SECONDARY_COLOR,
+      padding: 20,
+      borderRadius: 8,
+    },
+    modalTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      marginBottom: 20,
+      textAlign: 'center',
+      color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
+    },
+    setting: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 20,
+    },
+    sortItem: {
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      alignItems: 'flex-start',
+    },
+    securItem: {
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      alignItems: 'flex-start',
+      marginTop: 10,
+    },
+    deleteAlbumsItem: {
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      alignItems: 'flex-start',
+      marginTop: 10,
+    },
+    pickerItem: {
+      height: 50,
+      width: 190,
+    },
+    buttonsItem: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      marginTop: 20,
+    },
+    topSpacer: {
+      height: 10,
+    },
+    text: {
+      color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
+      backgroundColor: darkMode
+        ? COLOR.dark.SECONDARY_COLOR
+        : COLOR.light.SECONDARY_COLOR,
+    },
+    smallText: {
+      color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,
+    },
+    dropdownIconColor: {
+      color: 'red',
+    },
+  });
+};
 
 export default SettingsModal;

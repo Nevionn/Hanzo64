@@ -1,5 +1,6 @@
 import React from 'react';
 import {View, Text, StyleSheet, Modal, Dimensions} from 'react-native';
+import {useAppSettings, setButtonColor} from '../../../assets/settingsContext';
 import {COLOR} from '../../../assets/colorTheme';
 import {Button} from 'react-native-paper';
 const {height} = Dimensions.get('window');
@@ -19,6 +20,9 @@ const AcceptMoveModal: React.FC<AcceptMoveModalProps> = ({
   title,
   textBody,
 }) => {
+  const {appSettings} = useAppSettings();
+
+  const styles = getStyles(appSettings.darkMode);
   return (
     <>
       <Modal
@@ -36,11 +40,15 @@ const AcceptMoveModal: React.FC<AcceptMoveModalProps> = ({
             <View style={styles.buttonsItem}>
               <Button
                 style={styles.button}
+                buttonColor={setButtonColor(appSettings.darkMode)}
                 mode="contained"
                 onPress={() => onConfirm()}>
                 Удалить
               </Button>
-              <Button mode="contained" onPress={() => onCloseAcceptModal()}>
+              <Button
+                mode="contained"
+                buttonColor={setButtonColor(appSettings.darkMode)}
+                onPress={() => onCloseAcceptModal()}>
                 Отмена
               </Button>
             </View>
@@ -51,41 +59,45 @@ const AcceptMoveModal: React.FC<AcceptMoveModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  modalBackground: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContainer: {
-    width: '80%',
-    height: height * 0.3,
-    backgroundColor: COLOR.dark.SECONDARY_COLOR,
-    padding: 20,
-    borderRadius: 8,
-  },
-  topSpacer: {
-    height: 20,
-  },
-  textItem: {},
-  buttonsItem: {
-    justifyContent: 'flex-end',
-    flexDirection: 'row',
-    marginTop: 40,
-  },
-  button: {
-    marginHorizontal: 14,
-  },
-  title: {
-    textAlign: 'left',
-    fontSize: 18,
-    color: COLOR.dark.TEXT_BRIGHT,
-  },
-  text: {
-    textAlign: 'left',
-    color: COLOR.dark.TEXT_DIM,
-  },
-});
+const getStyles = (darkMode: boolean) => {
+  return StyleSheet.create({
+    modalBackground: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContainer: {
+      width: '80%',
+      height: height * 0.3,
+      backgroundColor: darkMode
+        ? COLOR.dark.SECONDARY_COLOR
+        : COLOR.light.SECONDARY_COLOR,
+      padding: 20,
+      borderRadius: 8,
+    },
+    topSpacer: {
+      height: 20,
+    },
+    textItem: {},
+    buttonsItem: {
+      justifyContent: 'flex-end',
+      flexDirection: 'row',
+      marginTop: 40,
+    },
+    button: {
+      marginHorizontal: 14,
+    },
+    title: {
+      textAlign: 'left',
+      fontSize: 18,
+      color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
+    },
+    text: {
+      textAlign: 'left',
+      color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,
+    },
+  });
+};
 
 export default AcceptMoveModal;

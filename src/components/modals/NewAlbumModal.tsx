@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {View, Text, TextInput, Modal, StyleSheet} from 'react-native';
+import {useAppSettings, setButtonColor} from '../../../assets/settingsContext';
 import {Button} from 'react-native-paper';
 import {COLOR} from '../../../assets/colorTheme';
 
@@ -14,6 +15,8 @@ const NewAlbumModal: React.FC<NewAlbumModalProps> = ({
   onClose,
   onSubmit,
 }) => {
+  const {appSettings} = useAppSettings();
+
   const [title, setTitle] = useState<string>('');
 
   const handleSave = () => {
@@ -29,6 +32,8 @@ const NewAlbumModal: React.FC<NewAlbumModalProps> = ({
     setTitle('');
   };
 
+  const styles = getStyles(appSettings.darkMode);
+
   return (
     <Modal
       visible={visible}
@@ -40,16 +45,24 @@ const NewAlbumModal: React.FC<NewAlbumModalProps> = ({
           <Text style={styles.title}>Создать новый альбом</Text>
           <TextInput
             style={styles.input}
-            placeholderTextColor={'#ccc'}
+            placeholderTextColor={
+              appSettings.darkMode ? '#ccc' : COLOR.light.TEXT_DIM
+            }
             placeholder="Название альбома"
             value={title}
             onChangeText={setTitle}
           />
           <View style={styles.buttonContainer}>
-            <Button mode="contained" onPress={() => handleSave()}>
+            <Button
+              mode="contained"
+              buttonColor={setButtonColor(appSettings.darkMode)}
+              onPress={() => handleSave()}>
               Сохранить
             </Button>
-            <Button mode="contained" onPress={() => handleCloseModal()}>
+            <Button
+              mode="contained"
+              buttonColor={setButtonColor(appSettings.darkMode)}
+              onPress={() => handleCloseModal()}>
               Отмена
             </Button>
           </View>
@@ -59,42 +72,47 @@ const NewAlbumModal: React.FC<NewAlbumModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  modalBackground: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContainer: {
-    width: '80%',
-    padding: 20,
-    backgroundColor: COLOR.dark.SECONDARY_COLOR,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-    color: 'white',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 20,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-});
+const getStyles = (darkMode: boolean) => {
+  return StyleSheet.create({
+    modalBackground: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContainer: {
+      width: '80%',
+      padding: 20,
+      backgroundColor: darkMode
+        ? COLOR.dark.SECONDARY_COLOR
+        : COLOR.light.SECONDARY_COLOR,
+      borderRadius: 10,
+      shadowColor: '#000',
+      shadowOffset: {width: 0, height: 2},
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 5,
+    },
+    title: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      marginBottom: 20,
+      textAlign: 'center',
+      color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: darkMode ? '#ccc' : 'black',
+      color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
+      padding: 10,
+      borderRadius: 5,
+      marginBottom: 20,
+    },
+    buttonContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+    },
+  });
+};
 
 export default NewAlbumModal;

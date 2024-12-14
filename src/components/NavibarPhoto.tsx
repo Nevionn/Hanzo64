@@ -9,8 +9,9 @@ import {
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {usePhotoRequest} from '../hooks/usePhotoRequest';
-import eventEmitter from '../../assets/eventEmitter';
+import {useAppSettings, setSvgIconColor} from '../../assets/settingsContext';
 import {useAlbumsRequest} from '../hooks/useAlbumsRequest';
+import eventEmitter from '../../assets/eventEmitter';
 import SvgLeftArrow from './icons/SvgLeftArrow';
 import SvgDotsVertical from './icons/SvgDotsVertical';
 import {IconButton} from 'react-native-paper';
@@ -19,9 +20,11 @@ import {launchImageLibrary} from 'react-native-image-picker';
 import NaviBarPhotoProps from '../types/NaviBarPhotoProps';
 import AcceptMoveModal from './modals/AcceptMoveModal';
 import RenameAlbumModal from './modals/RenameAlbumModal';
+import {COLOR} from '../../assets/colorTheme';
 
 const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({titleAlbum, idAlbum}) => {
   const {deleteAlbum} = useAlbumsRequest();
+  const {appSettings} = useAppSettings();
   const {addPhoto, deleteAllPhotosCurrentAlbum} = usePhotoRequest();
 
   const navigation: any = useNavigation();
@@ -93,17 +96,23 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({titleAlbum, idAlbum}) => {
     navigation.goBack();
   };
 
+  const styles = getStyles(appSettings.darkMode);
+
   return (
     <>
       <View style={[styles.navibar, {top: statusBarHeight - 5}]}>
         <View style={styles.manipulationItem}>
           <IconButton
-            icon={() => <SvgLeftArrow />}
+            icon={() => (
+              <SvgLeftArrow color={setSvgIconColor(appSettings.darkMode)} />
+            )}
             size={30}
             onPress={() => navigation.goBack()}
           />
           <IconButton
-            icon={() => <SvgDotsVertical />}
+            icon={() => (
+              <SvgDotsVertical color={setSvgIconColor(appSettings.darkMode)} />
+            )}
             size={30}
             onPress={toggleMiniModal}
           />
@@ -166,59 +175,61 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({titleAlbum, idAlbum}) => {
   );
 };
 
-const styles = StyleSheet.create({
-  navibar: {
-    flexDirection: 'column',
-    marginTop: 8,
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 100,
-    width: '100%',
-    zIndex: 10,
-  },
-  manipulationItem: {
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexDirection: 'row',
-    paddingHorizontal: 10,
-    width: '100%',
-    height: '60%',
-    backgroundColor: 'transparent',
-  },
-  titleAlbumItem: {
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    flexDirection: 'row',
-    height: '40%',
-    width: '100%',
-    backgroundColor: 'transparent',
-  },
-  title: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: 'medium',
-    marginLeft: 24,
-  },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-start',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    padding: 10,
-    borderRadius: 8,
-    position: 'absolute',
-    right: 10,
-    top: 50, // Здесь задается примерная позиция
-  },
-  modalItem: {
-    padding: 10,
-    fontSize: 16,
-    color: 'black',
-  },
-});
+const getStyles = (darkMode: boolean) => {
+  return StyleSheet.create({
+    navibar: {
+      flexDirection: 'column',
+      marginTop: 8,
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 100,
+      width: '100%',
+      zIndex: 10,
+    },
+    manipulationItem: {
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      flexDirection: 'row',
+      paddingHorizontal: 10,
+      width: '100%',
+      height: '60%',
+      backgroundColor: 'transparent',
+    },
+    titleAlbumItem: {
+      justifyContent: 'flex-start',
+      alignItems: 'center',
+      flexDirection: 'row',
+      height: '40%',
+      width: '100%',
+      backgroundColor: 'transparent',
+    },
+    title: {
+      color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
+      fontSize: 20,
+      fontWeight: 'medium',
+      marginLeft: 24,
+    },
+    overlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'flex-start',
+    },
+    modalContent: {
+      backgroundColor: 'white',
+      padding: 10,
+      borderRadius: 8,
+      position: 'absolute',
+      right: 10,
+      top: 50,
+    },
+    modalItem: {
+      padding: 10,
+      fontSize: 16,
+      color: 'black',
+    },
+  });
+};
 
 export default NavibarPhoto;

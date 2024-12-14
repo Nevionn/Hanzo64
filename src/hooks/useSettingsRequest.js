@@ -85,31 +85,28 @@ const useGetSettings = () => {
   };
 };
 
-const useGetSettingsWithoutSetter = () => {
-  return () =>
-    new Promise((resolve, reject) => {
-      db.transaction(tx => {
-        tx.executeSql(
-          'SELECT * FROM SettingsTable LIMIT 1',
-          [],
-          (tx, results) => {
-            if (results.rows.length > 0) {
-              const row = results.rows.item(0);
-              const settingsObject = {
-                darkMode: !!row.darkMode,
-              };
-              resolve(settingsObject.darkMode);
-            } else {
-              resolve(false); // Если данных нет, возвращаем false как дефолт
-            }
-          },
-          error => {
-            console.error('Ошибка при получении darkMode:', error);
-            reject(error);
-          },
-        );
-      });
+const useGetColorTheme = () => {
+  return setColor => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'SELECT * FROM SettingsTable LIMIT 1',
+        [],
+        (tx, results) => {
+          if (results.rows.length > 0) {
+            const row = results.rows.item(0);
+            const darkMode = !!row.darkMode; // Преобразуем в boolean
+            setColor(darkMode);
+            console.log(darkMode);
+          } else {
+            setColor(false);
+          }
+        },
+        error => {
+          console.error('Ошибка при получении темы:', error);
+        },
+      );
     });
+  };
 };
 
 const useShowSettings = () => {
@@ -139,7 +136,7 @@ const useShowSettings = () => {
 export function useSettingsRequest() {
   const acceptSettings = useAcceptSettings();
   const getSettings = useGetSettings();
-  const getColorTheme = useGetSettingsWithoutSetter();
+  const getColorTheme = useGetColorTheme();
   const showSettings = useShowSettings();
   return {
     acceptSettings,
