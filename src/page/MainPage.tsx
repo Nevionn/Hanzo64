@@ -4,7 +4,6 @@ import {
   StyleSheet,
   Text,
   View,
-  Dimensions,
   Image,
   FlatList,
   TouchableOpacity,
@@ -14,12 +13,9 @@ import NaviBar from '../components/Navibar';
 import {useNavigation} from '@react-navigation/native';
 import {useAlbumsRequest} from '../hooks/useAlbumsRequest';
 import {useSettingsRequest} from '../hooks/useSettingsRequest';
-import {usePhotoRequest} from '../hooks/usePhotoRequest';
-import {useAppSettings, setButtonColor} from '../../assets/settingsContext';
+import {useAppSettings} from '../../assets/settingsContext';
 import NewAlbumModal from '../components/modals/NewAlbumModal';
 import SettingsModal from '../components/modals/SettingsModal';
-import {Button} from 'react-native-paper';
-const {height, width} = Dimensions.get('window');
 import eventEmitter from '../../assets/eventEmitter';
 
 interface Album {
@@ -35,7 +31,6 @@ const MainPage: React.FC = () => {
 
   const {addAlbum, getAllAlbums} = useAlbumsRequest();
   const {acceptSettings, getSettings} = useSettingsRequest();
-  const {dropTable, showTable} = usePhotoRequest();
   const {appSettings, saveAppSettings} = useAppSettings();
 
   const [isModalAddAlbumVisible, setModalAddAlbumVisible] = useState(false);
@@ -140,24 +135,6 @@ const MainPage: React.FC = () => {
         onClose={() => setIsSettingsModalVisible(false)}
         onSave={saveSettings}
       />
-      <View style={styles.testBlock}>
-        <Button
-          mode="contained"
-          buttonColor={setButtonColor(appSettings.darkMode)}
-          onPress={() => {
-            showTable();
-          }}>
-          посмотреть таблицу
-        </Button>
-        <Button
-          mode="contained"
-          buttonColor={setButtonColor(appSettings.darkMode)}
-          onPress={() => {
-            dropTable('PhotosTable');
-          }}>
-          Дропнуть таблицу
-        </Button>
-      </View>
       <NaviBar
         openModalAlbum={openCreateAlbumModal}
         openModalSettings={openSettings}
@@ -212,11 +189,6 @@ const getStyles = (darkMode: boolean) => {
     textCountPhoto: {
       fontSize: 12,
       color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,
-    },
-    testBlock: {
-      justifyContent: 'center',
-      flexDirection: 'row',
-      marginBottom: 200,
     },
   });
 };

@@ -74,14 +74,13 @@ const styles = StyleSheet.create({
   greetingsItem: {
     justifyContent: 'center',
     alignItems: 'center',
-    // backgroundColor: COLOR.SECONDARY_COLOR,
     height: height * 0.75,
     width: width * 0.75,
   },
   buttonsItem: {
     justifyContent: 'space-between',
     alignItems: 'center',
-    flexDirection: 'column', // row
+    flexDirection: 'column',
     position: 'absolute',
     bottom: 10,
   },

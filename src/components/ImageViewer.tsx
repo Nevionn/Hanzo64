@@ -12,6 +12,7 @@ import {ReactNativeZoomableView} from '@openspacelabs/react-native-zoomable-view
 import {IconButton} from 'react-native-paper';
 import SvgDotsVertical from './icons/SvgDotsVertical';
 import SvgLeftArrow from './icons/SvgLeftArrow';
+import {useAppSettings, setSvgIconColor} from '../../assets/settingsContext';
 import EditPhotoMiniModal from './modals/EditPhotoMiniModal';
 
 const {width, height} = Dimensions.get('window');
@@ -39,6 +40,8 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
   idAlbum,
   idPhoto,
 }) => {
+  const {appSettings} = useAppSettings();
+
   const [imageDimensions, setImageDimensions] = useState({
     width: 1,
     height: 1,
@@ -141,17 +144,19 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
       <View style={styles.modalContainer}>
         <View style={styles.infoBar}>
           <IconButton
-            icon={() => <SvgLeftArrow />}
+            icon={() => (
+              <SvgLeftArrow color={setSvgIconColor(appSettings.darkMode)} />
+            )}
             size={30}
             onPress={onCloseImgViewer}
           />
           <Text style={styles.infoText}>
-            {`${currentIndex + 1} из ${photos.length} (id: ${
-              currentPhoto?.id
-            })`}
+            {`${currentIndex + 1} из ${photos.length}`}
           </Text>
           <IconButton
-            icon={() => <SvgDotsVertical />}
+            icon={() => (
+              <SvgDotsVertical color={setSvgIconColor(appSettings.darkMode)} />
+            )}
             size={30}
             onPress={handleOpenMiniModal}
           />

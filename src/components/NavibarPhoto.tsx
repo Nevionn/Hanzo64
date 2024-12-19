@@ -37,29 +37,17 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({titleAlbum, idAlbum}) => {
   const [isAcceptMoveModalVisible, setIsAcceptMoveModalVisible] =
     useState(false);
 
-  const toggleMiniModal = () => {
-    setIsMiniModalVisible(!isMiniModalVisible);
-  };
+  const toggleMiniModal = () => setIsMiniModalVisible(!isMiniModalVisible);
 
-  const handleOpenAcceptMoveModal = () => {
-    setIsAcceptMoveModalVisible(true);
-  };
+  const handleOpenAcceptMoveModal = () => setIsAcceptMoveModalVisible(true);
 
-  const handleCloseAcceptMoveModal = () => {
-    setIsAcceptMoveModalVisible(false);
-  };
+  const handleCloseAcceptMoveModal = () => setIsAcceptMoveModalVisible(false);
 
-  const handleOpenRenameAlbumModal = () => {
-    setIsRenameAlbumModal(true);
-  };
+  const handleOpenRenameAlbumModal = () => setIsRenameAlbumModal(true);
 
-  const handleCloseRenameAlbumModal = () => {
-    setIsRenameAlbumModal(false);
-  };
+  const handleCloseRenameAlbumModal = () => setIsRenameAlbumModal(false);
 
-  const updateTitleAlbum = (newTitle: string) => {
-    setTitile(newTitle);
-  };
+  const updateTitleAlbum = (newTitle: string) => setTitile(newTitle);
 
   const pickImage = async () => {
     const result = await launchImageLibrary({
@@ -118,11 +106,7 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({titleAlbum, idAlbum}) => {
           />
         </View>
         <View style={styles.titleAlbumItem}>
-          <Text style={styles.title}>
-            {title}
-            {'  '}
-            {idAlbum}
-          </Text>
+          <Text style={styles.title}>{title}</Text>
         </View>
       </View>
 

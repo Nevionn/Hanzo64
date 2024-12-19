@@ -158,8 +158,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     flexDirection: 'column',
-    // position: 'absolute',
-    // bottom: 10,
   },
   startButton: {
     alignItems: 'center',

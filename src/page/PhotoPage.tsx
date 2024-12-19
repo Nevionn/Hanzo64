@@ -12,7 +12,7 @@ import {usePhotoRequest} from '../hooks/usePhotoRequest';
 import {useAppSettings} from '../../assets/settingsContext';
 import {COLOR} from '../../assets/colorTheme';
 import eventEmitter from '../../assets/eventEmitter';
-import {DarkTheme, useRoute} from '@react-navigation/native';
+import {useRoute} from '@react-navigation/native';
 import NavibarPhoto from '../components/NavibarPhoto';
 import ImageViewer from '../components/ImageViewer';
 import FastImage from 'react-native-fast-image';

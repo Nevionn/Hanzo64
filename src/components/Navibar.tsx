@@ -82,8 +82,10 @@ const getStyles = (darkMode: boolean) => {
       fontWeight: 'bold',
     },
     touchArea: {
-      backgroundColor: 'transparent',
-      padding: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: 40,
+      width: 40,
     },
     backgroundImage: {
       ...StyleSheet.absoluteFillObject,
