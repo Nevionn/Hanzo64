@@ -16,11 +16,11 @@ import SvgLeftArrow from './icons/SvgLeftArrow';
 import SvgDotsVertical from './icons/SvgDotsVertical';
 import {IconButton} from 'react-native-paper';
 import {ModalText} from '../../assets/textForModal';
-import {launchImageLibrary} from 'react-native-image-picker';
 import NaviBarPhotoProps from '../types/NaviBarPhotoProps';
 import AcceptMoveModal from './modals/AcceptMoveModal';
 import RenameAlbumModal from './modals/RenameAlbumModal';
 import {COLOR} from '../../assets/colorTheme';
+import {pickImage} from '../../assets/camera';
 
 const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({titleAlbum, idAlbum}) => {
   const {deleteAlbum} = useAlbumsRequest();
@@ -48,33 +48,6 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({titleAlbum, idAlbum}) => {
   const handleCloseRenameAlbumModal = () => setIsRenameAlbumModal(false);
 
   const updateTitleAlbum = (newTitle: string) => setTitile(newTitle);
-
-  const pickImage = async () => {
-    const result = await launchImageLibrary({
-      mediaType: 'photo',
-      includeBase64: true,
-    });
-
-    if (result.assets && result.assets.length > 0) {
-      const {base64, uri, fileName} = result.assets[0];
-      console.log(result);
-
-      if (base64) {
-        try {
-          addPhoto({
-            album_id: idAlbum,
-            title: fileName,
-            photo: base64,
-            created_at: new Date().toLocaleString(),
-          });
-          eventEmitter.emit('photosUpdated');
-          eventEmitter.emit('albumsUpdated');
-        } catch (error) {
-          console.error('Ошибка при загрузке изображения:', error);
-        }
-      }
-    }
-  };
 
   const deleteAlbumExpand = () => {
     deleteAllPhotosCurrentAlbum(idAlbum);
@@ -122,7 +95,8 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({titleAlbum, idAlbum}) => {
           <View style={styles.modalContent}>
             <TouchableOpacity
               onPress={() => {
-                pickImage(), toggleMiniModal();
+                pickImage(idAlbum, addPhoto);
+                toggleMiniModal();
               }}>
               <Text style={styles.modalItem}>Добавить фото</Text>
             </TouchableOpacity>
