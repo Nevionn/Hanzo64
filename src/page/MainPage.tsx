@@ -13,7 +13,7 @@ import NaviBar from '../components/Navibar';
 import {useNavigation} from '@react-navigation/native';
 import {useAlbumsRequest} from '../hooks/useAlbumsRequest';
 import {useSettingsRequest} from '../hooks/useSettingsRequest';
-import {useAppSettings} from '../../assets/settingsContext';
+import {useAppSettings, setStatusBarTheme} from '../../assets/settingsContext';
 import NewAlbumModal from '../components/modals/NewAlbumModal';
 import SettingsModal from '../components/modals/SettingsModal';
 import eventEmitter from '../../assets/eventEmitter';
@@ -85,46 +85,56 @@ const MainPage: React.FC = () => {
   return (
     <View style={styles.root}>
       <StatusBar
-        barStyle="light-content"
+        barStyle={setStatusBarTheme(appSettings.darkMode)}
         translucent
         backgroundColor="transparent"
       />
       <View style={styles.topSpacer} />
-      <FlatList
-        data={albums}
-        numColumns={2}
-        keyExtractor={item => item.id.toString()}
-        renderItem={({item}) => (
-          <TouchableOpacity
-            style={styles.placeHolder}
-            onPress={() => openAlbum(item)}>
-            <View style={styles.imagePlace}>
-              {item.coverPhoto ? (
-                <Image
-                  source={{uri: `data:image/jpeg;base64,${item.coverPhoto}`}}
-                  style={styles.image}
-                />
-              ) : (
-                <Image
-                  source={require('../../assets/images/not_img_default.png')}
-                  style={styles.image}
-                />
-              )}
-            </View>
-            <View style={styles.textImageHolder}>
-              <Text style={styles.textNameAlbum}>
-                {item.title.length > 12
-                  ? `${item.title.substring(0, 20)}...`
-                  : item.title}
-              </Text>
-              <Text
-                style={
-                  styles.textCountPhoto
-                }>{`фотографий ${item.countPhoto}`}</Text>
-            </View>
-          </TouchableOpacity>
-        )}
-      />
+
+      {albums.length > 0 ? (
+        <FlatList
+          data={albums}
+          numColumns={2}
+          keyExtractor={item => item.id.toString()}
+          renderItem={({item}) => (
+            <TouchableOpacity
+              style={styles.placeHolder}
+              onPress={() => openAlbum(item)}>
+              <View style={styles.imagePlace}>
+                {item.coverPhoto ? (
+                  <Image
+                    source={{uri: `data:image/jpeg;base64,${item.coverPhoto}`}}
+                    style={styles.image}
+                  />
+                ) : (
+                  <Image
+                    source={require('../../assets/images/not_img_default.png')}
+                    style={styles.image}
+                  />
+                )}
+              </View>
+              <View style={styles.textImageHolder}>
+                <Text style={styles.textNameAlbum}>
+                  {item.title.length > 12
+                    ? `${item.title.substring(0, 20)}...`
+                    : item.title}
+                </Text>
+                <Text
+                  style={
+                    styles.textCountPhoto
+                  }>{`фотографий ${item.countPhoto}`}</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+          ListFooterComponent={
+            albums.length % 2 !== 0 ? <View style={{flex: 1}} /> : null
+          }
+        />
+      ) : (
+        <View style={styles.emptyDataItem}>
+          <Text style={styles.text}>Альбомов нет</Text>
+        </View>
+      )}
       <NewAlbumModal
         visible={isModalAddAlbumVisible}
         onClose={() => setModalAddAlbumVisible(false)}
@@ -157,9 +167,10 @@ const getStyles = (darkMode: boolean) => {
       height: '15%',
     },
     placeHolder: {
-      flex: 1,
+      flexBasis: '45%',
       margin: 10,
       height: 220,
+      borderRadius: 10,
     },
     imagePlace: {
       flex: 1,
@@ -167,7 +178,6 @@ const getStyles = (darkMode: boolean) => {
       borderWidth: 0.5,
       borderColor: 'white',
       borderRadius: 10,
-      aspectRatio: 1,
     },
     image: {
       height: '100%',
@@ -189,6 +199,13 @@ const getStyles = (darkMode: boolean) => {
     textCountPhoto: {
       fontSize: 12,
       color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,
+    },
+    emptyDataItem: {
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    text: {
+      color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
     },
   });
 };
