@@ -49,12 +49,3 @@ export const setAlertColor = darkMode => {
 export const setStatusBarTheme = darkMode => {
   return darkMode ? 'light-content' : 'dark-content';
 };
-
-export const borderButtonStyle = () => ({
-  shadowColor: '#000',
-  shadowOffset: {width: 0, height: 2},
-  shadowOpacity: 0.8,
-  shadowRadius: 4,
-  borderWidth: 1,
-  borderColor: 'black',
-});

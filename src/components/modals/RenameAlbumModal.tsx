@@ -10,11 +10,8 @@ import {
 import {Button} from 'react-native-paper';
 import {COLOR} from '../../../assets/colorTheme';
 import {useAlbumsRequest} from '../../hooks/useAlbumsRequest';
-import {
-  useAppSettings,
-  setButtonColor,
-  borderButtonStyle,
-} from '../../../assets/settingsContext';
+import {useAppSettings, setButtonColor} from '../../../assets/settingsContext';
+import {borderButtonStyle} from '../../../assets/colorTheme';
 import eventEmitter from '../../../assets/eventEmitter';
 
 interface RenameAlbumModalProps {

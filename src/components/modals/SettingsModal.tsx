@@ -14,8 +14,8 @@ import {
   setButtonTextColorRecommendation,
   setSvgIconColor,
   setAlertColor,
-  borderButtonStyle,
 } from '../../../assets/settingsContext';
+import {borderButtonStyle} from '../../../assets/colorTheme';
 import {useNavigation} from '@react-navigation/native';
 import eventEmitter from '../../../assets/eventEmitter';
 import SvgPassword from '../icons/SvgPassword';

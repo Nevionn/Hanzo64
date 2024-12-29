@@ -7,11 +7,8 @@ import {
   Dimensions,
   StatusBar,
 } from 'react-native';
-import {
-  useAppSettings,
-  setButtonColor,
-  borderButtonStyle,
-} from '../../../assets/settingsContext';
+import {useAppSettings, setButtonColor} from '../../../assets/settingsContext';
+import {borderButtonStyle} from '../../../assets/colorTheme';
 import {COLOR} from '../../../assets/colorTheme';
 import {Button} from 'react-native-paper';
 const {height} = Dimensions.get('window');
