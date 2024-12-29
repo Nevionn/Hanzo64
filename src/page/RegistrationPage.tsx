@@ -13,8 +13,7 @@ import {usePinCodeRequest} from '../hooks/usePinCodeRequest';
 import {COLOR} from '../../assets/colorTheme';
 import {Button} from 'react-native-paper';
 import PinCode from '../components/PinCode';
-const {width} = Dimensions.get('window');
-const {height} = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 const RegistrationPage = () => {
   const {savePinCode, skipPin, deletePinCode} = usePinCodeRequest();
@@ -94,7 +93,7 @@ const RegistrationPage = () => {
       />
       {!installationPinStage ? (
         <View style={styles.greetingsItem}>
-          <Text style={styles.nameApp}>HANZA64</Text>
+          <Text style={styles.nameApp}>HANZO64</Text>
           <Text style={styles.text}>
             Добро пожаловать в защищенную галерею{'\n'}
             Для безопасности <Text style={styles.highlight}>
@@ -170,8 +169,8 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     borderWidth: 2,
     borderColor: 'black',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingVertical: 7,
+    paddingHorizontal: 10,
   },
   nameApp: {
     color: COLOR.NAME_APP,

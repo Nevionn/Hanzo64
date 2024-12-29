@@ -107,6 +107,7 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
         transparent
         animationType="fade"
         onRequestClose={toggleMiniModal}>
+        <StatusBar translucent backgroundColor="black" />
         <TouchableOpacity
           style={styles.overlay}
           onPress={toggleMiniModal} // Закрытие модалки при нажатии вне

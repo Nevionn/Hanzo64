@@ -1,5 +1,12 @@
 import React, {useState} from 'react';
-import {Modal, StyleSheet, Text, View, TouchableOpacity} from 'react-native';
+import {
+  Modal,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  StatusBar,
+} from 'react-native';
 import {usePhotoRequest} from '../../hooks/usePhotoRequest';
 import {useAlbumsRequest} from '../../hooks/useAlbumsRequest';
 import eventEmitter from '../../../assets/eventEmitter';
@@ -8,10 +15,10 @@ import {ModalText} from '../../../assets/textForModal';
 
 interface EditPhotoMiniModalProps {
   visible: boolean;
-  onCloseEditModal: () => void;
-  onCloseImgViewer: () => void;
   idPhoto: number;
   idAlbum: number;
+  onCloseEditModal: () => void;
+  onCloseImgViewer: () => void;
 }
 
 const EditPhotoMiniModal: React.FC<EditPhotoMiniModalProps> = ({
@@ -55,6 +62,7 @@ const EditPhotoMiniModal: React.FC<EditPhotoMiniModalProps> = ({
         transparent
         animationType="fade"
         onRequestClose={() => onCloseEditModal()}>
+        <StatusBar translucent backgroundColor="black" />
         <TouchableOpacity
           style={styles.overlay}
           onPress={() => onCloseEditModal()}>

@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, Switch, StyleSheet, Modal} from 'react-native';
+import {View, Text, Switch, StyleSheet, Modal, StatusBar} from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import {Button, Divider} from 'react-native-paper';
 import {COLOR} from '../../../assets/colorTheme';
@@ -15,6 +15,7 @@ import {
   setSvgIconColor,
   setAlertColor,
 } from '../../../assets/settingsContext';
+import {borderButtonStyle} from '../../../assets/colorTheme';
 import {useNavigation} from '@react-navigation/native';
 import eventEmitter from '../../../assets/eventEmitter';
 import SvgPassword from '../icons/SvgPassword';
@@ -47,7 +48,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const [safetyVisible, setSafetyVisible] = useState(true);
   const [settings, setSettings] = useState<Settings>({
-    darkMode: false,
+    darkMode: true,
     sortOrder: 'newest',
   });
 
@@ -125,10 +126,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       animationType="fade"
       transparent={true}
       onRequestClose={handleCloseSettingsModal}>
+      <StatusBar translucent backgroundColor="black" />
       <View style={styles.modalBackground}>
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>Настройки</Text>
-
           <View style={styles.setting}>
             <Text style={styles.smallText}>Темная тема</Text>
             <Switch
@@ -214,12 +215,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           <View style={styles.buttonsItem}>
             <Button
               mode="contained"
+              style={borderButtonStyle()}
               buttonColor={setButtonColor(appSettings.darkMode)}
               onPress={() => handleSave()}>
               Сохранить
             </Button>
             <Button
               mode="contained"
+              style={borderButtonStyle()}
               buttonColor={setButtonColor(appSettings.darkMode)}
               onPress={() => handleCloseSettingsModal()}>
               Отмена

@@ -1,4 +1,28 @@
-export const COLOR = {
+import {ViewStyle} from 'react-native';
+
+type ThemeColors = {
+  MAIN_COLOR: string;
+  NAVIBAR_COLOR?: string;
+  BUTTON_COLOR: string;
+  BUTTON_COLOR_INACTIVE: string;
+  BUTTON_TEXT: string;
+  BUTTON_TEXT_GREEN: string;
+  BUTTON_PIN_COLOR: string;
+  TEXT_BRIGHT: string;
+  TEXT_DIM: string;
+  SECONDARY_COLOR: string;
+  ICON: string;
+  alertColor: string;
+};
+
+type ColorSchema = {
+  NAME_APP: string;
+  SVG_WHITE: string;
+  dark: ThemeColors;
+  light: ThemeColors;
+};
+
+export const COLOR: ColorSchema = {
   NAME_APP: '#9d65c9',
   SVG_WHITE: 'white',
   dark: {
@@ -39,3 +63,12 @@ export const COLOR = {
     alertColor: '#981d26',
   },
 };
+
+export const borderButtonStyle = (): ViewStyle => ({
+  shadowColor: '#000',
+  shadowOffset: {width: 0, height: 2},
+  shadowOpacity: 0.8,
+  shadowRadius: 4,
+  borderWidth: 1,
+  borderColor: 'black',
+});

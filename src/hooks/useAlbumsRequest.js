@@ -158,69 +158,20 @@ const useDeleteAlbum = () => {
   };
 };
 
-const useShowAlbums = () => {
-  return () => {
-    db.transaction(tx => {
-      tx.executeSql(
-        'SELECT * FROM AlbumsTable',
-        [],
-        (tx, result) => {
-          if (result.rows.length > 0) {
-            for (let i = 0; i < result.rows.length; i++) {
-              const row = result.rows.item(i);
-              console.log('Row:', row);
-            }
-          } else {
-            console.log('Table is empty');
-          }
-        },
-        error => {
-          console.log('Error fetching table content:', error);
-        },
-      );
-    });
-  };
-};
-
-export const useShowShemeAlbumsTable = () => {
-  return tableName => {
-    db.transaction(tx => {
-      tx.executeSql(
-        `PRAGMA table_info(${tableName})`,
-        [],
-        (tx, result) => {
-          const rows = result.rows;
-          for (let i = 0; i < rows.length; i++) {
-            const column = rows.item(i);
-            console.log(column.name, column.type);
-          }
-        },
-        error => {
-          console.log('Error getting table schema:', error);
-        },
-      );
-    });
-  };
-};
-
 export function useAlbumsRequest() {
   const addAlbum = useAddNewAlbumToTable();
   const getAllAlbums = useGetAllAlbums();
-  const showAlbums = useShowAlbums();
   const renameAlbum = useRenameAlbum();
   const setAlbumCover = useSetAlbumCover();
   const deleteAllAlbums = useDeleteAllAlbums();
   const deleteAlbum = useDeleteAlbum();
-  const showShemeAlbumsTable = useShowShemeAlbumsTable();
 
   return {
     addAlbum,
     getAllAlbums,
-    showAlbums,
     renameAlbum,
     setAlbumCover,
     deleteAllAlbums,
     deleteAlbum,
-    showShemeAlbumsTable,
   };
 }

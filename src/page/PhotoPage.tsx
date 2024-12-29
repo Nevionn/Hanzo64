@@ -10,7 +10,7 @@ import {
   Image,
 } from 'react-native';
 import {usePhotoRequest} from '../hooks/usePhotoRequest';
-import {useAppSettings} from '../../assets/settingsContext';
+import {useAppSettings, setStatusBarTheme} from '../../assets/settingsContext';
 import {COLOR} from '../../assets/colorTheme';
 import eventEmitter from '../../assets/eventEmitter';
 import {useRoute} from '@react-navigation/native';
@@ -71,7 +71,7 @@ const PhotoPage = () => {
   return (
     <View style={styles.root}>
       <StatusBar
-        barStyle="light-content"
+        barStyle={setStatusBarTheme(appSettings.darkMode)}
         translucent
         backgroundColor="transparent"
       />
@@ -94,7 +94,7 @@ const PhotoPage = () => {
         />
       ) : (
         <View style={styles.emptyDataItem}>
-          <Text style={styles.text}>Тут пусто</Text>
+          <Text style={styles.text}>Фотографий нет</Text>
         </View>
       )}
       <NavibarPhoto

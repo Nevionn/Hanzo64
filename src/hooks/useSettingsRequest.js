@@ -15,7 +15,7 @@ db.transaction(tx => {
 const useAcceptSettings = () => {
   return newSettings => {
     db.transaction(tx => {
-      // Сначала проверим, существует ли уже запись с настройками
+      // Сначала проверяем, существует ли уже запись с настройками
       tx.executeSql(
         'SELECT * FROM SettingsTable LIMIT 1',
         [],

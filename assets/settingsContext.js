@@ -5,7 +5,7 @@ const AppSettingsContext = createContext();
 
 export const AppSettingsProvider = ({children}) => {
   const [appSettings, setAppSettings] = useState({
-    darkMode: null,
+    darkMode: true,
     sortOrder: null,
   });
 
@@ -44,4 +44,8 @@ export const setSvgIconColor = darkMode => {
 
 export const setAlertColor = darkMode => {
   return darkMode ? COLOR.dark.alertColor : COLOR.light.alertColor;
+};
+
+export const setStatusBarTheme = darkMode => {
+  return darkMode ? 'light-content' : 'dark-content';
 };

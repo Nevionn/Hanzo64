@@ -7,6 +7,7 @@ import {
   FlatList,
   StyleSheet,
   Image,
+  StatusBar,
 } from 'react-native';
 import {ReactNativeZoomableView} from '@openspacelabs/react-native-zoomable-view';
 import {IconButton} from 'react-native-paper';
@@ -139,6 +140,7 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
       transparent={true}
       animationType="fade"
       onRequestClose={onCloseImgViewer}>
+      <StatusBar translucent backgroundColor="black" />
       <View style={styles.modalContainer}>
         <View style={styles.infoBar}>
           <IconButton

@@ -1,6 +1,14 @@
 import React, {useState} from 'react';
-import {View, Text, TextInput, Modal, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Modal,
+  StyleSheet,
+  StatusBar,
+} from 'react-native';
 import {useAppSettings, setButtonColor} from '../../../assets/settingsContext';
+import {borderButtonStyle} from '../../../assets/colorTheme';
 import {Button} from 'react-native-paper';
 import {COLOR} from '../../../assets/colorTheme';
 
@@ -40,6 +48,7 @@ const NewAlbumModal: React.FC<NewAlbumModalProps> = ({
       animationType="fade"
       transparent={true}
       onRequestClose={handleCloseModal}>
+      <StatusBar translucent backgroundColor="black" />
       <View style={styles.modalBackground}>
         <View style={styles.modalContainer}>
           <Text style={styles.title}>Создать новый альбом</Text>
@@ -55,12 +64,14 @@ const NewAlbumModal: React.FC<NewAlbumModalProps> = ({
           <View style={styles.buttonContainer}>
             <Button
               mode="contained"
+              style={borderButtonStyle()}
               buttonColor={setButtonColor(appSettings.darkMode)}
               onPress={() => handleSave()}>
               Сохранить
             </Button>
             <Button
               mode="contained"
+              style={borderButtonStyle()}
               buttonColor={setButtonColor(appSettings.darkMode)}
               onPress={() => handleCloseModal()}>
               Отмена

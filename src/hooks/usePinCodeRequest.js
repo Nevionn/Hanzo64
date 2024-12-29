@@ -1,5 +1,4 @@
 import SQLite from 'react-native-sqlite-storage';
-import {Alert} from 'react-native';
 const db = SQLite.openDatabase({name: 'database.db', location: 'default'});
 
 db.transaction(tx => {
@@ -186,81 +185,12 @@ const useDeletePinCode = () => {
   };
 };
 
-export const useShowTablesBd = () => {
-  return () => {
-    db.transaction(tx => {
-      tx.executeSql(
-        "SELECT name FROM sqlite_master WHERE type='table'",
-        [],
-        (tx, result) => {
-          const tables = [];
-          for (let i = 0; i < result.rows.length; i++) {
-            tables.push(result.rows.item(i).name);
-          }
-          console.log('Tables:', tables);
-        },
-        error => {
-          console.log('Error fetching tables:', error);
-        },
-      );
-    });
-  };
-};
-
-const useShowTableContent = () => {
-  return () => {
-    db.transaction(tx => {
-      tx.executeSql(
-        'SELECT * FROM PinCodeTable',
-        [],
-        (tx, result) => {
-          if (result.rows.length > 0) {
-            for (let i = 0; i < result.rows.length; i++) {
-              const row = result.rows.item(i);
-              console.log('Row:', row);
-            }
-          } else {
-            console.log('Table is empty');
-          }
-        },
-        error => {
-          console.log('Error fetching table content:', error);
-        },
-      );
-    });
-  };
-};
-
-export const useShowShemeTable = () => {
-  return tableName => {
-    db.transaction(tx => {
-      tx.executeSql(
-        `PRAGMA table_info(${tableName})`,
-        [],
-        (tx, result) => {
-          const rows = result.rows;
-          for (let i = 0; i < rows.length; i++) {
-            const column = rows.item(i);
-            console.log(column.name, column.type);
-          }
-        },
-        error => {
-          console.log('Error getting table schema:', error);
-        },
-      );
-    });
-  };
-};
-
 export function usePinCodeRequest() {
   const savePinCode = useAddPinCodeToTable();
   const skipPin = useAddSkipPinCodeVallue();
   const getPinCodefromTable = useGetPinCode();
   const checkActivePinCode = useCheckActivePinCode();
   const deletePinCode = useDeletePinCode();
-  const showTableContent = useShowTableContent();
-  const showTables = useShowTablesBd();
-  const showScheme = useShowShemeTable();
 
   return {
     savePinCode,
@@ -268,8 +198,5 @@ export function usePinCodeRequest() {
     getPinCodefromTable,
     checkActivePinCode,
     deletePinCode,
-    showTables,
-    showTableContent,
-    showScheme,
   };
 }
