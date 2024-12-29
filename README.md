@@ -11,7 +11,7 @@
   <span style="margin: 0 10px; font-size: 24px;"> </span>
   <img src="https://reactnavigation.org/img/spiro.svg" alt="React Native Navigation Logo" width="100" height="100">
   <span style="margin: 0 10px; font-size: 24px;"> </span>
-  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/SQLite370.svg/2560px-SQLite370.svg.png" alt="SQlite Logo" width="100" height="200">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/SQLite370.svg/2560px-SQLite370.svg.png" alt="SQlite Logo" width="100" height="100">
   <span style="margin: 0 10px; font-size: 24px;"> </span>
   <img src="https://upload.wikimedia.org/wikipedia/commons/4/4c/Typescript_logo_2020.svg" alt="TS Logo" width="100" height="100">
   <span style="margin: 0 10px; font-size: 24px;"> </span>
