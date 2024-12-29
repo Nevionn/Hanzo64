@@ -307,18 +307,17 @@ const useClearTable = () => {
   };
 };
 
-// Функция для получения информации о таблице
 const useShowPhotos = () => {
   return () => {
     db.transaction(tx => {
       tx.executeSql(
-        'SELECT * FROM PhotosTable', // Запрос всех записей из таблицы PhotosTable
+        'SELECT * FROM PhotosTable',
         [],
         (tx, result) => {
           if (result.rows.length > 0) {
             for (let i = 0; i < result.rows.length; i++) {
               const row = result.rows.item(i);
-              console.log('Row:', row); // Выводим все данные для каждой строки
+              console.log('Row:', row);
             }
           } else {
             console.log('Таблица фотографий пустая');
@@ -326,27 +325,6 @@ const useShowPhotos = () => {
         },
         error => {
           console.log('Ошибка при получении данных из таблицы:', error);
-        },
-      );
-    });
-  };
-};
-
-export const useShowShemePhotoTable = () => {
-  return tableName => {
-    db.transaction(tx => {
-      tx.executeSql(
-        `PRAGMA table_info(${tableName})`,
-        [],
-        (tx, result) => {
-          const rows = result.rows;
-          for (let i = 0; i < rows.length; i++) {
-            const column = rows.item(i);
-            console.log(column.name, column.type);
-          }
-        },
-        error => {
-          console.log('Error getting table schema:', error);
         },
       );
     });
@@ -361,7 +339,6 @@ export function usePhotoRequest() {
   const deletePhoto = useDeletePhoto();
   const dropTable = useClearTable();
   const showTable = useShowPhotos();
-  const showSheme = useShowShemePhotoTable();
   return {
     addPhoto,
     getPhoto,
@@ -370,6 +347,5 @@ export function usePhotoRequest() {
     deletePhoto,
     dropTable,
     showTable,
-    showSheme,
   };
 }

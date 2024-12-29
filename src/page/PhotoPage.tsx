@@ -94,7 +94,7 @@ const PhotoPage = () => {
         />
       ) : (
         <View style={styles.emptyDataItem}>
-          <Text style={styles.text}>Тут пусто</Text>
+          <Text style={styles.text}>Фотографий нет</Text>
         </View>
       )}
       <NavibarPhoto

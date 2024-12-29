@@ -47,7 +47,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const [safetyVisible, setSafetyVisible] = useState(true);
   const [settings, setSettings] = useState<Settings>({
-    darkMode: false,
+    darkMode: true,
     sortOrder: 'newest',
   });
 
