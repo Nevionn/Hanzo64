@@ -4,7 +4,7 @@ const db = SQLite.openDatabase({name: 'database.db', location: 'default'});
 
 db.transaction(tx => {
   tx.executeSql(
-    'CREATE TABLE IF NOT EXISTS SettingsTable (id INTEGER PRIMARY KEY AUTOINCREMENT, darkMode INTEGER, sortOrder TEXT)',
+    'CREATE TABLE IF NOT EXISTS SettingsTable (id INTEGER PRIMARY KEY AUTOINCREMENT, darkMode INTEGER default 1, sortOrder TEXT default newest)',
     [],
     (tx, results) => {
       console.log('Таблица настроек создана');

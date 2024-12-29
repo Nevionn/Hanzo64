@@ -52,6 +52,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     sortOrder: 'newest',
   });
 
+  // Копия настроек для возврата в случае отмены
+  const [backupSettings, setBackupSettings] = useState<Settings>({
+    darkMode: false,
+    sortOrder: 'newest',
+  });
+
   const [isVisibleAcceptModal, setIsVisibleAcceptModal] = useState(false);
 
   const handleOpenAcceptModal = () => setIsVisibleAcceptModal(true);
@@ -64,6 +70,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     }));
   };
 
+  // Сохраняем текущие настройки при открытии окна
+  useEffect(() => {
+    if (visible) {
+      setBackupSettings(appSettings);
+      setSettings(appSettings);
+    }
+    console.log('test');
+  }, [visible, appSettings]);
+
   const handleSave = () => {
     onSave(settings);
     onClose();
@@ -71,7 +86,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const handleCloseSettingsModal = () => {
     onClose();
-    getSettings(setSettings);
+    setSettings(backupSettings); // Возвращаем исходные настройки
   };
 
   const setPinCode = () => {
