@@ -30,28 +30,37 @@ export const pickImage = async (
     const result = await launchImageLibrary({
       mediaType: 'photo',
       includeBase64: true,
+      selectionLimit: 0,
       maxWidth: 1024,
       maxHeight: 1024,
     });
 
     if (result.assets && result.assets.length > 0) {
-      const {base64, fileName, fileSize} = result.assets[0];
+      for (const asset of result.assets) {
+        const {base64, fileName, fileSize} = asset;
 
-      if (base64 && fileSize && fileSize < MAX_FILE_SIZE) {
-        addPhoto({
-          album_id: idAlbum,
-          title: fileName,
-          photo: base64,
-          created_at: new Date().toLocaleString(),
-        });
-        eventEmitter.emit('photosUpdated');
-        eventEmitter.emit('albumsUpdated');
+        if (base64 && fileSize && fileSize < MAX_FILE_SIZE) {
+          addPhoto({
+            album_id: idAlbum,
+            title: fileName,
+            photo: base64,
+            created_at: new Date().toLocaleString(),
+          });
+        } else {
+          console.warn(
+            `Пропущено изображение ${
+              fileName || 'без имени'
+            }: превышает допустимый размер.`,
+          );
+        }
       }
+
+      eventEmitter.emit('photosUpdated');
+      eventEmitter.emit('albumsUpdated');
     }
   } catch (error) {
     console.error('Ошибка при загрузке изображения:', error);
     Alert.alert('Ошибка', 'Изображение превышает допустимый размер (5 MB).');
-    return;
   }
 };
 
