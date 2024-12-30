@@ -144,6 +144,7 @@ const MainPage: React.FC = () => {
         visible={isSettingsModalVisible}
         onClose={() => setIsSettingsModalVisible(false)}
         onSave={saveSettings}
+        albumsExist={albums.length > 0}
       />
       <NaviBar
         openModalAlbum={openCreateAlbumModal}
