@@ -44,7 +44,7 @@ npm install
 
 npx react-native run-android
 
-a
+в терминале node: a
 ```
 
 ## ССЫЛКИ
