@@ -26,17 +26,18 @@ interface SettingsModalProps {
   visible: boolean;
   onClose: () => void;
   onSave: (settings: Settings) => void;
+  albumsExist?: boolean;
 }
 
 interface Settings {
   darkMode: boolean;
   sortOrder: 'newest' | 'oldest' | 'byName';
 }
-
 const SettingsModal: React.FC<SettingsModalProps> = ({
   visible,
   onClose,
   onSave,
+  albumsExist,
 }) => {
   const {deleteAllAlbums} = useAlbumsRequest();
   const {deleteAllPhotos} = usePhotoRequest();
@@ -214,17 +215,19 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           <View style={styles.deleteAlbumsItem}>
             <Text style={styles.smallText}>Очистка:</Text>
             <View style={styles.topSpacer} />
-            <Button
-              textColor={setAlertColor(appSettings.darkMode)}
-              icon={() => (
-                <SvgDeleteAlbums
-                  color={setSvgIconColor(appSettings.darkMode)}
-                />
-              )}
-              mode="text"
-              onPress={() => handleOpenAcceptModal()}>
-              Удалить все альбомы
-            </Button>
+            {albumsExist ? (
+              <Button
+                textColor={setAlertColor(appSettings.darkMode)}
+                icon={() => (
+                  <SvgDeleteAlbums
+                    color={setSvgIconColor(appSettings.darkMode)}
+                  />
+                )}
+                mode="text"
+                onPress={() => handleOpenAcceptModal()}>
+                Удалить все альбомы
+              </Button>
+            ) : null}
           </View>
           <View style={styles.buttonsItem}>
             <Button
