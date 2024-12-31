@@ -7,6 +7,7 @@ import {
   Image,
   FlatList,
   TouchableOpacity,
+  SafeAreaView,
 } from 'react-native';
 import {COLOR} from '../../assets/colorTheme';
 import NaviBar from '../components/Navibar';
@@ -83,7 +84,7 @@ const MainPage: React.FC = () => {
   const styles = getStyles(appSettings.darkMode);
 
   return (
-    <View style={styles.root}>
+    <SafeAreaView style={styles.root}>
       <StatusBar
         barStyle={setStatusBarTheme(appSettings.darkMode)}
         translucent
@@ -150,7 +151,7 @@ const MainPage: React.FC = () => {
         openModalAlbum={openCreateAlbumModal}
         openModalSettings={openSettings}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 export default MainPage;

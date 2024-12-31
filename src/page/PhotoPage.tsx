@@ -8,6 +8,7 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
+  SafeAreaView,
 } from 'react-native';
 import {usePhotoRequest} from '../hooks/usePhotoRequest';
 import {useAppSettings, setStatusBarTheme} from '../../assets/settingsContext';
@@ -69,7 +70,7 @@ const PhotoPage = () => {
   const styles = getStyles(appSettings.darkMode);
 
   return (
-    <View style={styles.root}>
+    <SafeAreaView style={styles.root}>
       <StatusBar
         barStyle={setStatusBarTheme(appSettings.darkMode)}
         translucent
@@ -110,7 +111,7 @@ const PhotoPage = () => {
         idAlbum={idAlbum}
         idPhoto={idPhoto}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
