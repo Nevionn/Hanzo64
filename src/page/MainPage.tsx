@@ -127,9 +127,7 @@ const MainPage: React.FC = () => {
               </View>
             </TouchableOpacity>
           )}
-          ListFooterComponent={
-            albums.length % 2 !== 0 ? <View style={{flex: 1}} /> : null
-          }
+          ListFooterComponent={<View style={styles.stab} />}
         />
       ) : (
         <View style={styles.emptyDataItem}>
@@ -205,6 +203,10 @@ const getStyles = (darkMode: boolean) => {
     emptyDataItem: {
       justifyContent: 'center',
       alignItems: 'center',
+    },
+    stab: {
+      flex: 1,
+      height: 50,
     },
     text: {
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
