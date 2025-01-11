@@ -38,6 +38,10 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
 
   const [title, setTitile] = useState(titleAlbum);
 
+  const [modalAction, setModalAction] = useState<'clear' | 'delete' | null>(
+    null,
+  );
+
   const [isMiniModalVisible, setIsMiniModalVisible] = useState(false);
   const [isRenameAlbumModal, setIsRenameAlbumModal] = useState(false);
   const [isAcceptMoveModalVisible, setIsAcceptMoveModalVisible] =
@@ -47,7 +51,9 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
 
   const handleOpenAcceptMoveModal = () => setIsAcceptMoveModalVisible(true);
 
-  const handleCloseAcceptMoveModal = () => setIsAcceptMoveModalVisible(false);
+  const handleCloseAcceptMoveModal = () => {
+    setIsAcceptMoveModalVisible(false), setModalAction(null);
+  };
 
   const handleOpenRenameAlbumModal = () => setIsRenameAlbumModal(true);
 
@@ -58,6 +64,13 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
   const deleteAlbumExpand = () => {
     deleteAllPhotosCurrentAlbum(idAlbum);
     deleteAlbum(idAlbum);
+    handleCloseAcceptMoveModal();
+    eventEmitter.emit('albumsUpdated');
+    navigation.goBack();
+  };
+
+  const clearAlbumExpand = () => {
+    deleteAllPhotosCurrentAlbum(idAlbum);
     handleCloseAcceptMoveModal();
     eventEmitter.emit('albumsUpdated');
     navigation.goBack();
@@ -135,7 +148,17 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                handleOpenAcceptMoveModal(), toggleMiniModal();
+                setModalAction('clear'),
+                  handleOpenAcceptMoveModal(),
+                  toggleMiniModal();
+              }}>
+              <Text style={styles.modalItem}>Очистить</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setModalAction('delete'),
+                  handleOpenAcceptMoveModal(),
+                  toggleMiniModal();
               }}>
               <Text style={styles.modalItem}>Удалить</Text>
             </TouchableOpacity>
@@ -152,9 +175,19 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
       <AcceptMoveModal
         visible={isAcceptMoveModalVisible}
         onCloseAcceptModal={handleCloseAcceptMoveModal}
-        onConfirm={deleteAlbumExpand}
-        title={ModalText.deleteAlbum.title}
-        textBody={ModalText.deleteAlbum.textBody}
+        onConfirm={
+          modalAction === 'delete' ? deleteAlbumExpand : clearAlbumExpand
+        }
+        title={
+          modalAction === 'delete'
+            ? ModalText.deleteAlbum.title
+            : ModalText.clearAlbum.title
+        }
+        textBody={
+          modalAction === 'delete'
+            ? ModalText.deleteAlbum.textBody
+            : ModalText.clearAlbum.textBody
+        }
       />
     </>
   );

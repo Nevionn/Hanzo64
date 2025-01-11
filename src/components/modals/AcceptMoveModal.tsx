@@ -11,7 +11,6 @@ import {useAppSettings, setButtonColor} from '../../../assets/settingsContext';
 import {borderButtonStyle} from '../../../assets/colorTheme';
 import {COLOR} from '../../../assets/colorTheme';
 import {Button} from 'react-native-paper';
-const {height} = Dimensions.get('window');
 
 interface AcceptMoveModalProps {
   visible: boolean;
@@ -79,7 +78,6 @@ const getStyles = (darkMode: boolean) => {
     },
     modalContainer: {
       width: '80%',
-      height: height * 0.3,
       backgroundColor: darkMode
         ? COLOR.dark.SECONDARY_COLOR
         : COLOR.light.SECONDARY_COLOR,
