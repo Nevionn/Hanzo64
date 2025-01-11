@@ -117,7 +117,7 @@ const useGetPhotoFromAlbum = () => {
               created_at: row.created_at,
             });
           }
-          setPhotos(photos); // Обновляем состояние
+          setPhotos(photos);
         },
         error => {
           console.error('Ошибка при получении фотографий:', error);
@@ -155,6 +155,30 @@ const useDeleteAllPhotosCurrentAlbum = () => {
         },
         error => {
           console.error('Ошибка при удалении фотографий:', error);
+        },
+      );
+
+      // После очистки альбома обнуляем счётчик фотографий
+      tx.executeSql(
+        'UPDATE AlbumsTable SET countPhoto = 0 WHERE id = ?',
+        [albumId],
+        (_, updateResults) => {
+          console.log('Счётчик фотографий обнулён.');
+        },
+        error => {
+          console.error('Ошибка при обновлении счётчика фотографий:', error);
+        },
+      );
+
+      // Обнуление обложки альбома
+      tx.executeSql(
+        'UPDATE AlbumsTable SET coverPhoto = null WHERE id = ?',
+        [albumId],
+        (_, updateResults) => {
+          console.log('Обложка обнулена');
+        },
+        error => {
+          console.error('Ошибка при обнуление обложки:', error);
         },
       );
     });

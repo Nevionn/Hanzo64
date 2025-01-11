@@ -78,7 +78,6 @@ const getStyles = (darkMode: boolean) => {
     },
     modalContainer: {
       width: '80%',
-      // height: height * 0.3,
       backgroundColor: darkMode
         ? COLOR.dark.SECONDARY_COLOR
         : COLOR.light.SECONDARY_COLOR,
