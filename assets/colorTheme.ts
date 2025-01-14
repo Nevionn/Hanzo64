@@ -18,6 +18,7 @@ type ThemeColors = {
 type ColorSchema = {
   NAME_APP: string;
   SVG_WHITE: string;
+  LOAD: string;
   dark: ThemeColors;
   light: ThemeColors;
 };
@@ -25,6 +26,7 @@ type ColorSchema = {
 export const COLOR: ColorSchema = {
   NAME_APP: '#9d65c9',
   SVG_WHITE: 'white',
+  LOAD: '#6AD4E7',
   dark: {
     MAIN_COLOR: '#1c1549',
 
