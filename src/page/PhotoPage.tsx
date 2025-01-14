@@ -77,27 +77,29 @@ const PhotoPage = () => {
         backgroundColor="transparent"
       />
       <View style={styles.topSpacer} />
-      {photos.length > 0 ? (
-        <FlatList
-          data={photos}
-          numColumns={3}
-          keyExtractor={item => item.id.toString()}
-          renderItem={({item, index}) => (
-            <TouchableOpacity
-              style={styles.placeHolder}
-              onPress={() => openImageViewer(index, item.id)}>
-              <Image
-                source={{uri: `data:image/jpeg;base64,${item.photo}`}}
-                style={styles.image}
-              />
-            </TouchableOpacity>
-          )}
-        />
-      ) : (
-        <View style={styles.emptyDataItem}>
-          <Text style={styles.text}>Фотографий нет</Text>
-        </View>
-      )}
+      <FlatList
+        data={photos}
+        numColumns={3}
+        keyExtractor={item => item.id.toString()}
+        renderItem={({item, index}) => (
+          <TouchableOpacity
+            style={styles.placeHolder}
+            onPress={() => openImageViewer(index, item.id)}>
+            <Image
+              source={{uri: `data:image/jpeg;base64,${item.photo}`}}
+              style={styles.image}
+            />
+          </TouchableOpacity>
+        )}
+        contentContainerStyle={
+          photos.length === 0 ? {flex: 1, justifyContent: 'center'} : null
+        }
+        ListEmptyComponent={
+          <View style={styles.emptyDataItem}>
+            <Text style={styles.text}>Фотографий нет</Text>
+          </View>
+        }
+      />
       <NavibarPhoto
         titleAlbum={dataAlbum.album.title}
         idAlbum={dataAlbum.album.id}
