@@ -8,6 +8,7 @@ import {
   FlatList,
   TouchableOpacity,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
 import {COLOR} from '../../assets/colorTheme';
 import NaviBar from '../components/Navibar';
@@ -38,6 +39,7 @@ const MainPage: React.FC = () => {
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
 
   const [albums, setAlbums] = useState<Album[]>([]);
+  const [fetchingAlbums, setFetchingAlbums] = useState(false);
 
   useEffect(() => {
     getSettings(saveAppSettings);
@@ -45,7 +47,12 @@ const MainPage: React.FC = () => {
 
   useEffect(() => {
     const updateAlbums = () => {
-      getAllAlbums(setAlbums, appSettings.sortOrder);
+      setFetchingAlbums(true);
+
+      getAllAlbums((fetchedAlbums: Album[]) => {
+        setAlbums(fetchedAlbums);
+        setFetchingAlbums(false);
+      }, appSettings.sortOrder);
     };
 
     updateAlbums();
@@ -92,51 +99,54 @@ const MainPage: React.FC = () => {
       />
       <View style={styles.topSpacer} />
 
-      <FlatList
-        data={albums}
-        numColumns={2}
-        keyExtractor={item => item.id.toString()}
-        renderItem={({item}) => (
-          <TouchableOpacity
-            style={styles.placeHolder}
-            onPress={() => openAlbum(item)}>
-            <View style={styles.imagePlace}>
-              {item.coverPhoto ? (
-                <Image
-                  source={{uri: `data:image/jpeg;base64,${item.coverPhoto}`}}
-                  style={styles.image}
-                />
-              ) : (
-                <Image
-                  source={require('../../assets/images/not_img_default.png')}
-                  style={styles.image}
-                />
-              )}
+      {fetchingAlbums ? (
+        <ActivityIndicator size="large" color={COLOR.LOAD} style={{flex: 1}} />
+      ) : (
+        <FlatList
+          data={albums}
+          numColumns={2}
+          keyExtractor={item => item.id.toString()}
+          renderItem={({item}) => (
+            <TouchableOpacity
+              style={styles.placeHolder}
+              onPress={() => openAlbum(item)}>
+              <View style={styles.imagePlace}>
+                {item.coverPhoto ? (
+                  <Image
+                    source={{uri: `data:image/jpeg;base64,${item.coverPhoto}`}}
+                    style={styles.image}
+                  />
+                ) : (
+                  <Image
+                    source={require('../../assets/images/not_img_default.png')}
+                    style={styles.image}
+                  />
+                )}
+              </View>
+              <View style={styles.textImageHolder}>
+                <Text style={styles.textNameAlbum}>
+                  {item.title.length > 12
+                    ? `${item.title.substring(0, 20)}...`
+                    : item.title}
+                </Text>
+                <Text
+                  style={
+                    styles.textCountPhoto
+                  }>{`фотографий ${item.countPhoto}`}</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+          contentContainerStyle={
+            albums.length === 0 ? {flex: 1, justifyContent: 'center'} : null
+          }
+          ListFooterComponent={<View style={styles.stab} />}
+          ListEmptyComponent={
+            <View style={styles.emptyDataItem}>
+              <Text style={styles.text}>Альбомов нет</Text>
             </View>
-            <View style={styles.textImageHolder}>
-              <Text style={styles.textNameAlbum}>
-                {item.title.length > 12
-                  ? `${item.title.substring(0, 20)}...`
-                  : item.title}
-              </Text>
-              <Text
-                style={
-                  styles.textCountPhoto
-                }>{`фотографий ${item.countPhoto}`}</Text>
-            </View>
-          </TouchableOpacity>
-        )}
-        contentContainerStyle={
-          albums.length === 0 ? {flex: 1, justifyContent: 'center'} : null
-        }
-        ListFooterComponent={<View style={styles.stab} />}
-        ListEmptyComponent={
-          <View style={styles.emptyDataItem}>
-            <Text style={styles.text}>Альбомов нет</Text>
-          </View>
-        }
-      />
-
+          }
+        />
+      )}
       <NewAlbumModal
         visible={isModalAddAlbumVisible}
         onClose={() => setModalAddAlbumVisible(false)}

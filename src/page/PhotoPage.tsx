@@ -39,7 +39,7 @@ const PhotoPage = () => {
   const [idAlbum, setIdAlbum] = useState(0);
   const [idPhoto, setIdPhoto] = useState(0);
 
-  const [fetchingPhotos, setFetchingPhotos] = useState(true);
+  const [fetchingPhotos, setFetchingPhotos] = useState(false);
 
   const openImageViewer = (index: number, id: number) => {
     setInitialIndex(index);
