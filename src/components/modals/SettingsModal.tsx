@@ -8,6 +8,7 @@ import {useAlbumsRequest} from '../../hooks/useAlbumsRequest';
 import {usePhotoRequest} from '../../hooks/usePhotoRequest';
 import {useSettingsRequest} from '../../hooks/useSettingsRequest';
 import {usePinCodeRequest} from '../../hooks/usePinCodeRequest';
+import useMediaInformation from '../../hooks/useMediaInformation';
 import {
   useAppSettings,
   setButtonColor,
@@ -44,9 +45,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   const {checkActivePinCode} = usePinCodeRequest();
   const {getSettings} = useSettingsRequest();
   const {appSettings} = useAppSettings();
+  const {calcAllAlbums, calcAllPhotos} = useMediaInformation();
 
   const navigation: any = useNavigation();
 
+  const [photoCount, setPhotoCount] = useState(0);
+  const [albumCount, setAlbumCount] = useState(0);
   const [safetyVisible, setSafetyVisible] = useState(true);
   const [settings, setSettings] = useState<Settings>({
     darkMode: true,
@@ -71,13 +75,41 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     }));
   };
 
-  // Сохраняем текущие настройки при открытии окна
   useEffect(() => {
+    // Сохраняем текущие настройки при открытии окна
     if (visible) {
       setBackupSettings(appSettings);
       setSettings(appSettings);
     }
   }, [visible, appSettings]);
+
+  useEffect(() => {
+    const fetchPhotoAndAlbumCount = async () => {
+      try {
+        const [albums, photos] = await Promise.all([
+          calcAllAlbums(),
+          calcAllPhotos(),
+        ]);
+        setAlbumCount(albums);
+        setPhotoCount(photos);
+      } catch (error) {
+        console.error(
+          'Ошибка при получении количества альбомов и фотографий:',
+          error,
+        );
+      }
+    };
+
+    eventEmitter.on('albumsUpdated', fetchPhotoAndAlbumCount);
+    eventEmitter.on('photosUpdated', fetchPhotoAndAlbumCount);
+
+    fetchPhotoAndAlbumCount();
+
+    return () => {
+      eventEmitter.off('albumsUpdated', fetchPhotoAndAlbumCount);
+      eventEmitter.off('photosUpdated', fetchPhotoAndAlbumCount);
+    };
+  }, []);
 
   const handleSave = () => {
     onSave(settings);
@@ -182,6 +214,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 value="byName"
               />
             </Picker>
+          </View>
+          <Divider />
+          <View style={styles.topSpacer} />
+          <Text style={styles.smallText}>Информация</Text>
+          <View style={styles.mediaInformationItem}>
+            <Text style={styles.text}>
+              Альбомов: {albumCount} {'\u00A0\u00A0\u00A0'} фотографий:{' '}
+              {photoCount}
+            </Text>
           </View>
           <Divider />
           <View style={styles.securItem}>
@@ -297,6 +338,11 @@ const getStyles = (darkMode: boolean) => {
       justifyContent: 'flex-start',
       alignItems: 'flex-start',
       marginTop: 10,
+    },
+    mediaInformationItem: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      margin: 14,
     },
     deleteAlbumsItem: {
       flexDirection: 'column',

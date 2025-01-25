@@ -63,6 +63,28 @@ const useGetAllAlbums = () => {
   };
 };
 
+const useGetCountAlbums = () => {
+  return () => {
+    return new Promise((resolve, reject) => {
+      db.transaction(tx => {
+        tx.executeSql(
+          'SELECT COUNT(*) AS count FROM AlbumsTable',
+          [],
+          (tx, result) => {
+            const albumsCount = result.rows.item(0).count;
+            console.log('Количество альбомов:', albumsCount);
+            resolve(albumsCount);
+          },
+          error => {
+            console.log('Ошибка при получении данных из таблицы:', error);
+            reject(error);
+          },
+        );
+      });
+    });
+  };
+};
+
 const useRenameAlbum = () => {
   return (id, newTitle) => {
     db.transaction(tx => {
@@ -161,6 +183,7 @@ const useDeleteAlbum = () => {
 export function useAlbumsRequest() {
   const addAlbum = useAddNewAlbumToTable();
   const getAllAlbums = useGetAllAlbums();
+  const getCountAlbums = useGetCountAlbums();
   const renameAlbum = useRenameAlbum();
   const setAlbumCover = useSetAlbumCover();
   const deleteAllAlbums = useDeleteAllAlbums();
@@ -169,6 +192,7 @@ export function useAlbumsRequest() {
   return {
     addAlbum,
     getAllAlbums,
+    getCountAlbums,
     renameAlbum,
     setAlbumCover,
     deleteAllAlbums,

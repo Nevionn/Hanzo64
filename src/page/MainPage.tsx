@@ -82,6 +82,7 @@ const MainPage: React.FC = () => {
       created_at: currentDate.toLocaleString(),
     };
     addAlbum(albumToInsert), getAllAlbums(setAlbums, appSettings.sortOrder);
+    // eventEmitter.emit('albumsUpdated'); TODO понять как происходит обновление альбомов при их создании
   };
 
   const openAlbum = (album: Album) => {
