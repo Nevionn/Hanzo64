@@ -15,6 +15,7 @@ import NaviBar from '../components/Navibar';
 import {useNavigation} from '@react-navigation/native';
 import {useAlbumsRequest} from '../hooks/useAlbumsRequest';
 import {useSettingsRequest} from '../hooks/useSettingsRequest';
+import useMediaInformation from '../hooks/useMediaInformation';
 import {useAppSettings, setStatusBarTheme} from '../../assets/settingsContext';
 import NewAlbumModal from '../components/modals/NewAlbumModal';
 import SettingsModal from '../components/modals/SettingsModal';
@@ -34,12 +35,16 @@ const MainPage: React.FC = () => {
   const {addAlbum, getAllAlbums} = useAlbumsRequest();
   const {acceptSettings, getSettings} = useSettingsRequest();
   const {appSettings, saveAppSettings} = useAppSettings();
+  const {calcAllAlbums, calcAllPhotos} = useMediaInformation();
 
   const [isModalAddAlbumVisible, setModalAddAlbumVisible] = useState(false);
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
 
   const [albums, setAlbums] = useState<Album[]>([]);
   const [fetchingAlbums, setFetchingAlbums] = useState(false);
+
+  const [photoCount, setPhotoCount] = useState(0);
+  const [albumCount, setAlbumCount] = useState(0);
 
   useEffect(() => {
     getSettings(saveAppSettings);
@@ -63,6 +68,34 @@ const MainPage: React.FC = () => {
     };
   }, [appSettings.sortOrder]);
 
+  useEffect(() => {
+    const fetchPhotoAndAlbumCount = async () => {
+      try {
+        const [albums, photos] = await Promise.all([
+          calcAllAlbums(),
+          calcAllPhotos(),
+        ]);
+        setAlbumCount(albums);
+        setPhotoCount(photos);
+      } catch (error) {
+        console.error(
+          'Ошибка при получении количества альбомов и фотографий:',
+          error,
+        );
+      }
+    };
+
+    eventEmitter.on('albumsUpdated', fetchPhotoAndAlbumCount);
+    eventEmitter.on('photosUpdated', fetchPhotoAndAlbumCount);
+
+    fetchPhotoAndAlbumCount();
+
+    return () => {
+      eventEmitter.off('albumsUpdated', fetchPhotoAndAlbumCount);
+      eventEmitter.off('photosUpdated', fetchPhotoAndAlbumCount);
+    };
+  }, []);
+
   const openSettings = () => setIsSettingsModalVisible(true);
 
   const saveSettings = (newSettings: typeof appSettings) => {
@@ -82,7 +115,7 @@ const MainPage: React.FC = () => {
       created_at: currentDate.toLocaleString(),
     };
     addAlbum(albumToInsert), getAllAlbums(setAlbums, appSettings.sortOrder);
-    eventEmitter.emit('albumsUpdated'); //TODO понять как происходит обновление альбомов при их создании
+    eventEmitter.emit('albumsUpdated');
   };
 
   const openAlbum = (album: Album) => {
@@ -99,6 +132,15 @@ const MainPage: React.FC = () => {
         backgroundColor="transparent"
       />
       <View style={styles.topSpacer} />
+
+      <View style={styles.countItem}>
+        {albums.length > 0 && (
+          <Text style={styles.textDim}>
+            Альбомов: {albumCount} {'\u00A0\u00A0\u00A0'} фотографий:{' '}
+            {photoCount}
+          </Text>
+        )}
+      </View>
 
       {fetchingAlbums ? (
         <ActivityIndicator size="large" color={COLOR.LOAD} style={{flex: 1}} />
@@ -180,6 +222,12 @@ const getStyles = (darkMode: boolean) => {
     topSpacer: {
       height: '15%',
     },
+    countItem: {
+      height: 24,
+      width: '100%',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
     placeHolder: {
       flexBasis: '45%',
       margin: 10,
@@ -225,6 +273,10 @@ const getStyles = (darkMode: boolean) => {
     text: {
       textAlign: 'center',
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
+    },
+    textDim: {
+      textAlign: 'center',
+      color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,
     },
   });
 };

@@ -8,7 +8,6 @@ import {useAlbumsRequest} from '../../hooks/useAlbumsRequest';
 import {usePhotoRequest} from '../../hooks/usePhotoRequest';
 import {useSettingsRequest} from '../../hooks/useSettingsRequest';
 import {usePinCodeRequest} from '../../hooks/usePinCodeRequest';
-import useMediaInformation from '../../hooks/useMediaInformation';
 import {
   useAppSettings,
   setButtonColor,
@@ -45,12 +44,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   const {checkActivePinCode} = usePinCodeRequest();
   const {getSettings} = useSettingsRequest();
   const {appSettings} = useAppSettings();
-  const {calcAllAlbums, calcAllPhotos} = useMediaInformation();
 
   const navigation: any = useNavigation();
 
-  const [photoCount, setPhotoCount] = useState(0);
-  const [albumCount, setAlbumCount] = useState(0);
   const [safetyVisible, setSafetyVisible] = useState(true);
   const [settings, setSettings] = useState<Settings>({
     darkMode: true,
@@ -82,34 +78,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       setSettings(appSettings);
     }
   }, [visible, appSettings]);
-
-  useEffect(() => {
-    const fetchPhotoAndAlbumCount = async () => {
-      try {
-        const [albums, photos] = await Promise.all([
-          calcAllAlbums(),
-          calcAllPhotos(),
-        ]);
-        setAlbumCount(albums);
-        setPhotoCount(photos);
-      } catch (error) {
-        console.error(
-          'Ошибка при получении количества альбомов и фотографий:',
-          error,
-        );
-      }
-    };
-
-    eventEmitter.on('albumsUpdated', fetchPhotoAndAlbumCount);
-    eventEmitter.on('photosUpdated', fetchPhotoAndAlbumCount);
-
-    fetchPhotoAndAlbumCount();
-
-    return () => {
-      eventEmitter.off('albumsUpdated', fetchPhotoAndAlbumCount);
-      eventEmitter.off('photosUpdated', fetchPhotoAndAlbumCount);
-    };
-  }, []);
 
   const handleSave = () => {
     onSave(settings);
@@ -216,15 +184,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             </Picker>
           </View>
           <Divider />
-          <View style={styles.topSpacer} />
-          <Text style={styles.smallText}>Информация</Text>
-          <View style={styles.mediaInformationItem}>
-            <Text style={styles.text}>
-              Альбомов: {albumCount} {'\u00A0\u00A0\u00A0'} фотографий:{' '}
-              {photoCount}
-            </Text>
-          </View>
-          <Divider />
           <View style={styles.securItem}>
             <Text style={styles.smallText}>Безопасность:</Text>
             <View style={styles.topSpacer} />
@@ -253,10 +212,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             )}
           </View>
           <Divider />
-          <View style={styles.deleteAlbumsItem}>
-            <Text style={styles.smallText}>Очистка:</Text>
-            <View style={styles.topSpacer} />
-            {albumsExist ? (
+          {albumsExist && (
+            <View style={styles.deleteAlbumsItem}>
+              <Text style={styles.smallText}>Очистка:</Text>
+              <View style={styles.topSpacer} />
               <Button
                 textColor={setAlertColor(appSettings.darkMode)}
                 icon={() => (
@@ -268,8 +227,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 onPress={() => handleOpenAcceptModal()}>
                 Удалить все альбомы
               </Button>
-            ) : null}
-          </View>
+            </View>
+          )}
+          <Divider />
           <View style={styles.buttonsItem}>
             <Button
               mode="contained"
