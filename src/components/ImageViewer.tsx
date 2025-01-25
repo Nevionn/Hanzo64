@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
     height: INFOBAR_HEIGHT,
     width: '100%',
-    backgroundColor: 'black',
+    backgroundColor: COLOR.INFOBAR_IMG_VIEWER,
   },
   infoText: {
     color: 'white',
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
   zoomableViewContainer: {
     flex: 1,
     marginTop: INFOBAR_HEIGHT,
-    backgroundColor: 'black',
+    backgroundColor: COLOR.ZOOMABLE_VIEW_CONTAINER,
   },
   swipeZoneLeft: {
     position: 'absolute',

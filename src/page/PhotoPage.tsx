@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Image,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
 import {usePhotoRequest} from '../hooks/usePhotoRequest';
 import {useAppSettings, setStatusBarTheme} from '../../assets/settingsContext';
@@ -34,13 +35,14 @@ const PhotoPage = () => {
 
   const [isVisibleImageViewer, setIsVisibleImageViewer] = useState(false);
   const [photos, setPhotos] = useState<PhotoObjectArray[]>([]);
-
   const [initialIndex, setInitialIndex] = useState(0);
   const [idAlbum, setIdAlbum] = useState(0);
   const [idPhoto, setIdPhoto] = useState(0);
 
+  const [fetchingPhotos, setFetchingPhotos] = useState(false);
+
   const openImageViewer = (index: number, id: number) => {
-    setInitialIndex(index); // индекс элемента массива
+    setInitialIndex(index);
     setIdPhoto(id); // порядковый номер фото в таблице
     setIdAlbum(dataAlbum.album.id);
     setIsVisibleImageViewer(true);
@@ -56,7 +58,12 @@ const PhotoPage = () => {
 
   useEffect(() => {
     const updatePhotos = () => {
-      getPhoto(dataAlbum.album.id, setPhotos);
+      setFetchingPhotos(true);
+
+      getPhoto(dataAlbum.album.id, (fetchedPhotos: PhotoObjectArray[]) => {
+        setPhotos(fetchedPhotos);
+        setFetchingPhotos(false);
+      });
     };
 
     updatePhotos();
@@ -65,7 +72,7 @@ const PhotoPage = () => {
     return () => {
       eventEmitter.off('photosUpdated', updatePhotos);
     };
-  }, []);
+  }, [dataAlbum.album.id]);
 
   const styles = getStyles(appSettings.darkMode);
 
@@ -77,7 +84,10 @@ const PhotoPage = () => {
         backgroundColor="transparent"
       />
       <View style={styles.topSpacer} />
-      {photos.length > 0 ? (
+
+      {fetchingPhotos ? (
+        <ActivityIndicator size="large" color={COLOR.LOAD} style={{flex: 1}} />
+      ) : (
         <FlatList
           data={photos}
           numColumns={3}
@@ -92,12 +102,13 @@ const PhotoPage = () => {
               />
             </TouchableOpacity>
           )}
+          contentContainerStyle={
+            photos.length === 0 ? {flex: 1, justifyContent: 'center'} : null
+          }
+          ListEmptyComponent={<Text style={styles.text}>Фотографий нет</Text>}
         />
-      ) : (
-        <View style={styles.emptyDataItem}>
-          <Text style={styles.text}>Фотографий нет</Text>
-        </View>
       )}
+
       <NavibarPhoto
         titleAlbum={dataAlbum.album.title}
         idAlbum={dataAlbum.album.id}
@@ -144,6 +155,7 @@ const getStyles = (darkMode: boolean) => {
       alignItems: 'center',
     },
     text: {
+      textAlign: 'center',
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
     },
   });

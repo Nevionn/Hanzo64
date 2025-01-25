@@ -8,6 +8,7 @@ import {
   FlatList,
   TouchableOpacity,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
 import {COLOR} from '../../assets/colorTheme';
 import NaviBar from '../components/Navibar';
@@ -38,6 +39,7 @@ const MainPage: React.FC = () => {
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
 
   const [albums, setAlbums] = useState<Album[]>([]);
+  const [fetchingAlbums, setFetchingAlbums] = useState(false);
 
   useEffect(() => {
     getSettings(saveAppSettings);
@@ -45,7 +47,12 @@ const MainPage: React.FC = () => {
 
   useEffect(() => {
     const updateAlbums = () => {
-      getAllAlbums(setAlbums, appSettings.sortOrder);
+      setFetchingAlbums(true);
+
+      getAllAlbums((fetchedAlbums: Album[]) => {
+        setAlbums(fetchedAlbums);
+        setFetchingAlbums(false);
+      }, appSettings.sortOrder);
     };
 
     updateAlbums();
@@ -75,6 +82,7 @@ const MainPage: React.FC = () => {
       created_at: currentDate.toLocaleString(),
     };
     addAlbum(albumToInsert), getAllAlbums(setAlbums, appSettings.sortOrder);
+    // eventEmitter.emit('albumsUpdated'); TODO понять как происходит обновление альбомов при их создании
   };
 
   const openAlbum = (album: Album) => {
@@ -92,7 +100,9 @@ const MainPage: React.FC = () => {
       />
       <View style={styles.topSpacer} />
 
-      {albums.length > 0 ? (
+      {fetchingAlbums ? (
+        <ActivityIndicator size="large" color={COLOR.LOAD} style={{flex: 1}} />
+      ) : (
         <FlatList
           data={albums}
           numColumns={2}
@@ -127,12 +137,16 @@ const MainPage: React.FC = () => {
               </View>
             </TouchableOpacity>
           )}
+          contentContainerStyle={
+            albums.length === 0 ? {flex: 1, justifyContent: 'center'} : null
+          }
           ListFooterComponent={<View style={styles.stab} />}
+          ListEmptyComponent={
+            <View style={styles.emptyDataItem}>
+              <Text style={styles.text}>Альбомов нет</Text>
+            </View>
+          }
         />
-      ) : (
-        <View style={styles.emptyDataItem}>
-          <Text style={styles.text}>Альбомов нет</Text>
-        </View>
       )}
       <NewAlbumModal
         visible={isModalAddAlbumVisible}
@@ -209,6 +223,7 @@ const getStyles = (darkMode: boolean) => {
       height: 50,
     },
     text: {
+      textAlign: 'center',
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
     },
   });

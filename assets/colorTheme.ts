@@ -18,6 +18,9 @@ type ThemeColors = {
 type ColorSchema = {
   NAME_APP: string;
   SVG_WHITE: string;
+  LOAD: string;
+  ZOOMABLE_VIEW_CONTAINER: string;
+  INFOBAR_IMG_VIEWER: string;
   dark: ThemeColors;
   light: ThemeColors;
 };
@@ -25,6 +28,9 @@ type ColorSchema = {
 export const COLOR: ColorSchema = {
   NAME_APP: '#9d65c9',
   SVG_WHITE: 'white',
+  LOAD: '#6AD4E7',
+  ZOOMABLE_VIEW_CONTAINER: 'black',
+  INFOBAR_IMG_VIEWER: 'black',
   dark: {
     MAIN_COLOR: '#1c1549',
 
@@ -70,5 +76,5 @@ export const borderButtonStyle = (): ViewStyle => ({
   shadowOpacity: 0.8,
   shadowRadius: 4,
   borderWidth: 1,
-  borderColor: 'black',
+  borderColor: '#292625',
 });

@@ -102,7 +102,7 @@ const useGetPhotoFromAlbum = () => {
   return (albumId, setPhotos) => {
     db.transaction(tx => {
       tx.executeSql(
-        'SELECT * FROM PhotosTable WHERE album_id = ?', // Запрос всех фотографий по ID альбома
+        'SELECT * FROM PhotosTable WHERE album_id = ?',
         [albumId],
         (tx, results) => {
           const photos = [];
@@ -123,6 +123,28 @@ const useGetPhotoFromAlbum = () => {
           console.error('Ошибка при получении фотографий:', error);
         },
       );
+    });
+  };
+};
+
+const useGetCountPhotos = () => {
+  return () => {
+    return new Promise((resolve, reject) => {
+      db.transaction(tx => {
+        tx.executeSql(
+          'SELECT COUNT(*) AS count FROM PhotosTable',
+          [],
+          (tx, result) => {
+            const photoCount = result.rows.item(0).count;
+            console.log('Количество фотографий:', photoCount);
+            resolve(photoCount);
+          },
+          error => {
+            console.log('Ошибка при получении данных из таблицы:', error);
+            reject(error);
+          },
+        );
+      });
     });
   };
 };
@@ -331,45 +353,22 @@ const useClearTable = () => {
   };
 };
 
-const useShowPhotos = () => {
-  return () => {
-    db.transaction(tx => {
-      tx.executeSql(
-        'SELECT * FROM PhotosTable',
-        [],
-        (tx, result) => {
-          if (result.rows.length > 0) {
-            for (let i = 0; i < result.rows.length; i++) {
-              const row = result.rows.item(i);
-              console.log('Row:', row);
-            }
-          } else {
-            console.log('Таблица фотографий пустая');
-          }
-        },
-        error => {
-          console.log('Ошибка при получении данных из таблицы:', error);
-        },
-      );
-    });
-  };
-};
-
 export function usePhotoRequest() {
   const addPhoto = useAddPhotoInAlbum();
   const getPhoto = useGetPhotoFromAlbum();
+  const getCountPhotos = useGetCountPhotos();
   const deleteAllPhotos = useDeleteAllPhotos();
   const deleteAllPhotosCurrentAlbum = useDeleteAllPhotosCurrentAlbum();
   const deletePhoto = useDeletePhoto();
   const dropTable = useClearTable();
-  const showTable = useShowPhotos();
+
   return {
     addPhoto,
     getPhoto,
+    getCountPhotos,
     deleteAllPhotos,
     deleteAllPhotosCurrentAlbum,
     deletePhoto,
     dropTable,
-    showTable,
   };
 }
