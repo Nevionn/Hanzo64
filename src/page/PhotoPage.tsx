@@ -40,6 +40,7 @@ const PhotoPage = () => {
   const [idPhoto, setIdPhoto] = useState(0);
 
   const [fetchingPhotos, setFetchingPhotos] = useState(false);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
 
   const openImageViewer = (index: number, id: number) => {
     setInitialIndex(index);
@@ -63,6 +64,7 @@ const PhotoPage = () => {
       getPhoto(dataAlbum.album.id, (fetchedPhotos: PhotoObjectArray[]) => {
         setPhotos(fetchedPhotos);
         setFetchingPhotos(false);
+        setUploadingPhotos(false);
       });
     };
 
@@ -85,8 +87,19 @@ const PhotoPage = () => {
       />
       <View style={styles.topSpacer} />
 
+      {uploadingPhotos && (
+        <Text style={styles.uploadingText}>Загрузка новых фотографий...</Text>
+      )}
+
       {fetchingPhotos ? (
-        <ActivityIndicator size="large" color={COLOR.LOAD} style={{flex: 1}} />
+        <View style={styles.loadingItem}>
+          <ActivityIndicator
+            size="large"
+            color={COLOR.LOAD}
+            style={styles.loader}
+          />
+          <Text style={styles.text}>Чтение данных</Text>
+        </View>
       ) : (
         <FlatList
           data={photos}
@@ -113,6 +126,7 @@ const PhotoPage = () => {
         titleAlbum={dataAlbum.album.title}
         idAlbum={dataAlbum.album.id}
         sortPhotos={reversePhotosSort}
+        setUploadingPhotos={setUploadingPhotos}
       />
       <ImageViewer
         visible={isVisibleImageViewer}
@@ -154,9 +168,23 @@ const getStyles = (darkMode: boolean) => {
       justifyContent: 'center',
       alignItems: 'center',
     },
+    loadingItem: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      flexDirection: 'row',
+    },
+    loader: {
+      marginHorizontal: 10,
+    },
     text: {
       textAlign: 'center',
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
+    },
+    uploadingText: {
+      textAlign: 'center',
+      color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
+      fontSize: 16,
+      marginBottom: 10,
     },
   });
 };

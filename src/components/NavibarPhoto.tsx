@@ -27,12 +27,14 @@ interface NaviBarPhotoProps {
   titleAlbum: string;
   idAlbum: string;
   sortPhotos: () => void;
+  setUploadingPhotos: (value: boolean) => void;
 }
 
 const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
   titleAlbum,
   idAlbum,
   sortPhotos,
+  setUploadingPhotos,
 }) => {
   const {deleteAlbum} = useAlbumsRequest();
   const {appSettings} = useAppSettings();
@@ -126,20 +128,19 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
         animationType="fade"
         onRequestClose={toggleMiniModal}>
         <StatusBar translucent backgroundColor="black" />
-        <TouchableOpacity
-          style={styles.overlay}
-          onPress={toggleMiniModal} // Закрытие модалки при нажатии вне
-        >
+        <TouchableOpacity style={styles.overlay} onPress={toggleMiniModal}>
           <View style={styles.modalContent}>
             <TouchableOpacity
               onPress={() => {
-                pickImage(idAlbum, addPhoto);
+                setUploadingPhotos(true);
+                pickImage(idAlbum, addPhoto, setUploadingPhotos);
                 toggleMiniModal();
               }}>
               <Text style={styles.modalItem}>Добавить фото</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
+                setUploadingPhotos(true);
                 capturePhoto(idAlbum, addPhoto);
                 toggleMiniModal();
               }}>
