@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {View, Text, Switch, StyleSheet, Modal, StatusBar} from 'react-native';
 import {Picker} from '@react-native-picker/picker';
-import {Button, Divider} from 'react-native-paper';
+import {Button, Divider, List} from 'react-native-paper';
 import {COLOR} from '../../../assets/colorTheme';
 import {ModalText} from '../../../assets/textForModal';
 import {useAlbumsRequest} from '../../hooks/useAlbumsRequest';
@@ -14,11 +14,10 @@ import {
   setButtonTextColorRecommendation,
   setSvgIconColor,
   setAlertColor,
+  setArrowAccordionColor,
 } from '../../../assets/settingsContext';
 import {useNavigation} from '@react-navigation/native';
 import eventEmitter from '../../../assets/eventEmitter';
-import SvgPassword from '../icons/SvgPassword';
-import SvgDeleteAlbums from '../icons/SvgDeleteAlbums';
 import AcceptMoveModal from './AcceptMoveModal';
 
 interface SettingsModalProps {
@@ -151,84 +150,114 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               onValueChange={() => toggleSwitch('darkMode')}
             />
           </View>
-          <Divider />
-          <View style={styles.topSpacer} />
-          <View style={styles.sortItem}>
-            <Text style={styles.smallText}>Сортировка:</Text>
-            <Picker
-              selectedValue={settings.sortOrder}
-              style={styles.pickerItem}
-              dropdownIconColor={appSettings.darkMode ? 'white' : 'black'}
-              onValueChange={itemValue =>
-                setSettings(prevSettings => ({
-                  ...prevSettings,
-                  sortOrder: itemValue as Settings['sortOrder'],
-                }))
-              }>
-              <Picker.Item
-                style={styles.text}
-                label="Новые альбомы"
-                value="newest"
-              />
-              <Picker.Item
-                style={styles.text}
-                label="Старые альбомы"
-                value="oldest"
-              />
-              <Picker.Item
-                style={styles.text}
-                label="По имени"
-                value="byName"
-              />
-            </Picker>
-          </View>
-          <Divider />
-          <View style={styles.securItem}>
-            <Text style={styles.smallText}>Безопасность:</Text>
-            <View style={styles.topSpacer} />
-            {safetyVisible ? (
-              <Button
-                textColor={setButtonTextColorRecommendation(
-                  appSettings.darkMode,
-                )}
-                icon={() => (
-                  <SvgPassword color={setSvgIconColor(appSettings.darkMode)} />
-                )}
-                mode="text"
-                onPress={() => setPinCode()}>
-                Установить ПИН-код
-              </Button>
-            ) : (
-              <Button
-                textColor={setAlertColor(appSettings.darkMode)}
-                icon={() => (
-                  <SvgPassword color={setSvgIconColor(appSettings.darkMode)} />
-                )}
-                mode="text"
-                onPress={() => deletePinCode()}>
-                Удалить ПИН-код
-              </Button>
-            )}
-          </View>
-          <Divider />
-          {albumsExist && (
-            <View style={styles.deleteAlbumsItem}>
-              <Text style={styles.smallText}>Очистка:</Text>
-              <View style={styles.topSpacer} />
-              <Button
-                textColor={setAlertColor(appSettings.darkMode)}
-                icon={() => (
-                  <SvgDeleteAlbums
-                    color={setSvgIconColor(appSettings.darkMode)}
+          <Divider style={styles.divider} />
+          <List.AccordionGroup>
+            <List.Accordion
+              style={styles.accordionItem}
+              titleStyle={styles.text}
+              title="Сортировка"
+              id="1"
+              theme={{
+                colors: setArrowAccordionColor(appSettings.darkMode),
+              }}
+              left={props => (
+                <List.Icon
+                  {...props}
+                  color={setSvgIconColor(appSettings.darkMode)}
+                  icon="sort-alphabetical-ascending"
+                />
+              )}>
+              <View style={styles.accordionContentItem}>
+                <Picker
+                  selectedValue={settings.sortOrder}
+                  style={styles.pickerItem}
+                  dropdownIconColor={appSettings.darkMode ? 'white' : 'black'}
+                  onValueChange={itemValue =>
+                    setSettings(prevSettings => ({
+                      ...prevSettings,
+                      sortOrder: itemValue as Settings['sortOrder'],
+                    }))
+                  }>
+                  <Picker.Item
+                    style={styles.text}
+                    label="Новые альбомы"
+                    value="newest"
                   />
+                  <Picker.Item
+                    style={styles.text}
+                    label="Старые альбомы"
+                    value="oldest"
+                  />
+                  <Picker.Item
+                    style={styles.text}
+                    label="По имени"
+                    value="byName"
+                  />
+                </Picker>
+              </View>
+            </List.Accordion>
+            <List.Accordion
+              style={styles.accordionItem}
+              titleStyle={styles.text}
+              title="Безопасность"
+              id="2"
+              theme={{
+                colors: setArrowAccordionColor(appSettings.darkMode),
+              }}
+              left={props => (
+                <List.Icon
+                  {...props}
+                  color={setSvgIconColor(appSettings.darkMode)}
+                  icon="lock-open-plus-outline"
+                />
+              )}>
+              <View style={styles.accordionContentItem}>
+                {safetyVisible ? (
+                  <Button
+                    textColor={setButtonTextColorRecommendation(
+                      appSettings.darkMode,
+                    )}
+                    mode="text"
+                    onPress={() => setPinCode()}>
+                    Установить ПИН-код
+                  </Button>
+                ) : (
+                  <Button
+                    textColor={setAlertColor(appSettings.darkMode)}
+                    mode="text"
+                    onPress={() => deletePinCode()}>
+                    Удалить ПИН-код
+                  </Button>
                 )}
-                mode="text"
-                onPress={() => handleOpenAcceptModal()}>
-                Удалить все альбомы
-              </Button>
-            </View>
-          )}
-          <Divider />
+              </View>
+            </List.Accordion>
+            <List.Accordion
+              style={styles.accordionItem}
+              titleStyle={styles.text}
+              title="Очистка"
+              id="3"
+              theme={{
+                colors: setArrowAccordionColor(appSettings.darkMode),
+              }}
+              left={props => (
+                <List.Icon
+                  {...props}
+                  color={setSvgIconColor(appSettings.darkMode)}
+                  icon="delete-alert-outline"
+                />
+              )}>
+              <View style={styles.accordionContentItem}>
+                {albumsExist && (
+                  <Button
+                    textColor={setAlertColor(appSettings.darkMode)}
+                    mode="text"
+                    onPress={() => handleOpenAcceptModal()}>
+                    Удалить все альбомы
+                  </Button>
+                )}
+              </View>
+            </List.Accordion>
+          </List.AccordionGroup>
           <View style={styles.buttonsItem}>
             <Button
               mode="elevated"
@@ -274,6 +303,24 @@ const getStyles = (darkMode: boolean) => {
       padding: 20,
       borderRadius: 8,
     },
+    divider: {
+      height: 0.1,
+      marginVertical: 1,
+      backgroundColor: !darkMode
+        ? COLOR.dark.MAIN_COLOR
+        : COLOR.light.MAIN_COLOR,
+    },
+    accordionItem: {
+      backgroundColor: darkMode
+        ? COLOR.dark.SECONDARY_COLOR
+        : COLOR.light.SECONDARY_COLOR,
+    },
+    accordionContentItem: {
+      alignItems: 'flex-start',
+      backgroundColor: darkMode
+        ? COLOR.dark.ACCORDION_ITEM_COLOR
+        : COLOR.light.ACCORDION_ITEM_COLOR,
+    },
     modalTitle: {
       fontSize: 18,
       fontWeight: 'bold',
@@ -303,12 +350,6 @@ const getStyles = (darkMode: boolean) => {
       alignItems: 'center',
       margin: 14,
     },
-    deleteAlbumsItem: {
-      flexDirection: 'column',
-      justifyContent: 'flex-start',
-      alignItems: 'flex-start',
-      marginTop: 10,
-    },
     pickerItem: {
       height: 50,
       width: 190,
@@ -323,9 +364,9 @@ const getStyles = (darkMode: boolean) => {
     },
     text: {
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
-      backgroundColor: darkMode
-        ? COLOR.dark.SECONDARY_COLOR
-        : COLOR.light.SECONDARY_COLOR,
+      // backgroundColor: darkMode
+      //   ? COLOR.dark.SECONDARY_COLOR
+      //   : COLOR.light.SECONDARY_COLOR,
     },
     smallText: {
       color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,

@@ -42,6 +42,12 @@ export const setSvgIconColor = darkMode => {
   return darkMode ? COLOR.dark.ICON : COLOR.light.ICON;
 };
 
+export const setArrowAccordionColor = darkMode => {
+  return darkMode
+    ? {onSurfaceVariant: COLOR.dark.ICON}
+    : {onSurfaceVariant: COLOR.light.ICON};
+};
+
 export const setAlertColor = darkMode => {
   return darkMode ? COLOR.dark.alertColor : COLOR.light.alertColor;
 };
