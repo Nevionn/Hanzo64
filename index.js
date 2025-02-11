@@ -14,6 +14,12 @@ const theme = {
   },
 };
 
+if (!__DEV__) {
+  console.log = () => {};
+  console.warn = () => {};
+  console.error = () => {};
+}
+
 export default function Main() {
   return (
     <PaperProvider theme={theme}>
