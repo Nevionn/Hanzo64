@@ -1,7 +1,6 @@
 import SQLite from 'react-native-sqlite-storage';
 
 const db = SQLite.openDatabase({name: 'database.db', location: 'default'});
-
 db.transaction(tx => {
   tx.executeSql(
     'CREATE TABLE IF NOT EXISTS AlbumsTable (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, countPhoto INTEGER, created_at TEXT, coverPhoto TEXT, manualCoverMode INTEGER DEFAULT 0)',
@@ -179,7 +178,6 @@ const useDeleteAlbum = () => {
     });
   };
 };
-
 export function useAlbumsRequest() {
   const addAlbum = useAddNewAlbumToTable();
   const getAllAlbums = useGetAllAlbums();

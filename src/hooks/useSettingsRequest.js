@@ -1,7 +1,6 @@
 import SQLite from 'react-native-sqlite-storage';
 
 const db = SQLite.openDatabase({name: 'database.db', location: 'default'});
-
 db.transaction(tx => {
   tx.executeSql(
     'CREATE TABLE IF NOT EXISTS SettingsTable (id INTEGER PRIMARY KEY AUTOINCREMENT, darkMode INTEGER default 1, sortOrder TEXT default newest)',
@@ -132,7 +131,6 @@ const useShowSettings = () => {
     });
   };
 };
-
 export function useSettingsRequest() {
   const acceptSettings = useAcceptSettings();
   const getSettings = useGetSettings();
