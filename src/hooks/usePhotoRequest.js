@@ -1,5 +1,6 @@
 import SQLite from 'react-native-sqlite-storage';
 const db = SQLite.openDatabase({name: 'database.db', location: 'default'});
+
 db.transaction(tx => {
   tx.executeSql(
     `CREATE TABLE IF NOT EXISTS PhotosTable (
@@ -351,6 +352,7 @@ const useClearTable = () => {
     });
   };
 };
+
 export function usePhotoRequest() {
   const addPhoto = useAddPhotoInAlbum();
   const getPhoto = useGetPhotoFromAlbum();

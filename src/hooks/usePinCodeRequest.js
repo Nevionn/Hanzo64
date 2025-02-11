@@ -1,5 +1,6 @@
 import SQLite from 'react-native-sqlite-storage';
 const db = SQLite.openDatabase({name: 'database.db', location: 'default'});
+
 db.transaction(tx => {
   tx.executeSql(
     'CREATE TABLE IF NOT EXISTS PinCodeTable (id INTEGER PRIMARY KEY AUTOINCREMENT, pinCode TEXT, isActive INTEGER DEFAULT 0, isSkip INTEGER DEFAULT 0)',
@@ -183,6 +184,7 @@ const useDeletePinCode = () => {
     });
   };
 };
+
 export function usePinCodeRequest() {
   const savePinCode = useAddPinCodeToTable();
   const skipPin = useAddSkipPinCodeVallue();
