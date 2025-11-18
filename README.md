@@ -4,14 +4,13 @@
 
 Отличное решение для тех, кто ценит конфиденциальность.
 
-
-<div align="center" style="display: flex; align-items: center;">
-  <img src="./screenshots/1.jpg" alt="1" width="200" height="200">
-  <img src="./screenshots/2.jpg" alt="2" width="200" height="200">
-  <img src="./screenshots/3.jpg" alt="3" width="200" height="200">
-  <img src="./screenshots/4.jpg" alt="4" width="200" height="200">
-  <img src="./screenshots/5.jpg" alt="5" width="200" height="200">
-  <img src="./screenshots/6.jpg" alt="6" width="200" height="200">
+<div align="center">
+  <img src="./screenshots/1.jpg" alt="1" width="200">
+  <img src="./screenshots/2.jpg" alt="2" width="200">
+  <img src="./screenshots/3.jpg" alt="3" width="200">
+  <img src="./screenshots/4.jpg" alt="4" width="200">
+  <img src="./screenshots/5.jpg" alt="5" width="200">
+  <img src="./screenshots/6.jpg" alt="6" width="200">
 </div>
 
 # Стек технологий
@@ -30,7 +29,6 @@
   <img src="https://raw.githubusercontent.com/callstack/react-native-paper/2827b9c71f042a6e1da8e4bb455d911d331c0d74/docs/static/images/paper-logo.svg" alt="React Native Paper Logo" width="100" height="100">
 </div>
 
-
 # Установка апк файла 📦
 
 Зайти в раздел [релиз](https://gitlab.com/web4450122/security-gallery/-/releases) и скачать файл hanzo64.apk
@@ -44,9 +42,9 @@ cd security-gallery
 
 npm install
 
-npx react-native run-android
+npx react-native start
 
-в терминале node: a
+a: run android
 ```
 
 ## ССЫЛКИ
