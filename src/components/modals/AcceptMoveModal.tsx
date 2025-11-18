@@ -1,16 +1,9 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Modal,
-  Dimensions,
-  StatusBar,
-} from 'react-native';
+import {View, Text, StyleSheet, Modal, StatusBar} from 'react-native';
 import {useAppSettings, setButtonColor} from '../../../assets/settingsContext';
-import {borderButtonStyle} from '../../../assets/colorTheme';
 import {COLOR} from '../../../assets/colorTheme';
 import {Button} from 'react-native-paper';
+import SvgAlert from '../icons/SvgAlert';
 
 interface AcceptMoveModalProps {
   visible: boolean;
@@ -43,19 +36,23 @@ const AcceptMoveModal: React.FC<AcceptMoveModalProps> = ({
             <View style={styles.textItem}>
               <Text style={styles.title}>{title}</Text>
               <View style={styles.topSpacer} />
-              <Text style={styles.text}>{textBody}</Text>
+              <View style={styles.centerItemContent}>
+                <SvgAlert />
+                <Text style={styles.text}>{textBody}</Text>
+              </View>
             </View>
             <View style={styles.buttonsItem}>
               <Button
-                style={[styles.button, borderButtonStyle()]}
+                mode="elevated"
+                textColor={COLOR.dark.TEXT_BRIGHT}
+                style={styles.button}
                 buttonColor={setButtonColor(appSettings.darkMode)}
-                mode="contained"
                 onPress={() => onConfirm()}>
                 Удалить
               </Button>
               <Button
-                mode="contained"
-                style={borderButtonStyle()}
+                mode="elevated"
+                textColor={COLOR.dark.TEXT_BRIGHT}
                 buttonColor={setButtonColor(appSettings.darkMode)}
                 onPress={() => onCloseAcceptModal()}>
                 Отмена
@@ -77,7 +74,7 @@ const getStyles = (darkMode: boolean) => {
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     modalContainer: {
-      width: '80%',
+      width: '88%',
       backgroundColor: darkMode
         ? COLOR.dark.SECONDARY_COLOR
         : COLOR.light.SECONDARY_COLOR,
@@ -93,6 +90,11 @@ const getStyles = (darkMode: boolean) => {
       flexDirection: 'row',
       marginTop: 40,
     },
+    centerItemContent: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      flexDirection: 'row',
+    },
     button: {
       marginHorizontal: 14,
     },
@@ -103,6 +105,8 @@ const getStyles = (darkMode: boolean) => {
     },
     text: {
       textAlign: 'left',
+      flexWrap: 'wrap',
+      maxWidth: '86%',
       color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,
     },
   });

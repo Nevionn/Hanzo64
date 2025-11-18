@@ -10,6 +10,7 @@ type ThemeColors = {
   BUTTON_PIN_COLOR: string;
   TEXT_BRIGHT: string;
   TEXT_DIM: string;
+  ACCORDION_ITEM_COLOR: string;
   SECONDARY_COLOR: string;
   ICON: string;
   alertColor: string;
@@ -43,6 +44,8 @@ export const COLOR: ColorSchema = {
     TEXT_BRIGHT: 'white',
     TEXT_DIM: '#ACACAC',
 
+    ACCORDION_ITEM_COLOR: '#211861',
+
     SECONDARY_COLOR: '#2a206c',
 
     ICON: 'white',
@@ -62,7 +65,9 @@ export const COLOR: ColorSchema = {
     TEXT_BRIGHT: 'black',
     TEXT_DIM: 'grey',
 
-    SECONDARY_COLOR: '#d3d1e4',
+    ACCORDION_ITEM_COLOR: '#b9b6d9',
+
+    SECONDARY_COLOR: '#c6c3e0',
 
     ICON: '#56465a',
 

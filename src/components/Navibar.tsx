@@ -8,9 +8,13 @@ import {
   ImageBackground,
 } from 'react-native';
 import SvgSettings from './icons/SvgSettings';
-import NaviBarProps from '../types/NaviBarProps';
 import {COLOR} from '../../assets/colorTheme';
 import {useAppSettings} from '../../assets/settingsContext';
+
+interface NaviBarProps {
+  openModalAlbum: () => void;
+  openModalSettings: () => void;
+}
 
 const NaviBar: React.FC<NaviBarProps> = ({
   openModalAlbum,

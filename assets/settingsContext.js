@@ -6,7 +6,7 @@ const AppSettingsContext = createContext();
 export const AppSettingsProvider = ({children}) => {
   const [appSettings, setAppSettings] = useState({
     darkMode: true,
-    sortOrder: null,
+    sortOrder: 'newest',
   });
 
   const saveAppSettings = newSettings => {
@@ -40,6 +40,12 @@ export const setButtonTextColorRecommendation = darkMode => {
 
 export const setSvgIconColor = darkMode => {
   return darkMode ? COLOR.dark.ICON : COLOR.light.ICON;
+};
+
+export const setArrowAccordionColor = darkMode => {
+  return darkMode
+    ? {onSurfaceVariant: COLOR.dark.ICON}
+    : {onSurfaceVariant: COLOR.light.ICON};
 };
 
 export const setAlertColor = darkMode => {

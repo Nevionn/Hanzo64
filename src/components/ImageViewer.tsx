@@ -8,11 +8,13 @@ import {
   StyleSheet,
   Image,
   StatusBar,
+  ViewToken,
 } from 'react-native';
 import {ReactNativeZoomableView} from '@openspacelabs/react-native-zoomable-view';
 import {IconButton} from 'react-native-paper';
 import SvgDotsVertical from './icons/SvgDotsVertical';
 import SvgLeftArrow from './icons/SvgLeftArrow';
+import SvgRoteteArrow from './icons/SvgRoteteArrow';
 import EditPhotoMiniModal from './modals/EditPhotoMiniModal';
 import {COLOR} from '../../assets/colorTheme';
 
@@ -41,11 +43,13 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
   idAlbum,
   idPhoto,
 }) => {
+  const [isMiniModalVisible, setIsMiniModalVisible] = useState(false);
+
   const [imageDimensions, setImageDimensions] = useState({
     width: 1,
     height: 1,
   });
-  const [isMiniModalVisible, setIsMiniModalVisible] = useState(false);
+  const [rotationAngle, setRotationAngle] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [currentPhoto, setCurrentPhoto] = useState<PhotoItem | null>(
     photos[initialIndex] || null,
@@ -54,6 +58,18 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
 
   const handleOpenMiniModal = () => setIsMiniModalVisible(true);
   const handleCloseMiniModal = () => setIsMiniModalVisible(false);
+
+  const rotateImage = () => {
+    setRotationAngle(prevAngle => (prevAngle + 90) % 360);
+  };
+
+  // prettier-ignore
+  const onViewableItemsChanged = ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+  if (viewableItems.length > 0) {
+    setCurrentIndex(viewableItems[0].index ?? 0); // Обновляем индекс видимого фото
+    setRotationAngle(0); 
+  }
+};
 
   useEffect(() => {
     const getSizeAndCalculateView = () => {
@@ -123,7 +139,11 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
         contentWidth={imageDimensions.width}
         contentHeight={imageDimensions.height}>
         <Image
-          style={{width: width, height: height}}
+          style={{
+            width: width,
+            height: height,
+            transform: [{rotate: `${rotationAngle}deg`}],
+          }}
           source={{
             uri: `data:image/jpeg;base64,${item.photo}`,
           }}
@@ -151,11 +171,18 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
           <Text style={styles.infoText}>
             {`${currentIndex + 1} из ${photos.length}`}
           </Text>
-          <IconButton
-            icon={() => <SvgDotsVertical color={COLOR.SVG_WHITE} />}
-            size={30}
-            onPress={handleOpenMiniModal}
-          />
+          <View style={styles.rightItem}>
+            <IconButton
+              icon={() => <SvgRoteteArrow color={COLOR.SVG_WHITE} />}
+              size={30}
+              onPress={rotateImage}
+            />
+            <IconButton
+              icon={() => <SvgDotsVertical color={COLOR.SVG_WHITE} />}
+              size={30}
+              onPress={handleOpenMiniModal}
+            />
+          </View>
         </View>
 
         {/* Карусель фотографий */}
@@ -174,6 +201,7 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
             offset: width * index,
             index,
           })}
+          onViewableItemsChanged={onViewableItemsChanged}
           onMomentumScrollEnd={event => {
             const index = Math.round(event.nativeEvent.contentOffset.x / width);
             setCurrentIndex(index);
@@ -219,10 +247,16 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: COLOR.INFOBAR_IMG_VIEWER,
   },
+  rightItem: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
   infoText: {
     color: 'white',
     textAlign: 'center',
     fontSize: 16,
+    marginLeft: 50,
   },
   zoomableViewContainer: {
     flex: 1,

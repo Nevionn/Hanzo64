@@ -25,8 +25,11 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 export const pickImage = async (
   idAlbum: string,
   addPhoto: (photo: AddPhotoParams) => void,
+  setUploadingPhotos: (value: boolean) => void,
 ) => {
   try {
+    setUploadingPhotos(true);
+
     const result = await launchImageLibrary({
       mediaType: 'photo',
       includeBase64: true,
@@ -46,12 +49,6 @@ export const pickImage = async (
             photo: base64,
             created_at: new Date().toLocaleString(),
           });
-        } else {
-          console.warn(
-            `Пропущено изображение ${
-              fileName || 'без имени'
-            }: превышает допустимый размер.`,
-          );
         }
       }
 
@@ -61,6 +58,8 @@ export const pickImage = async (
   } catch (error) {
     console.error('Ошибка при загрузке изображения:', error);
     Alert.alert('Ошибка', 'Изображение превышает допустимый размер (5 MB).');
+  } finally {
+    setUploadingPhotos(false);
   }
 };
 
