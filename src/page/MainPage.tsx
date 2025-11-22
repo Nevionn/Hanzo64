@@ -7,18 +7,22 @@ import {
   Image,
   FlatList,
   TouchableOpacity,
-  SafeAreaView,
   ActivityIndicator,
 } from 'react-native';
+import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import {COLOR} from '../../assets/colorTheme';
 import NaviBar from '../components/Navibar';
+import CounterMediaData from '../components/CounterMediaData';
+
+import NewAlbumModal from '../components/modals/NewAlbumModal';
+import SettingsModal from '../components/modals/SettingsModal';
+
 import {useNavigation} from '@react-navigation/native';
 import {useAlbumsRequest} from '../hooks/useAlbumsRequest';
 import {useSettingsRequest} from '../hooks/useSettingsRequest';
 import useMediaInformation from '../hooks/useMediaInformation';
 import {useAppSettings, setStatusBarTheme} from '../../assets/settingsContext';
-import NewAlbumModal from '../components/modals/NewAlbumModal';
-import SettingsModal from '../components/modals/SettingsModal';
+
 import eventEmitter from '../../assets/eventEmitter';
 
 interface Album {
@@ -45,6 +49,8 @@ const MainPage: React.FC = () => {
 
   const [photoCount, setPhotoCount] = useState(0);
   const [albumCount, setAlbumCount] = useState(0);
+
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     getSettings(saveAppSettings);
@@ -131,16 +137,18 @@ const MainPage: React.FC = () => {
         translucent
         backgroundColor="transparent"
       />
-      <View style={styles.topSpacer} />
+      <NaviBar
+        openModalAlbum={openCreateAlbumModal}
+        openModalSettings={openSettings}
+      />
 
-      <View style={styles.countItem}>
-        {albums.length > 0 && (
-          <Text style={styles.textDim}>
-            Альбомов: {albumCount} {'\u00A0\u00A0\u00A0'} фотографий:{' '}
-            {photoCount}
-          </Text>
-        )}
-      </View>
+      {albums.length > 0 && (
+        <CounterMediaData
+          albumCount={albumCount}
+          photoCount={photoCount}
+          darkMode={appSettings.darkMode}
+        />
+      )}
 
       {fetchingAlbums ? (
         <ActivityIndicator size="large" color={COLOR.LOAD} style={{flex: 1}} />
@@ -179,9 +187,10 @@ const MainPage: React.FC = () => {
               </View>
             </TouchableOpacity>
           )}
-          contentContainerStyle={
-            albums.length === 0 ? {flex: 1, justifyContent: 'center'} : null
-          }
+          contentContainerStyle={[
+            albums.length === 0 ? {flex: 1, justifyContent: 'center'} : null,
+            {paddingBottom: insets.bottom},
+          ]}
           ListFooterComponent={<View style={styles.stab} />}
           ListEmptyComponent={
             <View style={styles.emptyDataItem}>
@@ -201,13 +210,10 @@ const MainPage: React.FC = () => {
         onSave={saveSettings}
         albumsExist={albums.length > 0}
       />
-      <NaviBar
-        openModalAlbum={openCreateAlbumModal}
-        openModalSettings={openSettings}
-      />
     </SafeAreaView>
   );
 };
+
 export default MainPage;
 
 const getStyles = (darkMode: boolean) => {
@@ -218,15 +224,6 @@ const getStyles = (darkMode: boolean) => {
       backgroundColor: darkMode
         ? COLOR.dark.MAIN_COLOR
         : COLOR.light.MAIN_COLOR,
-    },
-    topSpacer: {
-      height: '15%',
-    },
-    countItem: {
-      height: 24,
-      width: '100%',
-      justifyContent: 'center',
-      alignItems: 'center',
     },
     placeHolder: {
       flexBasis: '45%',
@@ -267,16 +264,11 @@ const getStyles = (darkMode: boolean) => {
       alignItems: 'center',
     },
     stab: {
-      flex: 1,
-      height: 50,
+      height: 30,
     },
     text: {
       textAlign: 'center',
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
-    },
-    textDim: {
-      textAlign: 'center',
-      color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,
     },
   });
 };

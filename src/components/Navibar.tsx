@@ -4,7 +4,6 @@ import {
   Text,
   View,
   TouchableOpacity,
-  StatusBar,
   ImageBackground,
 } from 'react-native';
 import SvgSettings from './icons/SvgSettings';
@@ -21,13 +20,12 @@ const NaviBar: React.FC<NaviBarProps> = ({
   openModalSettings,
 }) => {
   const {appSettings} = useAppSettings();
-  const statusBarHeight: any = StatusBar.currentHeight;
 
   const styles = getStyles(appSettings.darkMode);
 
   return (
     <>
-      <View style={[styles.navibar, {top: statusBarHeight - 5}]}>
+      <View style={[styles.navibar]}>
         {appSettings.darkMode ? (
           <ImageBackground
             source={require('../../assets/images/navibar.png')}
@@ -66,11 +64,6 @@ const getStyles = (darkMode: boolean) => {
       justifyContent: 'space-around',
       alignItems: 'center',
       flexDirection: 'row',
-      marginTop: 8,
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
       height: 70,
       width: '100%',
       zIndex: 10,

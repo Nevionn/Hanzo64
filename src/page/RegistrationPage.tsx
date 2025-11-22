@@ -93,7 +93,7 @@ const RegistrationPage = () => {
       />
       {!installationPinStage ? (
         <View style={styles.greetingsItem}>
-          <Text style={styles.nameApp}>HANZO64</Text>
+          <Text style={styles.nameApp}>PHOVION64</Text>
           <Text style={styles.text}>
             Добро пожаловать в защищенную галерею{'\n'}
             Для безопасности <Text style={styles.highlight}>
