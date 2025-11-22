@@ -5,12 +5,12 @@
 Отличное решение для тех, кто ценит конфиденциальность.
 
 <div align="center">
-  <img src="./screenshots/1.jpg" alt="1" width="200">
-  <img src="./screenshots/2.jpg" alt="2" width="200">
-  <img src="./screenshots/3.jpg" alt="3" width="200">
-  <img src="./screenshots/4.jpg" alt="4" width="200">
-  <img src="./screenshots/5.jpg" alt="5" width="200">
-  <img src="./screenshots/6.jpg" alt="6" width="200">
+  <img src="./screenshots/1.webp" alt="1" width="200">
+  <img src="./screenshots/2.webp" alt="2" width="200">
+  <img src="./screenshots/3.webp" alt="3" width="200">
+  <img src="./screenshots/4.webp" alt="4" width="200">
+  <img src="./screenshots/5.webp" alt="5" width="200">
+  <img src="./screenshots/6.webp" alt="6" width="200">
 </div>
 
 # Стек технологий
