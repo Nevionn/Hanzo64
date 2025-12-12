@@ -1,14 +1,7 @@
 import React, {useState} from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Modal,
-  StyleSheet,
-  StatusBar,
-} from 'react-native';
+import {View, Text, Modal, StyleSheet, StatusBar} from 'react-native';
+import {TextInput, Button} from 'react-native-paper';
 import {useAppSettings, setButtonColor} from '../../../assets/settingsContext';
-import {Button} from 'react-native-paper';
 import {COLOR} from '../../../assets/colorTheme';
 
 interface NewAlbumModalProps {
@@ -52,13 +45,19 @@ const NewAlbumModal: React.FC<NewAlbumModalProps> = ({
         <View style={styles.modalContainer}>
           <Text style={styles.title}>Создать новый альбом</Text>
           <TextInput
-            style={styles.input}
-            placeholderTextColor={
-              appSettings.darkMode ? '#ccc' : COLOR.light.TEXT_DIM
-            }
-            placeholder="Название альбома"
+            mode="outlined"
+            label="Название альбома"
             value={title}
             onChangeText={setTitle}
+            textColor={styles.inputTextColor.color}
+            outlineColor={styles.inputViewOutlineColor.color}
+            style={styles.inputView}
+            theme={{
+              colors: {
+                onSurfaceVariant: appSettings.darkMode ? 'white' : 'black',
+                primary: appSettings.darkMode ? 'white' : 'black',
+              },
+            }}
           />
           <View style={styles.buttonContainer}>
             <Button
@@ -66,13 +65,13 @@ const NewAlbumModal: React.FC<NewAlbumModalProps> = ({
               textColor={COLOR.dark.TEXT_BRIGHT}
               buttonColor={setButtonColor(appSettings.darkMode)}
               onPress={() => handleSave()}>
-              Сохранить
+              Создать
             </Button>
             <Button
               mode="elevated"
               textColor={COLOR.dark.TEXT_BRIGHT}
               buttonColor={setButtonColor(appSettings.darkMode)}
-              onPress={() => handleCloseModal()}>
+              onPress={handleCloseModal}>
               Отмена
             </Button>
           </View>
@@ -110,13 +109,17 @@ const getStyles = (darkMode: boolean) => {
       textAlign: 'center',
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
     },
-    input: {
-      borderWidth: 1,
-      borderColor: darkMode ? '#ccc' : 'black',
-      color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
-      padding: 10,
-      borderRadius: 5,
+    inputView: {
       marginBottom: 20,
+      backgroundColor: darkMode
+        ? COLOR.dark.SECONDARY_COLOR
+        : COLOR.light.SECONDARY_COLOR,
+    },
+    inputViewOutlineColor: {
+      color: darkMode ? '#999' : '#555',
+    },
+    inputTextColor: {
+      color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
     },
     buttonContainer: {
       flexDirection: 'row',
