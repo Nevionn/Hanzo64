@@ -18,6 +18,7 @@ const NewAlbumModal: React.FC<NewAlbumModalProps> = ({
   const {appSettings} = useAppSettings();
 
   const [title, setTitle] = useState<string>('');
+  const [focused, setFocused] = useState(false);
 
   const handleSave = () => {
     if (title) {
@@ -30,6 +31,7 @@ const NewAlbumModal: React.FC<NewAlbumModalProps> = ({
   const handleCloseModal = () => {
     onClose();
     setTitle('');
+    setFocused(false);
   };
 
   const styles = getStyles(appSettings.darkMode);
@@ -49,16 +51,22 @@ const NewAlbumModal: React.FC<NewAlbumModalProps> = ({
             label="Название альбома"
             value={title}
             onChangeText={setTitle}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
             textColor={styles.inputTextColor.color}
             outlineColor={styles.inputViewOutlineColor.color}
             style={styles.inputView}
             theme={{
               colors: {
-                onSurfaceVariant: appSettings.darkMode ? 'white' : 'black',
-                primary: appSettings.darkMode ? 'white' : 'black',
+                onSurfaceVariant: focused
+                  ? styles.inputTextColor.color
+                  : '#8e8e8e',
+
+                primary: styles.inputTextColor.color,
               },
             }}
           />
+
           <View style={styles.buttonContainer}>
             <Button
               mode="elevated"

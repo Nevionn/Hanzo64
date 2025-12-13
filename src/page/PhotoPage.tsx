@@ -135,6 +135,12 @@ const PhotoPage = () => {
         <UploadingIndicator uploadingPhotos={uploadingPhotos} />
       )}
 
+      {!fetchingPhotos && photos.length === 0 && (
+        <View style={styles.emptyDataItem}>
+          <Text style={styles.text}>Тут пусто</Text>
+        </View>
+      )}
+
       {fetchingPhotos ? (
         <View style={styles.loadingItem}>
           <ActivityIndicator
@@ -211,13 +217,16 @@ const getStyles = (darkMode: boolean) => {
       borderRadius: 10,
     },
     emptyDataItem: {
+      flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
     },
     loadingItem: {
+      flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
       flexDirection: 'row',
+      marginRight: 20,
     },
     loader: {
       marginHorizontal: 10,
