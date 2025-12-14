@@ -15,6 +15,7 @@ import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 
 import NaviBar from '../components/Navibar';
+import AlbumSearchBar from '../components/AlbumSearchBar';
 import CounterMediaData from '../components/CounterMediaData';
 import NewAlbumModal from '../components/modals/NewAlbumModal';
 import SettingsModal from '../components/modals/SettingsModal';
@@ -48,6 +49,9 @@ const MainPage: React.FC = () => {
   const [fetchingAlbums, setFetchingAlbums] = useState(false);
   const [albumCount, setAlbumCount] = useState(0);
   const [photoCount, setPhotoCount] = useState(0);
+
+  const [searchQuery, setSearchQuery] = useState('');
+
   const [isModalAddAlbumVisible, setModalAddAlbumVisible] = useState(false);
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
 
@@ -111,6 +115,10 @@ const MainPage: React.FC = () => {
     saveAppSettings(newSettings);
     acceptSettings(newSettings);
   };
+
+  const filteredAlbums = albums.filter(album =>
+    album.title.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
   const handleAddAlbum = (newAlbum: {title: string}) => {
     const currentDate = new Date();
@@ -189,6 +197,17 @@ const MainPage: React.FC = () => {
         openModalSettings={openSettings}
       />
 
+      <AlbumSearchBar
+        darkMode={appSettings.darkMode}
+        onSearch={setSearchQuery}
+      />
+
+      {filteredAlbums.length === 0 && searchQuery.length > 0 && (
+        <View style={styles.emptyDataItem}>
+          <Text style={styles.text}>По поиску ничего не найдено</Text>
+        </View>
+      )}
+
       {albums.length > 0 && (
         <CounterMediaData
           albumCount={albumCount}
@@ -205,7 +224,7 @@ const MainPage: React.FC = () => {
           contentContainerStyle={{paddingBottom: insets.bottom + 20}}
           showsVerticalScrollIndicator={false}>
           <Sortable.Grid
-            data={albums}
+            data={filteredAlbums}
             columns={2}
             rowGap={10}
             columnGap={10}
