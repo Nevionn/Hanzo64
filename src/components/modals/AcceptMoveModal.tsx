@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text, StyleSheet, Modal, StatusBar} from 'react-native';
-import {useAppSettings, setButtonColor} from '../../../assets/settingsContext';
-import {COLOR} from '../../../assets/colorTheme';
+import {useAppSettings, setButtonColor} from '../../utils/settingsContext.js';
+import {COLOR} from '../../shared/colorTheme';
 import {Button} from 'react-native-paper';
 import SvgAlert from '../icons/SvgAlert';
 

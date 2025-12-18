@@ -7,8 +7,8 @@ import {
   ImageBackground,
 } from 'react-native';
 import SvgSettings from './icons/SvgSettings';
-import {COLOR} from '../../assets/colorTheme';
-import {useAppSettings} from '../../assets/settingsContext';
+import {COLOR} from '../shared/colorTheme';
+import {useAppSettings} from '../utils/settingsContext';
 
 interface NaviBarProps {
   openModalAlbum: () => void;

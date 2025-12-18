@@ -16,7 +16,7 @@ import SvgDotsVertical from './icons/SvgDotsVertical';
 import SvgLeftArrow from './icons/SvgLeftArrow';
 import SvgRoteteArrow from './icons/SvgRoteteArrow';
 import EditPhotoMiniModal from './modals/EditPhotoMiniModal';
-import {COLOR} from '../../assets/colorTheme';
+import {COLOR} from '../shared/colorTheme';
 
 const {width, height} = Dimensions.get('window');
 const INFOBAR_HEIGHT = 60;

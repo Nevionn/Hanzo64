@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {StyleSheet} from 'react-native';
 import {Searchbar} from 'react-native-paper';
-import {COLOR} from '../../assets/colorTheme';
+import {COLOR} from '../shared/colorTheme';
 
 interface AlbumSearchBarProps {
   darkMode: boolean;

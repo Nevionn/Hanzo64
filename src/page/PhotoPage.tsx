@@ -13,12 +13,12 @@ import {
 } from 'react-native';
 import Animated, {useAnimatedRef} from 'react-native-reanimated';
 import {usePhotoRequest} from '../hooks/usePhotoRequest';
-import {useAppSettings, setStatusBarTheme} from '../../assets/settingsContext';
+import {useAppSettings, setStatusBarTheme} from '../utils/settingsContext';
 import {useRoute} from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import eventEmitter from '../../assets/eventEmitter';
+import eventEmitter from '../utils/eventEmitter';
 
-import {COLOR} from '../../assets/colorTheme';
+import {COLOR} from '../shared/colorTheme';
 
 import Sortable from 'react-native-sortables';
 import NavibarPhoto from '../components/NavibarPhoto';

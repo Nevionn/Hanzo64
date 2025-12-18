@@ -9,9 +9,9 @@ import {
 } from 'react-native';
 import {usePhotoRequest} from '../../hooks/usePhotoRequest';
 import {useAlbumsRequest} from '../../hooks/useAlbumsRequest';
-import eventEmitter from '../../../assets/eventEmitter';
+import eventEmitter from '../../utils/eventEmitter';
 import AcceptMoveModal from './AcceptMoveModal';
-import {ModalText} from '../../../assets/textForModal';
+import {ModalText} from '../../shared/textForModal';
 
 interface EditPhotoMiniModalProps {
   visible: boolean;

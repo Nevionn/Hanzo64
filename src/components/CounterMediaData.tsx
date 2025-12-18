@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {COLOR} from '../../assets/colorTheme';
+import {COLOR} from '../shared/colorTheme';
 
 interface CounterMediaDataProps {
   albumCount: number;

@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {Text, View, TextStyle} from 'react-native';
-import {useAppSettings} from '../../assets/settingsContext';
-import {COLOR} from '../../assets/colorTheme';
+import {useAppSettings} from '../utils/settingsContext';
+import {COLOR} from '../shared/colorTheme';
 
 const UploadingIndicator = ({uploadingPhotos}: {uploadingPhotos: boolean}) => {
   const {appSettings} = useAppSettings();

@@ -8,20 +8,24 @@ import {
   Modal,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+
 import {usePhotoRequest} from '../hooks/usePhotoRequest';
-import {useAppSettings, setSvgIconColor} from '../../assets/settingsContext';
 import {useAlbumsRequest} from '../hooks/useAlbumsRequest';
-import eventEmitter from '../../assets/eventEmitter';
+
 import SvgLeftArrow from './icons/SvgLeftArrow';
 import SvgDotsVertical from './icons/SvgDotsVertical';
 import {IconButton} from 'react-native-paper';
 import SvgBidirectionalArrows from './icons/SvgBidirectionalArrows';
-import {ModalText} from '../../assets/textForModal';
+
 import AcceptMoveModal from './modals/AcceptMoveModal';
 import RenameAlbumModal from './modals/RenameAlbumModal';
-import {COLOR} from '../../assets/colorTheme';
-import {pickImage} from '../../assets/camera';
-import {capturePhoto} from '../../assets/camera';
+
+import {useAppSettings, setSvgIconColor} from '../utils/settingsContext';
+import eventEmitter from '../utils/eventEmitter';
+import {ModalText} from '../shared/textForModal';
+import {COLOR} from '../shared/colorTheme';
+import {pickImage} from '../utils/camera';
+import {capturePhoto} from '../utils/camera';
 
 interface NaviBarPhotoProps {
   titleAlbum: string;

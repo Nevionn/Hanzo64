@@ -1,9 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import {View, Text, Switch, StyleSheet, Modal, StatusBar} from 'react-native';
-import {Picker} from '@react-native-picker/picker';
 import {Button, Divider, List} from 'react-native-paper';
-import {COLOR} from '../../../assets/colorTheme';
-import {ModalText} from '../../../assets/textForModal';
+import {COLOR} from '../../shared/colorTheme';
+import {ModalText} from '../../shared/textForModal';
 import {useAlbumsRequest} from '../../hooks/useAlbumsRequest';
 import {usePhotoRequest} from '../../hooks/usePhotoRequest';
 import {useSettingsRequest} from '../../hooks/useSettingsRequest';
@@ -15,9 +14,9 @@ import {
   setSvgIconColor,
   setAlertColor,
   setArrowAccordionColor,
-} from '../../../assets/settingsContext';
+} from '../../utils/settingsContext';
 import {useNavigation} from '@react-navigation/native';
-import eventEmitter from '../../../assets/eventEmitter';
+import eventEmitter from '../../utils/eventEmitter';
 import AcceptMoveModal from './AcceptMoveModal';
 
 interface SettingsModalProps {

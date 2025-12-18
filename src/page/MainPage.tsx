@@ -20,13 +20,13 @@ import CounterMediaData from '../components/CounterMediaData';
 import NewAlbumModal from '../components/modals/NewAlbumModal';
 import SettingsModal from '../components/modals/SettingsModal';
 
-import {COLOR} from '../../assets/colorTheme';
+import {COLOR} from '../shared/colorTheme';
 
 import {useAlbumsRequest} from '../hooks/useAlbumsRequest';
 import {useSettingsRequest} from '../hooks/useSettingsRequest';
 import useMediaInformation from '../hooks/useMediaInformation';
-import {useAppSettings, setStatusBarTheme} from '../../assets/settingsContext';
-import eventEmitter from '../../assets/eventEmitter';
+import {useAppSettings, setStatusBarTheme} from '../utils/settingsContext';
+import eventEmitter from '../utils/eventEmitter';
 
 interface Album {
   id: string;

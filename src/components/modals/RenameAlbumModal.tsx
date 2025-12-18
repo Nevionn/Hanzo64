@@ -8,10 +8,10 @@ import {
   StatusBar,
 } from 'react-native';
 import {Button} from 'react-native-paper';
-import {COLOR} from '../../../assets/colorTheme';
+import {COLOR} from '../../shared/colorTheme';
 import {useAlbumsRequest} from '../../hooks/useAlbumsRequest';
-import {useAppSettings, setButtonColor} from '../../../assets/settingsContext';
-import eventEmitter from '../../../assets/eventEmitter';
+import {useAppSettings, setButtonColor} from '../../utils/settingsContext';
+import eventEmitter from '../../utils/eventEmitter';
 
 interface RenameAlbumModalProps {
   visible: boolean;

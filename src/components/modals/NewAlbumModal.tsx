@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import {View, Text, Modal, StyleSheet, StatusBar} from 'react-native';
 import {TextInput, Button} from 'react-native-paper';
-import {useAppSettings, setButtonColor} from '../../../assets/settingsContext';
-import {COLOR} from '../../../assets/colorTheme';
+import {useAppSettings, setButtonColor} from '../../utils/settingsContext';
+import {COLOR} from '../../shared/colorTheme';
 
 interface NewAlbumModalProps {
   visible: boolean;

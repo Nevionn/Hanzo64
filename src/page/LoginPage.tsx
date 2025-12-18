@@ -7,7 +7,7 @@ import {
   Alert,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {COLOR} from '../../assets/colorTheme';
+import {COLOR} from '../shared/colorTheme';
 const {width} = Dimensions.get('window');
 const {height} = Dimensions.get('window');
 import PinCode from '../components/PinCode';

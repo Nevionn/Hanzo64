@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {usePinCodeRequest} from '../hooks/usePinCodeRequest';
-import {COLOR} from '../../assets/colorTheme';
+import {COLOR} from '../shared/colorTheme';
 import {Button} from 'react-native-paper';
 import PinCode from '../components/PinCode';
 const {width, height} = Dimensions.get('window');

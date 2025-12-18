@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useState} from 'react';
-import {COLOR} from './colorTheme';
+import {COLOR} from '../shared/colorTheme';
 
 const AppSettingsContext = createContext();
 
