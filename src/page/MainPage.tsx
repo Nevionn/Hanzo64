@@ -36,6 +36,8 @@ interface Album {
   coverPhoto: string;
 }
 
+// TODO: удалить acceptSettings и изменить стилизацию объектов на основание данных из стора
+
 const MainPage: React.FC = () => {
   const navigation: any = useNavigation();
   const insets = useSafeAreaInsets();
@@ -110,11 +112,6 @@ const MainPage: React.FC = () => {
 
   const openSettings = () => setIsSettingsModalVisible(true);
   const openCreateAlbumModal = () => setModalAddAlbumVisible(true);
-
-  const saveSettings = (newSettings: typeof appSettings) => {
-    saveAppSettings(newSettings);
-    acceptSettings(newSettings);
-  };
 
   const filteredAlbums = albums.filter(album =>
     album.title.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -258,8 +255,7 @@ const MainPage: React.FC = () => {
       />
       <SettingsModal
         visible={isSettingsModalVisible}
-        onClose={() => setIsSettingsModalVisible(false)}
-        onSave={saveSettings}
+        onCloseSettingsModal={() => setIsSettingsModalVisible(false)}
         albumsExist={albums.length > 0}
       />
     </SafeAreaView>

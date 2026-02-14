@@ -3,7 +3,10 @@ import {COLOR} from '../shared/colorTheme';
 
 const AppSettingsContext = createContext();
 
+// TODO: удалить appSettings и все его зависимости (рудимент)
+
 export const AppSettingsProvider = ({children}) => {
+  // Значения по умолчанию
   const [appSettings, setAppSettings] = useState({
     darkMode: true,
   });
@@ -18,6 +21,12 @@ export const AppSettingsProvider = ({children}) => {
     </AppSettingsContext.Provider>
   );
 };
+
+/**
+ * Позволяет в любом компоненте читать настройки и изменять их
+ *
+ * @example const { appSettings, saveAppSettings } = useAppSettings();
+ */
 
 export const useAppSettings = () => {
   return useContext(AppSettingsContext);
