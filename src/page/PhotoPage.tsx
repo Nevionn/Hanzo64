@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import Animated, {useAnimatedRef} from 'react-native-reanimated';
 import {usePhotoRequest} from '../hooks/usePhotoRequest';
-import {useAppSettings, setStatusBarTheme} from '../utils/settingsContext';
+import {useSettingsStore} from '../store/settings/useSettingsStore';
 import {useRoute} from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import eventEmitter from '../utils/eventEmitter';
@@ -34,10 +34,11 @@ interface PhotoObjectArray {
 }
 
 const PhotoPage = () => {
-  const {appSettings} = useAppSettings();
   const {getPhoto, savePhotosOrder} = usePhotoRequest();
   const route: any = useRoute();
   const dataAlbum = route?.params;
+
+  const darkModeFromStore = useSettingsStore(state => state.settings.darkMode);
 
   const insets = useSafeAreaInsets();
 
@@ -50,7 +51,7 @@ const PhotoPage = () => {
   const [idAlbum, setIdAlbum] = useState(0);
   const [idPhoto, setIdPhoto] = useState(0);
 
-  const styles = getStyles(appSettings.darkMode);
+  const styles = getStyles(darkModeFromStore);
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
 
   const openImageViewer = (index: number, id: number) => {
@@ -119,7 +120,7 @@ const PhotoPage = () => {
   return (
     <SafeAreaView style={styles.root}>
       <StatusBar
-        barStyle={setStatusBarTheme(appSettings.darkMode)}
+        barStyle={darkModeFromStore ? 'light-content' : 'dark-content'}
         translucent
         backgroundColor="transparent"
       />

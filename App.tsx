@@ -1,6 +1,5 @@
 import React, {useEffect} from 'react';
 import Navigator from './src/navigation/Navigator';
-import {AppSettingsProvider} from './src/utils/settingsContext';
 import {bootstrapApp} from './src/app/bootstrap';
 import {logAllTables} from './src/hooks/useBdHelper';
 
@@ -13,9 +12,7 @@ const App = () => {
 
   return (
     <>
-      <AppSettingsProvider>
-        <Navigator />
-      </AppSettingsProvider>
+      <Navigator />
     </>
   );
 };

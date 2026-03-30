@@ -10,7 +10,7 @@ import {
 import {Button} from 'react-native-paper';
 import {COLOR} from '../../shared/colorTheme';
 import {useAlbumsRequest} from '../../hooks/useAlbumsRequest';
-import {useAppSettings, setButtonColor} from '../../utils/settingsContext';
+import {useSettingsStore} from '../../store/settings/useSettingsStore';
 import eventEmitter from '../../utils/eventEmitter';
 
 interface RenameAlbumModalProps {
@@ -28,7 +28,8 @@ const RenameAlbumModal: React.FC<RenameAlbumModalProps> = ({
   title,
   idAlbum,
 }) => {
-  const {appSettings} = useAppSettings();
+  const darkModeFromStore = useSettingsStore(state => state.settings.darkMode);
+
   const {renameAlbum} = useAlbumsRequest();
 
   const [titleAlbum, setTitleAlbum] = useState<string>(title);
@@ -48,7 +49,7 @@ const RenameAlbumModal: React.FC<RenameAlbumModalProps> = ({
     setTitleAlbum(title);
   };
 
-  const styles = getStyles(appSettings.darkMode);
+  const styles = getStyles(darkModeFromStore);
 
   return (
     <Modal
@@ -69,14 +70,22 @@ const RenameAlbumModal: React.FC<RenameAlbumModalProps> = ({
             <Button
               mode="elevated"
               textColor={COLOR.dark.TEXT_BRIGHT}
-              buttonColor={setButtonColor(appSettings.darkMode)}
+              buttonColor={
+                darkModeFromStore
+                  ? COLOR.dark.BUTTON_COLOR
+                  : COLOR.light.BUTTON_COLOR
+              }
               onPress={() => handleSave()}>
               Сохранить
             </Button>
             <Button
               mode="elevated"
               textColor={COLOR.dark.TEXT_BRIGHT}
-              buttonColor={setButtonColor(appSettings.darkMode)}
+              buttonColor={
+                darkModeFromStore
+                  ? COLOR.dark.BUTTON_COLOR
+                  : COLOR.light.BUTTON_COLOR
+              }
               onPress={() => handleCloseModal()}>
               Отмена
             </Button>

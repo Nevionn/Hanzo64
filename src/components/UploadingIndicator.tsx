@@ -1,10 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import {Text, View, TextStyle} from 'react-native';
-import {useAppSettings} from '../utils/settingsContext';
 import {COLOR} from '../shared/colorTheme';
+import {useSettingsStore} from '../store/settings/useSettingsStore';
 
 const UploadingIndicator = ({uploadingPhotos}: {uploadingPhotos: boolean}) => {
-  const {appSettings} = useAppSettings();
+  const darkModeFromStore = useSettingsStore(state => state.settings.darkMode);
+
   const [dots, setDots] = useState('');
 
   useEffect(() => {
@@ -22,9 +23,7 @@ const UploadingIndicator = ({uploadingPhotos}: {uploadingPhotos: boolean}) => {
     fontSize: 16,
     marginBottom: 10,
     fontWeight: 'bold',
-    color: appSettings.darkMode
-      ? COLOR.dark.TEXT_BRIGHT
-      : COLOR.light.TEXT_BRIGHT,
+    color: darkModeFromStore ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
   };
 
   return (

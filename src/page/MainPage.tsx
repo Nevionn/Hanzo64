@@ -23,9 +23,8 @@ import SettingsModal from '../components/modals/SettingsModal';
 import {COLOR} from '../shared/colorTheme';
 
 import {useAlbumsRequest} from '../hooks/useAlbumsRequest';
-import {useSettingsRequest} from '../hooks/useSettingsRequest';
 import useMediaInformation from '../hooks/useMediaInformation';
-import {useAppSettings, setStatusBarTheme} from '../utils/settingsContext';
+import {useSettingsStore} from '../store/settings/useSettingsStore';
 import eventEmitter from '../utils/eventEmitter';
 
 interface Album {
@@ -36,15 +35,13 @@ interface Album {
   coverPhoto: string;
 }
 
-// TODO: удалить acceptSettings и изменить стилизацию объектов на основание данных из стора
-
 const MainPage: React.FC = () => {
   const navigation: any = useNavigation();
   const insets = useSafeAreaInsets();
 
+  const darkModeFromStore = useSettingsStore(state => state.settings.darkMode);
+
   const {addAlbum, getAllAlbums, saveAlbumsOrder} = useAlbumsRequest();
-  const {acceptSettings, getSettings} = useSettingsRequest();
-  const {appSettings, saveAppSettings} = useAppSettings();
   const {calcAllAlbums, calcAllPhotos} = useMediaInformation();
 
   const [albums, setAlbums] = useState<Album[]>([]);
@@ -57,13 +54,9 @@ const MainPage: React.FC = () => {
   const [isModalAddAlbumVisible, setModalAddAlbumVisible] = useState(false);
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
 
-  const styles = getStyles(appSettings.darkMode);
+  const styles = getStyles(darkModeFromStore);
 
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
-
-  useEffect(() => {
-    getSettings(saveAppSettings);
-  }, [appSettings.darkMode]);
 
   useEffect(() => {
     const updateAlbums = () => {
@@ -80,7 +73,7 @@ const MainPage: React.FC = () => {
     return () => {
       eventEmitter.off('albumsUpdated', updateAlbums);
     };
-  }, [appSettings.sortOrder]);
+  }, []);
 
   useEffect(() => {
     const fetchPhotoAndAlbumCount = async () => {
@@ -189,7 +182,7 @@ const MainPage: React.FC = () => {
   return (
     <SafeAreaView style={styles.root}>
       <StatusBar
-        barStyle={setStatusBarTheme(appSettings.darkMode)}
+        barStyle={darkModeFromStore ? 'light-content' : 'dark-content'}
         translucent
         backgroundColor="transparent"
       />
@@ -198,10 +191,7 @@ const MainPage: React.FC = () => {
         openModalSettings={openSettings}
       />
 
-      <AlbumSearchBar
-        darkMode={appSettings.darkMode}
-        onSearch={setSearchQuery}
-      />
+      <AlbumSearchBar darkMode={darkModeFromStore} onSearch={setSearchQuery} />
 
       {filteredAlbums.length === 0 && searchQuery.length > 0 && (
         <View style={styles.emptyDataItem}>
@@ -219,7 +209,7 @@ const MainPage: React.FC = () => {
         <CounterMediaData
           albumCount={albumCount}
           photoCount={photoCount}
-          darkMode={appSettings.darkMode}
+          darkMode={darkModeFromStore}
         />
       )}
 

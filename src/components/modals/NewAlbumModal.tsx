@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import {View, Text, Modal, StyleSheet, StatusBar} from 'react-native';
 import {TextInput, Button} from 'react-native-paper';
-import {useAppSettings, setButtonColor} from '../../utils/settingsContext';
 import {COLOR} from '../../shared/colorTheme';
+import {useSettingsStore} from '../../store/settings/useSettingsStore';
 
 interface NewAlbumModalProps {
   visible: boolean;
@@ -15,7 +15,7 @@ const NewAlbumModal: React.FC<NewAlbumModalProps> = ({
   onClose,
   onSubmit,
 }) => {
-  const {appSettings} = useAppSettings();
+  const darkModeFromStore = useSettingsStore(state => state.settings.darkMode);
 
   const [title, setTitle] = useState<string>('');
   const [focused, setFocused] = useState(false);
@@ -34,7 +34,7 @@ const NewAlbumModal: React.FC<NewAlbumModalProps> = ({
     setFocused(false);
   };
 
-  const styles = getStyles(appSettings.darkMode);
+  const styles = getStyles(darkModeFromStore);
 
   return (
     <Modal
@@ -71,14 +71,22 @@ const NewAlbumModal: React.FC<NewAlbumModalProps> = ({
             <Button
               mode="elevated"
               textColor={COLOR.dark.TEXT_BRIGHT}
-              buttonColor={setButtonColor(appSettings.darkMode)}
+              buttonColor={
+                darkModeFromStore
+                  ? COLOR.dark.BUTTON_COLOR
+                  : COLOR.light.BUTTON_COLOR
+              }
               onPress={() => handleSave()}>
               Создать
             </Button>
             <Button
               mode="elevated"
               textColor={COLOR.dark.TEXT_BRIGHT}
-              buttonColor={setButtonColor(appSettings.darkMode)}
+              buttonColor={
+                darkModeFromStore
+                  ? COLOR.dark.BUTTON_COLOR
+                  : COLOR.light.BUTTON_COLOR
+              }
               onPress={handleCloseModal}>
               Отмена
             </Button>

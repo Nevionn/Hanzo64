@@ -11,6 +11,7 @@ import {useNavigation} from '@react-navigation/native';
 
 import {usePhotoRequest} from '../hooks/usePhotoRequest';
 import {useAlbumsRequest} from '../hooks/useAlbumsRequest';
+import {useSettingsStore} from '../store/settings/useSettingsStore';
 
 import SvgLeftArrow from './icons/SvgLeftArrow';
 import SvgDotsVertical from './icons/SvgDotsVertical';
@@ -20,7 +21,6 @@ import SvgBidirectionalArrows from './icons/SvgBidirectionalArrows';
 import AcceptMoveModal from './modals/AcceptMoveModal';
 import RenameAlbumModal from './modals/RenameAlbumModal';
 
-import {useAppSettings, setSvgIconColor} from '../utils/settingsContext';
 import eventEmitter from '../utils/eventEmitter';
 import {ModalText} from '../shared/textForModal';
 import {COLOR} from '../shared/colorTheme';
@@ -41,8 +41,9 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
   setUploadingPhotos,
 }) => {
   const {deleteAlbum} = useAlbumsRequest();
-  const {appSettings} = useAppSettings();
   const {addPhoto, deleteAllPhotosCurrentAlbum} = usePhotoRequest();
+
+  const darkModeFromStore = useSettingsStore(state => state.settings.darkMode);
 
   const navigation: any = useNavigation();
   const statusBarHeight: any = StatusBar.currentHeight;
@@ -87,7 +88,7 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
     navigation.goBack();
   };
 
-  const styles = getStyles(appSettings.darkMode);
+  const styles = getStyles(darkModeFromStore);
 
   return (
     <>
@@ -95,7 +96,9 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
         <View style={styles.manipulationItem}>
           <IconButton
             icon={() => (
-              <SvgLeftArrow color={setSvgIconColor(appSettings.darkMode)} />
+              <SvgLeftArrow
+                color={darkModeFromStore ? COLOR.dark.ICON : COLOR.light.ICON}
+              />
             )}
             size={30}
             onPress={() => navigation.goBack()}
@@ -104,7 +107,7 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
             <IconButton
               icon={() => (
                 <SvgBidirectionalArrows
-                  color={setSvgIconColor(appSettings.darkMode)}
+                  color={darkModeFromStore ? COLOR.dark.ICON : COLOR.light.ICON}
                 />
               )}
               size={30}
@@ -113,7 +116,7 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
             <IconButton
               icon={() => (
                 <SvgDotsVertical
-                  color={setSvgIconColor(appSettings.darkMode)}
+                  color={darkModeFromStore ? COLOR.dark.ICON : COLOR.light.ICON}
                 />
               )}
               size={30}

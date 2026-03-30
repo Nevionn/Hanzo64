@@ -3,13 +3,6 @@ import {View, Text, Switch, StyleSheet, Modal, StatusBar} from 'react-native';
 import {Button, Divider, List} from 'react-native-paper';
 import {useSettingsStore} from '../../store/settings/useSettingsStore';
 
-import {
-  setButtonColor,
-  setButtonTextColorRecommendation,
-  setSvgIconColor,
-  setAlertColor,
-  setArrowAccordionColor,
-} from '../../utils/settingsContext';
 import {COLOR} from '../../shared/colorTheme';
 import {ModalText} from '../../shared/textForModal';
 
@@ -118,28 +111,36 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               title="Безопасность"
               id="2"
               theme={{
-                colors: setArrowAccordionColor(darkModeFromStore),
+                colors: darkModeFromStore
+                  ? {onSurfaceVariant: COLOR.dark.ICON}
+                  : {onSurfaceVariant: COLOR.light.ICON},
               }}
               left={props => (
                 <List.Icon
                   {...props}
-                  color={setSvgIconColor(darkModeFromStore)}
+                  color={darkModeFromStore ? COLOR.dark.ICON : COLOR.light.ICON}
                   icon="lock-open-plus-outline"
                 />
               )}>
               <View style={styles.accordionContentItem}>
                 {safetyVisible ? (
                   <Button
-                    textColor={setButtonTextColorRecommendation(
-                      darkModeFromStore,
-                    )}
+                    textColor={
+                      darkModeFromStore
+                        ? COLOR.dark.BUTTON_TEXT_GREEN
+                        : COLOR.light.BUTTON_TEXT_GREEN
+                    }
                     mode="text"
                     onPress={() => setPinCode()}>
                     Установить ПИН-код
                   </Button>
                 ) : (
                   <Button
-                    textColor={setAlertColor(darkModeFromStore)}
+                    textColor={
+                      darkModeFromStore
+                        ? COLOR.dark.alertColor
+                        : COLOR.light.alertColor
+                    }
                     mode="text"
                     onPress={() => deletePinCode()}>
                     Удалить ПИН-код
@@ -153,19 +154,25 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               title="Очистка"
               id="3"
               theme={{
-                colors: setArrowAccordionColor(darkModeFromStore),
+                colors: darkModeFromStore
+                  ? {onSurfaceVariant: COLOR.dark.ICON}
+                  : {onSurfaceVariant: COLOR.light.ICON},
               }}
               left={props => (
                 <List.Icon
                   {...props}
-                  color={setSvgIconColor(darkModeFromStore)}
+                  color={darkModeFromStore ? COLOR.dark.ICON : COLOR.light.ICON}
                   icon="delete-alert-outline"
                 />
               )}>
               <View style={styles.accordionContentItem}>
                 {albumsExist && (
                   <Button
-                    textColor={setAlertColor(darkModeFromStore)}
+                    textColor={
+                      darkModeFromStore
+                        ? COLOR.dark.alertColor
+                        : COLOR.light.alertColor
+                    }
                     mode="text"
                     onPress={() => handleOpenAcceptModal()}>
                     Удалить все альбомы
@@ -178,7 +185,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             <Button
               mode="elevated"
               textColor={COLOR.dark.TEXT_BRIGHT}
-              buttonColor={setButtonColor(darkModeFromStore)}
+              buttonColor={
+                darkModeFromStore
+                  ? COLOR.dark.BUTTON_COLOR
+                  : COLOR.light.BUTTON_COLOR
+              }
               onPress={() => onCloseSettingsModal()}>
               Закрыть
             </Button>

@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, Text, StyleSheet, Modal, StatusBar} from 'react-native';
-import {useAppSettings, setButtonColor} from '../../utils/settingsContext.js';
+import {useSettingsStore} from '../../store/settings/useSettingsStore';
 import {COLOR} from '../../shared/colorTheme';
 import {Button} from 'react-native-paper';
 import SvgAlert from '../icons/SvgAlert';
@@ -20,9 +20,9 @@ const AcceptMoveModal: React.FC<AcceptMoveModalProps> = ({
   title,
   textBody,
 }) => {
-  const {appSettings} = useAppSettings();
+  const darkModeFromStore = useSettingsStore(state => state.settings.darkMode);
 
-  const styles = getStyles(appSettings.darkMode);
+  const styles = getStyles(darkModeFromStore);
   return (
     <>
       <Modal
@@ -46,14 +46,22 @@ const AcceptMoveModal: React.FC<AcceptMoveModalProps> = ({
                 mode="elevated"
                 textColor={COLOR.dark.TEXT_BRIGHT}
                 style={styles.button}
-                buttonColor={setButtonColor(appSettings.darkMode)}
+                buttonColor={
+                  darkModeFromStore
+                    ? COLOR.dark.BUTTON_COLOR
+                    : COLOR.light.BUTTON_COLOR
+                }
                 onPress={() => onConfirm()}>
                 Удалить
               </Button>
               <Button
                 mode="elevated"
                 textColor={COLOR.dark.TEXT_BRIGHT}
-                buttonColor={setButtonColor(appSettings.darkMode)}
+                buttonColor={
+                  darkModeFromStore
+                    ? COLOR.dark.BUTTON_COLOR
+                    : COLOR.light.BUTTON_COLOR
+                }
                 onPress={() => onCloseAcceptModal()}>
                 Отмена
               </Button>
