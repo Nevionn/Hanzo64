@@ -234,21 +234,23 @@ const useGetCountAlbums = () => {
   };
 };
 
-/**
- * Переименование альбома.
- */
-
 const useRenameAlbum = () => {
-  return (id, newTitle) => {
+  return (id, newTitle, newDescription) => {
     db.transaction(tx => {
       tx.executeSql(
-        'UPDATE AlbumsTable SET title = ? WHERE id = ?',
-        [newTitle, id],
+        `
+        UPDATE AlbumsTable 
+        SET title = ?, description = ?
+        WHERE id = ?
+        `,
+        [newTitle, newDescription || '', id],
         (_, results) => {
-          console.log(`Альбом с id ${id} переименован в "${newTitle}".`);
+          console.log(
+            `Альбом ${id} обновлён: title="${newTitle}", description="${newDescription}"`,
+          );
         },
         error => {
-          console.error('Ошибка при изменении названия альбома:', error);
+          console.error('Ошибка при обновлении альбома:', error);
         },
       );
     });

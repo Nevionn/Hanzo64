@@ -52,6 +52,7 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
   const statusBarHeight: any = StatusBar.currentHeight;
 
   const [title, setTitile] = useState(titleAlbum);
+  const [description, setDescription] = useState(descriptionAlbum);
 
   const [modalAction, setModalAction] = useState<'clear' | 'delete' | null>(
     null,
@@ -74,7 +75,9 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
 
   const handleCloseRenameAlbumModal = () => setIsRenameAlbumModal(false);
 
-  const updateTitleAlbum = (newTitle: string) => setTitile(newTitle);
+  const updateTitleAlbum = (newTitle: string, newDescription: string) => {
+    setTitile(newTitle), setDescription(newDescription);
+  };
 
   const deleteAlbumExpand = () => {
     deleteAllPhotosCurrentAlbum(idAlbum);
@@ -157,9 +160,9 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
         <View style={styles.titleAlbumItem}>
           <Text style={styles.title}>{title}</Text>
 
-          {!!descriptionAlbum && (
+          {!!description && (
             <Text style={styles.descriptionWrapper}>
-              {renderDescription(descriptionAlbum)}
+              {renderDescription(description)}
             </Text>
           )}
         </View>
@@ -220,6 +223,7 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
         onClose={handleCloseRenameAlbumModal}
         onSubmit={updateTitleAlbum}
         title={titleAlbum}
+        description={descriptionAlbum}
         idAlbum={idAlbum}
       />
 
