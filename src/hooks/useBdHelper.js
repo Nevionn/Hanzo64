@@ -52,3 +52,27 @@ export const logAllTables = () => {
     });
   });
 };
+
+export const logDatabaseTables = () => {
+  db.transaction(tx => {
+    tx.executeSql(
+      `SELECT name FROM sqlite_master WHERE type='table';`,
+      [],
+      (_, result) => {
+        console.log('\n=== Список таблиц в базе ===');
+
+        if (result.rows.length === 0) {
+          console.log('Таблицы не найдены');
+        } else {
+          for (let i = 0; i < result.rows.length; i++) {
+            console.log(result.rows.item(i).name);
+          }
+        }
+      },
+      (_, error) => {
+        console.log('Ошибка при получении списка таблиц:', error);
+        return true;
+      },
+    );
+  });
+};

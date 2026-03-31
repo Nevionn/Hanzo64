@@ -1,14 +1,15 @@
 import React, {useEffect} from 'react';
 import Navigator from './src/navigation/Navigator';
 import {bootstrapApp} from './src/app/bootstrap';
-import {logAllTables} from './src/hooks/useBdHelper';
+import {logAllTables, logDatabaseTables} from './src/hooks/useBdHelper';
 
 const App = () => {
   useEffect(() => {
     bootstrapApp();
   }, []);
 
-  logAllTables();
+  // logAllTables();
+  // logDatabaseTables();
 
   return (
     <>

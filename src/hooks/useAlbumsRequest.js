@@ -24,6 +24,7 @@ const initAlbumsTable = () => {
       CREATE TABLE IF NOT EXISTS AlbumsTable (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT,
+        description TEXT,
         countPhoto INTEGER,
         created_at TEXT,
         coverPhoto TEXT,
@@ -41,24 +42,27 @@ const initAlbumsTable = () => {
     );
   });
 
-  ensureSortOrderColumn();
+  ensureColumn('sortOrder', 'INTEGER');
+  ensureColumn('description', 'TEXT');
 };
 
 /**
- * Проверяет наличие колонки sortOrder.
+ * Метод для миграции.
  * Если приложение обновилось со старой схемы БД —
  * колонка будет добавлена без потери данных.
  */
 
-const ensureSortOrderColumn = () => {
+const ensureColumn = (columnName, columnType) => {
   db.transaction(tx => {
     tx.executeSql('PRAGMA table_info(AlbumsTable)', [], (_, result) => {
-      const hasSortOrder = Array.from({length: result.rows.length}, (_, i) =>
+      const hasColumn = Array.from({length: result.rows.length}, (_, i) =>
         result.rows.item(i),
-      ).some(col => col.name === 'sortOrder');
+      ).some(col => col.name === columnName);
 
-      if (!hasSortOrder) {
-        tx.executeSql('ALTER TABLE AlbumsTable ADD COLUMN sortOrder INTEGER');
+      if (!hasColumn) {
+        tx.executeSql(
+          `ALTER TABLE AlbumsTable ADD COLUMN ${columnName} ${columnType}`,
+        );
       }
     });
   });
@@ -99,8 +103,8 @@ const useAddNewAlbumToTable = () => {
         tx.executeSql(
           `
           INSERT INTO AlbumsTable
-            (title, countPhoto, created_at, sortOrder)
-          VALUES (?, ?, ?, 0)
+            (title, description, countPhoto, created_at, sortOrder)
+          VALUES (?, ?, ?, ?, 0)
           `,
           [newAlbum.title, newAlbum.countPhoto, newAlbum.created_at],
           (_, res) => {
