@@ -30,6 +30,7 @@ import eventEmitter from '../utils/eventEmitter';
 interface Album {
   id: string;
   title: string;
+  description?: string;
   countPhoto: number;
   created_at: string;
   coverPhoto: string;
@@ -110,10 +111,11 @@ const MainPage: React.FC = () => {
     album.title.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const handleAddAlbum = (newAlbum: {title: string}) => {
+  const handleAddAlbum = (newAlbum: {title: string; description?: string}) => {
     const currentDate = new Date();
     const albumToInsert = {
       title: newAlbum.title,
+      description: newAlbum.description,
       countPhoto: 0,
       created_at: currentDate.toLocaleString(),
     };

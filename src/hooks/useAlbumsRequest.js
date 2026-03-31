@@ -106,7 +106,12 @@ const useAddNewAlbumToTable = () => {
             (title, description, countPhoto, created_at, sortOrder)
           VALUES (?, ?, ?, ?, 0)
           `,
-          [newAlbum.title, newAlbum.countPhoto, newAlbum.created_at],
+          [
+            newAlbum.title,
+            newAlbum.description,
+            newAlbum.countPhoto,
+            newAlbum.created_at,
+          ],
           (_, res) => {
             console.log(`✅ Альбом "${newAlbum.title}" добавлен с sortOrder=0`);
           },
