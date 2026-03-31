@@ -126,6 +126,7 @@ const PhotoPage = () => {
       />
       <NavibarPhoto
         titleAlbum={dataAlbum.album.title}
+        descriptionAlbum={dataAlbum.album.description}
         idAlbum={dataAlbum.album.id}
         sortPhotos={reversePhotosSort}
         setUploadingPhotos={setUploadingPhotos}

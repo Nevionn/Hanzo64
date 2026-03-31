@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StatusBar,
   Modal,
+  Linking,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 
@@ -29,6 +30,7 @@ import {capturePhoto} from '../utils/camera';
 
 interface NaviBarPhotoProps {
   titleAlbum: string;
+  descriptionAlbum: string;
   idAlbum: string;
   sortPhotos: () => void;
   setUploadingPhotos: (value: boolean) => void;
@@ -36,6 +38,7 @@ interface NaviBarPhotoProps {
 
 const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
   titleAlbum,
+  descriptionAlbum,
   idAlbum,
   sortPhotos,
   setUploadingPhotos,
@@ -88,6 +91,32 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
     navigation.goBack();
   };
 
+  const renderDescription = (text: string) => {
+    if (!text) return null;
+
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+
+    return parts.map((part, index) => {
+      if (urlRegex.test(part)) {
+        return (
+          <Text
+            key={index}
+            style={styles.link}
+            onPress={() => Linking.openURL(part)}>
+            {part}
+          </Text>
+        );
+      }
+
+      return (
+        <Text key={index} style={styles.descriptionText}>
+          {part}
+        </Text>
+      );
+    });
+  };
+
   const styles = getStyles(darkModeFromStore);
 
   return (
@@ -124,8 +153,15 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
             />
           </View>
         </View>
+
         <View style={styles.titleAlbumItem}>
           <Text style={styles.title}>{title}</Text>
+
+          {!!descriptionAlbum && (
+            <Text style={styles.descriptionWrapper}>
+              {renderDescription(descriptionAlbum)}
+            </Text>
+          )}
         </View>
       </View>
 
@@ -161,23 +197,24 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                setModalAction('clear'),
-                  handleOpenAcceptMoveModal(),
-                  toggleMiniModal();
+                setModalAction('clear');
+                handleOpenAcceptMoveModal();
+                toggleMiniModal();
               }}>
               <Text style={styles.modalItem}>Очистить</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                setModalAction('delete'),
-                  handleOpenAcceptMoveModal(),
-                  toggleMiniModal();
+                setModalAction('delete');
+                handleOpenAcceptMoveModal();
+                toggleMiniModal();
               }}>
               <Text style={styles.modalItem}>Удалить</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
       </Modal>
+
       <RenameAlbumModal
         visible={isRenameAlbumModal}
         onClose={handleCloseRenameAlbumModal}
@@ -185,6 +222,7 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
         title={titleAlbum}
         idAlbum={idAlbum}
       />
+
       <AcceptMoveModal
         visible={isAcceptMoveModalVisible}
         onCloseAcceptModal={handleCloseAcceptMoveModal}
@@ -218,21 +256,30 @@ const getStyles = (darkMode: boolean) => {
       flexDirection: 'row',
     },
     rightItemContent: {
-      justifyContent: 'flex-start',
-      alignItems: 'center',
       flexDirection: 'row',
     },
     titleAlbumItem: {
-      justifyContent: 'flex-start',
-      alignItems: 'center',
-      flexDirection: 'row',
+      flexDirection: 'column',
       width: '100%',
+      paddingHorizontal: 24,
     },
     title: {
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
       fontSize: 20,
-      fontWeight: 'medium',
-      marginLeft: 24,
+      fontWeight: '500',
+    },
+    descriptionWrapper: {
+      marginTop: 4,
+      flexWrap: 'wrap',
+    },
+    descriptionText: {
+      color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,
+      fontSize: 14,
+      lineHeight: 18,
+    },
+    link: {
+      color: '#a855f7',
+      textDecorationLine: 'underline',
     },
     overlay: {
       flex: 1,
