@@ -6,8 +6,9 @@ import {
   Text,
   Alert,
   Dimensions,
+  Animated,
+  Easing,
 } from 'react-native';
-import {COLOR} from '../shared/colorTheme';
 const {width, height} = Dimensions.get('window');
 
 interface PinInputProps {
@@ -15,6 +16,32 @@ interface PinInputProps {
   inputMode?: number;
   onReset?: () => void;
 }
+
+/**
+ * PinCode – компонент для ввода и подтверждения PIN-кода (5 цифр)
+ *
+ * Основной функционал:
+ * 1. Ввод PIN-кода пользователем (5 цифр).
+ * 2. Подтверждение PIN-кода (если inputMode = 2).
+ * 3. Сброс состояния при ошибке или внешнем сигнале.
+ * 4. Вызов callback при успешном вводе PIN.
+ *
+ * @hook useEffect(scanAnimation)
+ * Запускает бесконечную анимацию scan line:
+ * - движение сверху вниз
+ * - линейная интерполяция
+ *
+ * Анимация:
+ * - scan line реализован через Animated.View
+ * - используется translateY + interpolate
+ * - бесконечный цикл через Animated.loop
+ *
+ * Ограничения:
+ * - Максимальная длина PIN: 5 символов
+ * - Используется только числовой ввод (0–9)
+ *
+ * @returns {JSX.Element} UI компонент ввода PIN-кода
+ */
 
 const PinCode: React.FC<PinInputProps> = ({onComplete, inputMode, onReset}) => {
   const [initialPin, setInitialPin] = useState('');
@@ -80,6 +107,24 @@ const PinCode: React.FC<PinInputProps> = ({onComplete, inputMode, onReset}) => {
     }
   };
 
+  const scanAnim = useState(new Animated.Value(0))[0];
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(scanAnim, {
+        toValue: 1,
+        duration: 2500,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }),
+    ).start();
+  }, []);
+
+  const translateY = scanAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, height * 0.75],
+  });
+
   return (
     <View style={styles.root}>
       <View
@@ -128,6 +173,15 @@ const PinCode: React.FC<PinInputProps> = ({onComplete, inputMode, onReset}) => {
             {step === 1 ? 'Далее' : 'Подтвердить'}
           </Text>
         </TouchableOpacity>
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.scanLine,
+            {
+              transform: [{translateY}],
+            },
+          ]}
+        />
       </View>
     </View>
   );
@@ -145,19 +199,76 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'column',
     height: height * 0.75,
-    width: width * 0.8,
+    width: width * 0.85,
+    borderRadius: 20,
+    padding: 20,
+
+    // стеклянная панель
+    backgroundColor: 'rgba(15, 20, 40, 0.8)',
+    borderWidth: 1,
+    borderColor: 'rgba(0,255,255,0.2)',
+
+    // glow
+    shadowColor: '#00F0FF',
+    shadowOffset: {width: 0, height: 0},
+    shadowOpacity: 0.6,
+    shadowRadius: 20,
+    elevation: 20,
+  },
+  scanLine: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 2,
+
+    backgroundColor: 'rgba(0,255,255,0.4)',
+
+    shadowColor: '#00F0FF',
+    shadowOffset: {width: 0, height: 0},
+    shadowOpacity: 1,
+    shadowRadius: 8,
+
+    opacity: 0.7,
+  },
+  moveTextPinCode: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  text: {
+    fontSize: 22,
+    color: '#00F0FF',
+    textAlign: 'center',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+
+    textShadowColor: '#00F0FF',
+    textShadowOffset: {width: 0, height: 0},
+    textShadowRadius: 10,
   },
   pinContainerDisplay: {
     flexDirection: 'row',
+    gap: 10,
   },
   pin: {
-    width: 40,
-    height: 40,
-    borderBottomWidth: 2,
-    borderColor: '#2D7FE1',
-    marginHorizontal: 5,
+    width: 45,
+    height: 55,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#00F0FF',
+    backgroundColor: 'rgba(0, 240, 255, 0.05)',
+
     alignItems: 'center',
     justifyContent: 'center',
+
+    shadowColor: '#00F0FF',
+    shadowOffset: {width: 0, height: 0},
+    shadowOpacity: 0.8,
+    shadowRadius: 8,
+  },
+  pinText: {
+    fontSize: 24,
+    color: '#00F0FF',
+    fontWeight: 'bold',
   },
   buttonContainer: {
     justifyContent: 'center',
@@ -166,40 +277,50 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   button: {
-    width: 60,
-    height: 60,
-    backgroundColor: COLOR.dark.BUTTON_PIN_COLOR,
-    margin: 5,
-    borderRadius: 10,
+    width: 65,
+    height: 65,
+    margin: 6,
+    borderRadius: 12,
+
+    backgroundColor: '#0B1226',
+    borderWidth: 1,
+    borderColor: '#00F0FF',
+
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  confirmButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 10,
-    borderRadius: 10,
-    backgroundColor: COLOR.dark.BUTTON_COLOR,
-  },
-  moveTextPinCode: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  text: {
-    fontSize: 24,
-    color: 'white',
-    textAlign: 'center',
+
+    // glow
+    shadowColor: '#00F0FF',
+    shadowOffset: {width: 0, height: 0},
+    shadowOpacity: 0.7,
+    shadowRadius: 10,
   },
   buttonText: {
-    fontSize: 24,
+    fontSize: 26,
+    color: '#00F0FF',
+    fontWeight: 'bold',
+  },
+  confirmButton: {
+    width: '80%',
+    paddingVertical: 12,
+    borderRadius: 12,
+
+    backgroundColor: '#00F0FF',
+
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    shadowColor: '#00F0FF',
+    shadowOffset: {width: 0, height: 0},
+    shadowOpacity: 1,
+    shadowRadius: 15,
   },
   confirmButtonText: {
     fontSize: 18,
-    color: 'white',
-  },
-  pinText: {
-    fontSize: 24,
-    color: 'white',
+    color: '#020617',
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
   },
 });
 
