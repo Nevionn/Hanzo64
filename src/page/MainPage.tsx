@@ -107,9 +107,14 @@ const MainPage: React.FC = () => {
   const openSettings = () => setIsSettingsModalVisible(true);
   const openCreateAlbumModal = () => setModalAddAlbumVisible(true);
 
-  const filteredAlbums = albums.filter(album =>
-    album.title.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  const filteredAlbums = albums.filter(album => {
+    const query = searchQuery.toLowerCase();
+    const titleMatch = album.title.toLowerCase().includes(query);
+    const descriptionMatch = album.description
+      ? album.description.toLowerCase().includes(query)
+      : false;
+    return titleMatch || descriptionMatch;
+  });
 
   const handleAddAlbum = (newAlbum: {title: string; description?: string}) => {
     const currentDate = new Date();
