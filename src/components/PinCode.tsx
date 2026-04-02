@@ -44,18 +44,18 @@ const PinCode: React.FC<PinInputProps> = ({onComplete, inputMode, onReset}) => {
   const handleDigitPress = (digit: number) => {
     if (step === 1) {
       setInitialPin(prevPin =>
-        prevPin.length < 4 ? prevPin + String(digit) : prevPin,
+        prevPin.length < 5 ? prevPin + String(digit) : prevPin,
       );
     } else {
       setConfirmPin(prevPin =>
-        prevPin.length < 4 ? prevPin + String(digit) : prevPin,
+        prevPin.length < 5 ? prevPin + String(digit) : prevPin,
       );
     }
   };
 
   const handleNextStep = () => {
     if (step === 1) {
-      if (initialPin.length === 4) {
+      if (initialPin.length === 5) {
         if (inputMode === 2) {
           setStep(2);
         } else {
@@ -91,7 +91,7 @@ const PinCode: React.FC<PinInputProps> = ({onComplete, inputMode, onReset}) => {
           </Text>
         </View>
         <View style={styles.pinContainerDisplay}>
-          {Array(4)
+          {Array(5)
             .fill('')
             .map((_, index) => (
               <View key={index} style={styles.pin}>
