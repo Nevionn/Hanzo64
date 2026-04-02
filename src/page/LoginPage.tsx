@@ -8,15 +8,49 @@ import {
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {COLOR} from '../shared/colorTheme';
-const {width} = Dimensions.get('window');
-const {height} = Dimensions.get('window');
 import PinCode from '../components/PinCode';
 import {usePinCodeRequest} from '../hooks/usePinCodeRequest';
+import CryptoJS from 'crypto-js';
+
+const {width, height} = Dimensions.get('window');
+
+/**
+ * LoginPage – страница авторизации пользователя через PIN-код.
+ *
+ * Данная страница отвечает за:
+ * 1. Получение сохранённого PIN-кода (в виде хеша) из локальной базы данных.
+ * 2. Ввод PIN-кода пользователем через компонент PinCode.
+ * 4. Сравнение хеша введённого PIN с хешем из базы данных.
+ * 5. Навигацию на главную страницу при успешной авторизации.
+ * 6. Обработку ошибки при неверном PIN-коде с последующим сбросом ввода.
+ *
+ * Используемые состояния:
+ * @property {string} rightPinCodeHash - Хеш PIN-кода, полученный из базы данных.
+ * @property {string} inputPinCode - PIN-код, введённый пользователем.
+ * @property {boolean} shouldResetPin - Флаг для сброса состояния компонента PinCode.
+ *
+ * Хуки:
+ * @hook useEffect(getPinCodefromTable)
+ * Загружает хеш PIN-кода из базы данных при монтировании компонента.
+ *
+ * @hook useEffect(comparePinHashes)
+ * Выполняет:
+ * - Хеширование введённого PIN-кода через SHA-256
+ * - Сравнение с сохранённым хешем
+ * - Навигацию при успехе
+ * - Показ ошибки и сброс ввода при несовпадении
+ *
+ * Безопасность:
+ * - Используется SHA-256 хеширование перед сравнением
+ *
+ * @returns {JSX.Element} Экран ввода PIN-кода
+ */
 
 const LoginPage = () => {
   const navigation: any = useNavigation();
+
   const {getPinCodefromTable} = usePinCodeRequest();
-  const [rightPinCodeFromDb, setRightPinCodeFromDb] = useState('');
+  const [rightPinCodeHash, setRightPinCodeHash] = useState('');
   const [inputPinCode, setInputPinCode] = useState('');
   const [shouldResetPin, setShouldResetPin] = useState(false);
 
@@ -29,20 +63,24 @@ const LoginPage = () => {
   };
 
   useEffect(() => {
-    getPinCodefromTable(setRightPinCodeFromDb);
+    getPinCodefromTable(setRightPinCodeHash);
   }, []);
 
   useEffect(() => {
     if (inputPinCode) {
-      if (rightPinCodeFromDb === inputPinCode) {
-        console.log('пин код совпадает');
+      const inputPinHash = CryptoJS.SHA256(inputPinCode).toString(
+        CryptoJS.enc.Hex,
+      );
+
+      if (rightPinCodeHash && inputPinHash === rightPinCodeHash) {
+        console.log('Пин-код совпадает');
         navigation.replace('MainPage');
       } else {
-        Alert.alert('Неверный пин код,\nпопробуйте снова');
+        Alert.alert('Неверный пин-код,\nпопробуйте снова');
         handleResetPin();
       }
     }
-  }, [inputPinCode]);
+  }, [inputPinCode, rightPinCodeHash]);
 
   return (
     <ImageBackground

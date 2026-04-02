@@ -15,6 +15,39 @@ import {Button} from 'react-native-paper';
 import PinCode from '../components/PinCode';
 const {width, height} = Dimensions.get('window');
 
+/**
+ * RegistrationPage – страница регистрации пользователя с установкой или подтверждением PIN-кода.
+ *
+ * Эта страница позволяет:
+ * 1. Отобразить приветствие и предложение установить PIN-код.
+ * 2. Пропустить установку PIN-кода.
+ * 3. Установить новый PIN-код (5-значный).
+ * 4. Удалить PIN-код, если пришла соответствующая инструкция.
+ *
+ * Используемые состояния:
+ * @property {number} inputMode - Режим ввода PIN-кода (1 – только ввод, 2 – ввод и подтверждение).
+ * @property {boolean} installationPinStage - Определяет, показывать ли экран приветствия или компонент PinCode.
+ * @property {'delete' | ''} instruction - Инструкция для PIN-кода ('delete' – удалить PIN, '' – обычная установка).
+ * @property {string} pinCode - Значение введенного PIN-кода.
+ * @property {boolean} shouldResetPin - Флаг для сброса компонента PinCode при ошибке.
+ *
+ * Используемые функции:
+ * @function handlePinComplete - Обработчик завершения ввода PIN-кода.
+ * @function handleResetPin - Сбрасывает ввод PIN-кода.
+ * @function skipInstallPinCode - Пропустить установку PIN-кода и перейти на главную страницу.
+ * @function onLoginSuccess - Навигация на главную страницу после успешного сохранения PIN.
+ * @function handleDeletePinCode - Удаление сохраненного PIN-кода с проверкой совпадения.
+ *
+ * Хуки:
+ * - useEffect(updatePinCodeFlow) – обновляет состояния страницы на основе параметров маршрута.
+ * - useEffect(interactionWithPinCode) – реагирует на изменение pinCode и instruction для сохранения или удаления PIN.
+ *
+ * Компоненты:
+ * - PinCode – компонент для ввода и подтверждения PIN-кода.
+ *
+ * @returns {JSX.Element}
+ */
+
 const RegistrationPage = () => {
   const {savePinCode, skipPin, deletePinCode} = usePinCodeRequest();
   const route: any = useRoute();

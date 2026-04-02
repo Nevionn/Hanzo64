@@ -1,4 +1,6 @@
 import SQLite from 'react-native-sqlite-storage';
+import CryptoJS from 'crypto-js';
+
 const db = SQLite.openDatabase({name: 'database.db', location: 'default'});
 
 db.transaction(tx => {
@@ -13,47 +15,31 @@ db.transaction(tx => {
 
 const useAddPinCodeToTable = () => {
   return pinCode => {
+    const hashedPin = CryptoJS.SHA256(pinCode).toString(CryptoJS.enc.Hex);
+
     db.transaction(tx => {
-      // Проверяем, существует ли уже запись
       tx.executeSql(
         'SELECT * FROM PinCodeTable WHERE isSkip = 1',
         [],
         (_, results) => {
           if (results.rows.length > 0) {
-            // Если запись существует, обновляем ее
             tx.executeSql(
               'UPDATE PinCodeTable SET pinCode = ?, isActive = ?, isSkip = ? WHERE isSkip = 1',
-              [pinCode, 1, 0],
-              () => {
-                console.log('пин код успешно обновлен в таблице.');
-              },
-              error => {
-                console.error(
-                  'Ошибка при обновлении пин-кода в таблице:',
-                  error,
-                );
-              },
+              [hashedPin, 1, 0],
+              () => console.log('Пин-код успешно обновлен в таблице.'),
+              error => console.error('Ошибка при обновлении пин-кода:', error),
             );
           } else {
-            // Если записи нет, добавляем новую
             tx.executeSql(
               'INSERT INTO PinCodeTable (pinCode, isActive, isSkip) VALUES (?, ?, ?)',
-              [pinCode, 1, 0],
-              () => {
-                console.log('пин код успешно добавлен в таблицу.');
-              },
-              error => {
-                console.error(
-                  'Ошибка при добавлении пин-кода в таблицу:',
-                  error,
-                );
-              },
+              [hashedPin, 1, 0],
+              () => console.log('Пин-код успешно добавлен в таблицу.'),
+              error => console.error('Ошибка при добавлении пин-кода:', error),
             );
           }
         },
-        error => {
-          console.error('Ошибка при проверке пин-кода в таблице:', error);
-        },
+        error =>
+          console.error('Ошибка при проверке пин-кода в таблице:', error),
       );
     });
   };
@@ -136,6 +122,10 @@ const useCheckActivePinCode = () => {
 const useDeletePinCode = () => {
   return inputPinCode => {
     return new Promise((resolve, reject) => {
+      const inputPinHash = CryptoJS.SHA256(inputPinCode).toString(
+        CryptoJS.enc.Hex,
+      );
+
       db.transaction(tx => {
         tx.executeSql(
           'SELECT * FROM PinCodeTable WHERE isActive = 1',
@@ -144,7 +134,7 @@ const useDeletePinCode = () => {
             if (results.rows.length > 0) {
               const storedPinCode = results.rows.item(0).pinCode;
 
-              if (storedPinCode === inputPinCode) {
+              if (storedPinCode === inputPinHash) {
                 tx.executeSql(
                   'DELETE FROM PinCodeTable WHERE isActive = 1',
                   [],
