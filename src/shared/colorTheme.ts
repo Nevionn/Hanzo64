@@ -49,6 +49,7 @@ export const COLOR: ColorSchema = {
     SECONDARY_COLOR: '#2a206c',
 
     ICON: 'white',
+
     alertColor: '#EC97A1',
   },
   light: {

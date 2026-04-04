@@ -10,6 +10,8 @@ import {useNavigation} from '@react-navigation/native';
 import {COLOR} from '../shared/colorTheme';
 import PinCode from '../components/PinCode';
 import {usePinCodeRequest} from '../hooks/usePinCodeRequest';
+import {useAlbumsRequest} from '../hooks/useAlbumsRequest';
+import {usePhotoRequest} from '../hooks/usePhotoRequest';
 import CryptoJS from 'crypto-js';
 
 const {width, height} = Dimensions.get('window');
@@ -23,6 +25,7 @@ const {width, height} = Dimensions.get('window');
  * 4. Сравнение хеша введённого PIN с хешем из базы данных.
  * 5. Навигацию на главную страницу при успешной авторизации.
  * 6. Обработку ошибки при неверном PIN-коде с последующим сбросом ввода.
+ * 7. Удаление всех данных при 3 проваленных попытках ввести PIN-код, если включен соответствующий режим.
  *
  * Используемые состояния:
  * @property {string} rightPinCodeHash - Хеш PIN-кода, полученный из базы данных.
@@ -43,16 +46,27 @@ const {width, height} = Dimensions.get('window');
  * Безопасность:
  * - Используется SHA-256 хеширование перед сравнением
  *
- * @returns {JSX.Element} Экран ввода PIN-кода
+ * @returns {JSX.Element}
  */
 
 const LoginPage = () => {
   const navigation: any = useNavigation();
 
-  const {getPinCodefromTable} = usePinCodeRequest();
+  const {
+    getPinCodefromTable,
+    getWipeOnFail,
+    incrementFailedAttempts,
+    resetFailedAttempts,
+  } = usePinCodeRequest();
+
+  const {deleteAllAlbums} = useAlbumsRequest();
+  const {deleteAllPhotos} = usePhotoRequest();
+
   const [rightPinCodeHash, setRightPinCodeHash] = useState('');
   const [inputPinCode, setInputPinCode] = useState('');
   const [shouldResetPin, setShouldResetPin] = useState(false);
+
+  const [wipeEnabled, setWipeEnabled] = useState(false);
 
   const handlePinComplete = (pin: string) => {
     setInputPinCode(pin);
@@ -62,23 +76,59 @@ const LoginPage = () => {
     setShouldResetPin(true);
   };
 
+  const approvalAuthorization = () => {
+    resetFailedAttempts();
+    navigation.replace('MainPage');
+  };
+
   useEffect(() => {
     getPinCodefromTable(setRightPinCodeHash);
+    getWipeOnFail(setWipeEnabled);
   }, []);
 
   useEffect(() => {
-    if (inputPinCode) {
-      const inputPinHash = CryptoJS.SHA256(inputPinCode).toString(
-        CryptoJS.enc.Hex,
-      );
+    if (!inputPinCode) return;
 
-      if (rightPinCodeHash && inputPinHash === rightPinCodeHash) {
-        console.log('Пин-код совпадает');
-        navigation.replace('MainPage');
+    const inputPinHash = CryptoJS.SHA256(inputPinCode).toString(
+      CryptoJS.enc.Hex,
+    );
+
+    if (rightPinCodeHash && inputPinHash === rightPinCodeHash) {
+      console.log('Пин-код совпадает');
+
+      approvalAuthorization();
+    } else {
+      console.log('❌ Неверный PIN');
+
+      if (wipeEnabled) {
+        incrementFailedAttempts((attempts: number) => {
+          console.log('Попытка:', attempts);
+
+          if (attempts >= 3) {
+            console.log('WIPE TRIGGERED');
+
+            deleteAllAlbums();
+            deleteAllPhotos();
+
+            Alert.alert(
+              'Данные удалены',
+              'Превышено количество попыток. Все данные удалены.',
+            );
+
+            setTimeout(() => {
+              approvalAuthorization();
+            }, 2000);
+
+            return;
+          }
+
+          Alert.alert('Неверный PIN', `Попытка ${attempts}/3`);
+        });
       } else {
         Alert.alert('Неверный пин-код,\nпопробуйте снова');
-        handleResetPin();
       }
+
+      handleResetPin();
     }
   }, [inputPinCode, rightPinCodeHash]);
 

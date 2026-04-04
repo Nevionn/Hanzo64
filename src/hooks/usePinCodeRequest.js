@@ -5,13 +5,41 @@ const db = SQLite.openDatabase({name: 'database.db', location: 'default'});
 
 db.transaction(tx => {
   tx.executeSql(
-    'CREATE TABLE IF NOT EXISTS PinCodeTable (id INTEGER PRIMARY KEY AUTOINCREMENT, pinCode TEXT, isActive INTEGER DEFAULT 0, isSkip INTEGER DEFAULT 0)',
+    `
+    CREATE TABLE IF NOT EXISTS PinCodeTable (
+     id INTEGER PRIMARY KEY AUTOINCREMENT, 
+     pinCode TEXT, 
+     isActive INTEGER DEFAULT 0, 
+     isSkip INTEGER DEFAULT 0, 
+     isWipeEnabled INTEGER DEFAULT 0, 
+     failedAttempts INTEGER DEFAULT 0
+    )
+    `,
     [],
     (tx, results) => {
       console.log('Таблица пин кода создана');
     },
   );
 });
+
+// export const dropPinCodeTable = () => {
+//   return new Promise((resolve, reject) => {
+//     db.transaction(tx => {
+//       tx.executeSql(
+//         'DROP TABLE IF EXISTS PinCodeTable',
+//         [],
+//         () => {
+//           console.log('Таблица PinCodeTable успешно удалена');
+//           resolve({success: true});
+//         },
+//         error => {
+//           console.error('Ошибка при удалении таблицы:', error);
+//           reject(error);
+//         },
+//       );
+//     });
+//   });
+// };
 
 const useAddPinCodeToTable = () => {
   return pinCode => {
@@ -119,6 +147,73 @@ const useCheckActivePinCode = () => {
   };
 };
 
+const useToggleWipeOnFail = () => {
+  return enabled => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'UPDATE PinCodeTable SET isWipeEnabled = ?',
+        [enabled ? 1 : 0],
+        () => console.log('Wipe-on-fail обновлен'),
+        error => console.error('Ошибка обновления wipe:', error),
+      );
+    });
+  };
+};
+
+const useGetWipeOnFail = () => {
+  return setValue => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'SELECT isWipeEnabled FROM PinCodeTable LIMIT 1',
+        [],
+        (_, results) => {
+          if (results.rows.length > 0) {
+            setValue(!!results.rows.item(0).isWipeEnabled);
+          }
+        },
+      );
+    });
+  };
+};
+
+const useIncrementFailedAttempts = () => {
+  return callback => {
+    db.transaction(tx => {
+      tx.executeSql(
+        `
+        UPDATE PinCodeTable 
+        SET failedAttempts = failedAttempts + 1
+        `,
+        [],
+        () => {
+          tx.executeSql(
+            'SELECT failedAttempts FROM PinCodeTable LIMIT 1',
+            [],
+            (_, res) => {
+              const attempts = res.rows.item(0)?.failedAttempts || 0;
+              callback(attempts);
+            },
+          );
+        },
+        error => console.error('Ошибка инкремента попыток:', error),
+      );
+    });
+  };
+};
+
+const useResetFailedAttempts = () => {
+  return () => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'UPDATE PinCodeTable SET failedAttempts = 0',
+        [],
+        () => console.log('Попытки сброшены'),
+        error => console.error('Ошибка сброса попыток:', error),
+      );
+    });
+  };
+};
+
 const useDeletePinCode = () => {
   return inputPinCode => {
     return new Promise((resolve, reject) => {
@@ -180,6 +275,10 @@ export function usePinCodeRequest() {
   const skipPin = useAddSkipPinCodeVallue();
   const getPinCodefromTable = useGetPinCode();
   const checkActivePinCode = useCheckActivePinCode();
+  const toggleWipeOnFail = useToggleWipeOnFail();
+  const getWipeOnFail = useGetWipeOnFail();
+  const incrementFailedAttempts = useIncrementFailedAttempts();
+  const resetFailedAttempts = useResetFailedAttempts();
   const deletePinCode = useDeletePinCode();
 
   return {
@@ -187,6 +286,10 @@ export function usePinCodeRequest() {
     skipPin,
     getPinCodefromTable,
     checkActivePinCode,
+    toggleWipeOnFail,
+    getWipeOnFail,
+    incrementFailedAttempts,
+    resetFailedAttempts,
     deletePinCode,
   };
 }

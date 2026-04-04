@@ -21,6 +21,23 @@ interface SettingsModalProps {
   albumsExist?: boolean;
 }
 
+/**
+ * Компонент модального окна настроек приложения.
+ *
+ * Отображает:
+ * - Переключатель темной темы.
+ * - Блоки для "Безопасности" и "Очистки":
+ *   - Безопасность: установка/удаление ПИН-кода и опция удаления данных после 3 неверных попыток.
+ *   - Очистка: удаление всех альбомов.
+ *
+ * Используемые хуки:
+ * - useSettingsStore для состояния темы.
+ * - useAlbumsRequest, usePhotoRequest, usePinCodeRequest для работы с данными.
+ *
+ * Особенности:
+ * - Модальные подтверждения через AcceptMoveModal.
+ */
+
 const SettingsModal: React.FC<SettingsModalProps> = ({
   visible,
   onCloseSettingsModal,
@@ -28,7 +45,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 }) => {
   const {deleteAllAlbums} = useAlbumsRequest();
   const {deleteAllPhotos} = usePhotoRequest();
-  const {checkActivePinCode} = usePinCodeRequest();
+  const {checkActivePinCode, toggleWipeOnFail, getWipeOnFail} =
+    usePinCodeRequest();
 
   const darkModeFromStore = useSettingsStore(state => state.settings.darkMode);
   const setSetting = useSettingsStore(state => state.setSetting);
@@ -37,6 +55,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const [safetyVisible, setSafetyVisible] = useState(true);
   const [isVisibleAcceptModal, setIsVisibleAcceptModal] = useState(false);
+  const [wipeOnFail, setWipeOnFail] = useState(false);
 
   const handleOpenAcceptModal = () => setIsVisibleAcceptModal(true);
   const handleCloseAcceptModal = () => setIsVisibleAcceptModal(false);
@@ -84,6 +103,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     });
   }, []);
 
+  useEffect(() => {
+    getWipeOnFail(setWipeOnFail);
+  }, []);
+
   const styles = getStyles(darkModeFromStore);
 
   return (
@@ -101,6 +124,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             <Switch
               value={darkModeFromStore}
               onValueChange={value => setSetting('darkMode', value)}
+              thumbColor={darkModeFromStore ? '#00F0FF' : '#999'}
             />
           </View>
           <Divider style={styles.divider} />
@@ -109,78 +133,127 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               style={styles.accordionItem}
               titleStyle={styles.text}
               title="Безопасность"
-              id="2"
+              id="1"
+              left={props => (
+                <List.Icon
+                  {...props}
+                  icon="lock"
+                  color={darkModeFromStore ? COLOR.dark.ICON : COLOR.light.ICON}
+                />
+              )}
               theme={{
                 colors: darkModeFromStore
                   ? {onSurfaceVariant: COLOR.dark.ICON}
                   : {onSurfaceVariant: COLOR.light.ICON},
-              }}
-              left={props => (
-                <List.Icon
-                  {...props}
-                  color={darkModeFromStore ? COLOR.dark.ICON : COLOR.light.ICON}
-                  icon="lock-open-plus-outline"
+              }}>
+              {safetyVisible ? (
+                <List.Item
+                  title="Установить ПИН-код"
+                  left={props => (
+                    <List.Icon {...props} icon="key-chain-variant" />
+                  )}
+                  theme={{
+                    colors: darkModeFromStore
+                      ? {onSurfaceVariant: COLOR.dark.ICON}
+                      : {onSurfaceVariant: COLOR.light.ICON},
+                  }}
+                  titleStyle={{
+                    color: darkModeFromStore
+                      ? COLOR.dark.BUTTON_TEXT_GREEN
+                      : COLOR.light.BUTTON_TEXT_GREEN,
+                  }}
+                  onPress={setPinCode}
+                  style={styles.accordionContentItem}
                 />
-              )}>
-              <View style={styles.accordionContentItem}>
-                {safetyVisible ? (
-                  <Button
-                    textColor={
-                      darkModeFromStore
-                        ? COLOR.dark.BUTTON_TEXT_GREEN
-                        : COLOR.light.BUTTON_TEXT_GREEN
-                    }
-                    mode="text"
-                    onPress={() => setPinCode()}>
-                    Установить ПИН-код
-                  </Button>
-                ) : (
-                  <Button
-                    textColor={
-                      darkModeFromStore
+              ) : (
+                <>
+                  <List.Item
+                    title="Удалить ПИН-код"
+                    left={props => (
+                      <List.Icon {...props} icon="key-alert-outline" />
+                    )}
+                    theme={{
+                      colors: darkModeFromStore
+                        ? {onSurfaceVariant: COLOR.dark.ICON}
+                        : {onSurfaceVariant: COLOR.light.ICON},
+                    }}
+                    titleStyle={{
+                      color: darkModeFromStore
                         ? COLOR.dark.alertColor
-                        : COLOR.light.alertColor
-                    }
-                    mode="text"
-                    onPress={() => deletePinCode()}>
-                    Удалить ПИН-код
-                  </Button>
-                )}
-              </View>
+                        : COLOR.light.alertColor,
+                    }}
+                    onPress={deletePinCode}
+                    style={styles.accordionContentItem}
+                  />
+
+                  <List.Item
+                    style={[
+                      styles.accordionContentItem,
+                      {alignItems: 'flex-start'},
+                    ]}
+                    title={() => (
+                      <Text
+                        style={[
+                          styles.smallText,
+                          {flexShrink: 1, flexWrap: 'wrap'},
+                        ]}>
+                        Удалять данные после 3 неверных попыток
+                      </Text>
+                    )}
+                    right={() => (
+                      <Switch
+                        value={wipeOnFail}
+                        onValueChange={value => {
+                          setWipeOnFail(value);
+                          toggleWipeOnFail(value);
+                        }}
+                        thumbColor={wipeOnFail ? '#00F0FF' : '#999'}
+                      />
+                    )}
+                  />
+                </>
+              )}
             </List.Accordion>
             <List.Accordion
               style={styles.accordionItem}
               titleStyle={styles.text}
               title="Очистка"
-              id="3"
+              id="2"
+              left={props => (
+                <List.Icon
+                  {...props}
+                  icon="delete"
+                  color={darkModeFromStore ? COLOR.dark.ICON : COLOR.light.ICON}
+                />
+              )}
               theme={{
                 colors: darkModeFromStore
                   ? {onSurfaceVariant: COLOR.dark.ICON}
                   : {onSurfaceVariant: COLOR.light.ICON},
-              }}
-              left={props => (
-                <List.Icon
-                  {...props}
-                  color={darkModeFromStore ? COLOR.dark.ICON : COLOR.light.ICON}
-                  icon="delete-alert-outline"
+              }}>
+              {albumsExist && (
+                <List.Item
+                  title="Удалить все альбомы"
+                  left={props => (
+                    <List.Icon {...props} icon="delete-alert-outline" />
+                  )}
+                  theme={{
+                    colors: darkModeFromStore
+                      ? {onSurfaceVariant: COLOR.dark.ICON}
+                      : {onSurfaceVariant: COLOR.light.ICON},
+                  }}
+                  titleStyle={{
+                    color: darkModeFromStore
+                      ? COLOR.dark.alertColor
+                      : COLOR.light.alertColor,
+                  }}
+                  style={styles.accordionContentItem}
+                  onPress={() => handleOpenAcceptModal()}
                 />
-              )}>
-              <View style={styles.accordionContentItem}>
-                {albumsExist && (
-                  <Button
-                    textColor={
-                      darkModeFromStore
-                        ? COLOR.dark.alertColor
-                        : COLOR.light.alertColor
-                    }
-                    mode="text"
-                    onPress={() => handleOpenAcceptModal()}>
-                    Удалить все альбомы
-                  </Button>
-                )}
-              </View>
+              )}
             </List.Accordion>
           </List.AccordionGroup>
+
           <View style={styles.buttonsItem}>
             <Button
               mode="elevated"
@@ -260,10 +333,21 @@ const getStyles = (darkMode: boolean) => {
       alignItems: 'flex-start',
     },
     securItem: {
-      flexDirection: 'column',
+      flexDirection: 'row',
       justifyContent: 'flex-start',
-      alignItems: 'flex-start',
+      alignItems: 'center',
       marginTop: 10,
+      paddingVertical: 10,
+      paddingHorizontal: 5,
+      borderRadius: 8,
+      backgroundColor: 'rgba(0, 240, 255, 0.05)',
+      borderWidth: 1,
+      borderColor: 'rgba(0,240,255,0.2)',
+    },
+    flexText: {
+      flex: 1,
+      flexWrap: 'wrap',
+      marginRight: 10,
     },
     mediaInformationItem: {
       justifyContent: 'center',
@@ -278,6 +362,10 @@ const getStyles = (darkMode: boolean) => {
       flexDirection: 'row',
       justifyContent: 'flex-end',
       marginTop: 20,
+    },
+    fullWidthButton: {
+      width: '100%',
+      alignItems: 'flex-start',
     },
     topSpacer: {
       height: 10,
