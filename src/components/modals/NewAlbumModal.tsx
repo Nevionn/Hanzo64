@@ -22,21 +22,24 @@ const NewAlbumModal: React.FC<NewAlbumModalProps> = ({
   const [focusedTitle, setFocusedTitle] = useState(false);
   const [focusedDesc, setFocusedDesc] = useState(false);
 
+  const resetStatesInput = () => {
+    setTitle('');
+    setDescription('');
+    setFocusedTitle(false);
+    setFocusedDesc(false);
+  };
+
   const handleSave = () => {
     if (title) {
       onSubmit({title, description});
-      setTitle('');
-      setDescription('');
       onClose();
+      resetStatesInput();
     }
   };
 
   const handleCloseModal = () => {
     onClose();
-    setTitle('');
-    setDescription('');
-    setFocusedTitle(false);
-    setFocusedDesc(false);
+    resetStatesInput();
   };
 
   const styles = getStyles(darkModeFromStore);
