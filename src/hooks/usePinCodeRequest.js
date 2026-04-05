@@ -1,7 +1,11 @@
 import SQLite from 'react-native-sqlite-storage';
+import {connectionParamsDb} from '../services/database/databaseService';
 import CryptoJS from 'crypto-js';
 
-const db = SQLite.openDatabase({name: 'database.db', location: 'default'});
+const db = SQLite.openDatabase({
+  name: connectionParamsDb.name,
+  location: connectionParamsDb.location,
+});
 
 db.transaction(tx => {
   tx.executeSql(

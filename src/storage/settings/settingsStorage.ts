@@ -1,19 +1,18 @@
 import SQLite from 'react-native-sqlite-storage';
+import {connectionParamsDb} from '../../services/database/databaseService';
 import {AppSettings} from '../../store/settings/settings.types';
 import {defaultSettings} from '../../store/settings/settings.defaults';
 
-const DB_NAME = 'database.db';
-
 const db = SQLite.openDatabase(
-  {name: DB_NAME, location: 'default'},
-  () => console.log('DB opened:', DB_NAME),
+  {name: connectionParamsDb.name, location: 'default'},
+  () => console.log('DB opened:', connectionParamsDb.name),
   error => console.error('DB open error', error),
 );
 
 /**
  * Слой доступа к настройкам приложения в SQLite.
  *
- * Отвечает ТОЛЬКО за:
+ * Отвечает только за:
  * - создание таблицы settings
  * - чтение и запись настроек
  *

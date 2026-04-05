@@ -1,7 +1,8 @@
 import SQLite from 'react-native-sqlite-storage';
+import {connectionParamsDb} from '../services/database/databaseService';
 
 const db = SQLite.openDatabase(
-  {name: 'database.db', location: 'default'},
+  {name: connectionParamsDb.name, location: connectionParamsDb.location},
   () => console.log('База данных открыта'),
   err => console.log('Ошибка открытия базы:', err),
 );

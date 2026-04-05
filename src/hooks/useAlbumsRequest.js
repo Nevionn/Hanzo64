@@ -1,4 +1,5 @@
 import SQLite from 'react-native-sqlite-storage';
+import {connectionParamsDb} from '../services/database/databaseService';
 
 /**
  * Хранилище альбомов (SQLite)
@@ -15,7 +16,10 @@ import SQLite from 'react-native-sqlite-storage';
  * Закомментированные логи в DEV режиме могут бить по производительности. При необходимости раскомментировать
  */
 
-const db = SQLite.openDatabase({name: 'database.db', location: 'default'});
+const db = SQLite.openDatabase({
+  name: connectionParamsDb.name,
+  location: connectionParamsDb.location,
+});
 
 const initAlbumsTable = () => {
   db.transaction(tx => {

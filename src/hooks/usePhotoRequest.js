@@ -1,4 +1,5 @@
 import SQLite from 'react-native-sqlite-storage';
+import {connectionParamsDb} from '../services/database/databaseService';
 
 /**
  * Хранилище фотографий (SQLite)
@@ -10,7 +11,10 @@ import SQLite from 'react-native-sqlite-storage';
  * - синхронизацию с AlbumsTable (countPhoto, coverPhoto)
  */
 
-const db = SQLite.openDatabase({name: 'database.db', location: 'default'});
+const db = SQLite.openDatabase({
+  name: connectionParamsDb.name,
+  location: connectionParamsDb.location,
+});
 
 /**
  * Инициализация таблицы фотографий
