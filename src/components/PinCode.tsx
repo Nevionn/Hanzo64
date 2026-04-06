@@ -14,39 +14,67 @@ const {width, height} = Dimensions.get('window');
 interface PinInputProps {
   onComplete?: (pin: string) => void;
   inputMode?: number;
+  isLocked?: boolean;
+  lockUntil?: number;
   onReset?: () => void;
+  onUnlock?: () => void;
 }
 
 /**
- * PinCode – компонент для ввода и подтверждения PIN-кода (5 цифр)
+ * PinCode – компонент для ввода и подтверждения PIN-кода.
  *
  * Основной функционал:
  * 1. Ввод PIN-кода пользователем (5 цифр).
  * 2. Подтверждение PIN-кода (если inputMode = 2).
- * 3. Сброс состояния при ошибке или внешнем сигнале.
- * 4. Вызов callback при успешном вводе PIN.
+ * 3. Сброс состояния при ошибке или внешнем сигнале (onReset).
+ * 4. Вызов callback onComplete при успешном вводе PIN.
+ * 5. Блокировка ввода при isLocked=true и отображение таймера.
  *
+ * Props:
+ * @param {function(string):void} [onComplete] - callback при успешном вводе PIN.
+ * @param {number} [inputMode] - режим ввода (1 – обычный ввод, 2 – подтверждение PIN).
+ * @param {boolean} [isLocked] - флаг заблокированного ввода.
+ * @param {number} [lockUntil] - метка времени окончания блокировки.
+ * @param {function():void} [onReset] - callback для сброса состояния PIN.
+ * @param {function():void} [onUnlock] - callback при снятии блокировки.
+ *
+ * Состояния:
+ * @property {string} initialPin - текущий вводимый PIN.
+ * @property {string} confirmPin - подтверждение PIN (при inputMode=2).
+ * @property {number} step - шаг ввода (1 – ввод, 2 – подтверждение).
+ * @property {number} timer - количество секунд до разблокировки.
+ *
+ * Анимации:
  * @hook useEffect(scanAnimation)
  * Запускает бесконечную анимацию scan line:
  * - движение сверху вниз
  * - линейная интерполяция
  *
- * Анимация:
- * - scan line реализован через Animated.View
- * - используется translateY + interpolate
- * - бесконечный цикл через Animated.loop
- *
  * Ограничения:
- * - Максимальная длина PIN: 5 символов
+ * - Максимальная длина PIN: 5 цифр
  * - Используется только числовой ввод (0–9)
+ * - При блокировке (isLocked=true) кнопки становятся неактивными
  *
- * @returns {JSX.Element} UI компонент ввода PIN-кода
+ * Функции:
+ * @function handleDigitPress - добавляет цифру к текущему PIN.
+ * @function handleDelete - удаляет последнюю цифру PIN.
+ * @function handleNextStep - переходит к следующему шагу или вызывает onComplete.
+ *
+ * @returns {JSX.Element} UI компонент ввода PIN-кода с таймером блокировки и анимацией scan line
  */
 
-const PinCode: React.FC<PinInputProps> = ({onComplete, inputMode, onReset}) => {
+const PinCode: React.FC<PinInputProps> = ({
+  onComplete,
+  inputMode,
+  isLocked,
+  lockUntil,
+  onReset,
+  onUnlock,
+}) => {
   const [initialPin, setInitialPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
-  const [step, setStep] = useState(1); // Шаг 1 - ввод PIN, Шаг 2 - подтверждение PIN
+  const [step, setStep] = useState(1);
+  const [timer, setTimer] = useState(0);
 
   const [pinCodeWidth, setPinCodeWidth] = useState(0);
 
@@ -55,12 +83,39 @@ const PinCode: React.FC<PinInputProps> = ({onComplete, inputMode, onReset}) => {
   };
 
   useEffect(() => {
-    if (onReset) {
-      clearPinCode();
-    }
+    if (onReset) clearPinCode();
   }, [onReset]);
 
+  useEffect(() => {
+    let interval: number;
+
+    if (isLocked && lockUntil) {
+      const updateTimer = () => {
+        const remaining = Math.ceil((lockUntil - Date.now()) / 1000);
+        setTimer(remaining > 0 ? remaining : 0);
+
+        if (remaining <= 0 && onUnlock) {
+          onUnlock();
+          if (onReset) onReset();
+        }
+      };
+
+      updateTimer();
+      interval = setInterval(updateTimer, 1000) as unknown as number;
+
+      return () => clearInterval(interval);
+    }
+  }, [isLocked, lockUntil, onReset]);
+
+  const formatTimeToUi = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
   const handleDelete = () => {
+    if (isLocked) return;
+
     if (step === 1) {
       setInitialPin(prevPin => prevPin.slice(0, -1));
     } else {
@@ -69,6 +124,8 @@ const PinCode: React.FC<PinInputProps> = ({onComplete, inputMode, onReset}) => {
   };
 
   const handleDigitPress = (digit: number) => {
+    if (isLocked) return;
+
     if (step === 1) {
       setInitialPin(prevPin =>
         prevPin.length < 5 ? prevPin + String(digit) : prevPin,
@@ -81,6 +138,8 @@ const PinCode: React.FC<PinInputProps> = ({onComplete, inputMode, onReset}) => {
   };
 
   const handleNextStep = () => {
+    if (isLocked) return;
+
     if (step === 1) {
       if (initialPin.length === 5) {
         if (inputMode === 2) {
@@ -158,17 +217,24 @@ const PinCode: React.FC<PinInputProps> = ({onComplete, inputMode, onReset}) => {
             ) : (
               <TouchableOpacity
                 key={`digit-${digit}-${index}`}
-                style={styles.button}
+                disabled={isLocked}
+                style={[styles.button, isLocked && {opacity: 0.3}]}
                 onPress={() => handleDigitPress(digit)}>
                 <Text style={styles.buttonText}>{digit}</Text>
               </TouchableOpacity>
             ),
           )}
-          <TouchableOpacity style={styles.button} onPress={handleDelete}>
+          <TouchableOpacity
+            disabled={isLocked}
+            style={[styles.button, isLocked && {opacity: 0.3}]}
+            onPress={handleDelete}>
             <Text style={styles.buttonText}>⌫</Text>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.confirmButton} onPress={handleNextStep}>
+        <TouchableOpacity
+          disabled={isLocked}
+          style={[styles.confirmButton, isLocked && {opacity: 0.3}]}
+          onPress={handleNextStep}>
           <Text style={styles.confirmButtonText}>
             {step === 1 ? 'Далее' : 'Подтвердить'}
           </Text>
@@ -183,6 +249,13 @@ const PinCode: React.FC<PinInputProps> = ({onComplete, inputMode, onReset}) => {
           ]}
         />
       </View>
+      {isLocked && (
+        <View style={styles.lockOverlay}>
+          <Text style={styles.lockText}>
+            Заблокировано: {formatTimeToUi(timer)}
+          </Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -321,6 +394,26 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     letterSpacing: 1,
     textTransform: 'uppercase',
+  },
+  lockOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  lockText: {
+    color: '#00F0FF',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  lockTimer: {
+    marginTop: 10,
+    fontSize: 18,
+    color: '#00F0FF',
   },
 });
 
