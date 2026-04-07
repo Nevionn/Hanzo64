@@ -24,7 +24,7 @@
   <span style="margin: 0 10px; font-size: 24px;"> </span>
   <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Unofficial_JavaScript_logo_2.svg/1280px-Unofficial_JavaScript_logo_2.svg.png" alt="JS Logo" width="100" height="100">
   <span style="margin: 0 10px; font-size: 24px;"> </span>
-  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/SQLite370.svg/2560px-SQLite370.svg.png" alt="SQlite Logo" width="100" height="100">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sqlite/sqlite-original.svg" alt="SQlite Logo" width="100" height="100">
   <span style="margin: 0 10px; font-size: 24px;"> </span>
   <img src="https://raw.githubusercontent.com/callstack/react-native-paper/2827b9c71f042a6e1da8e4bb455d911d331c0d74/docs/static/images/paper-logo.svg" alt="React Native Paper Logo" width="100" height="100">
 </div>
