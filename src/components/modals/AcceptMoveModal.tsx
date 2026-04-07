@@ -1,5 +1,12 @@
-import React from 'react';
-import {View, Text, StyleSheet, Modal, StatusBar} from 'react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Modal,
+  StatusBar,
+  TextInput,
+} from 'react-native';
 import {useSettingsStore} from '../../store/settings/useSettingsStore';
 import {COLOR} from '../../shared/colorTheme';
 import {Button} from 'react-native-paper';
@@ -11,7 +18,25 @@ interface AcceptMoveModalProps {
   onConfirm: () => void;
   title: string;
   textBody: string;
+
+  requireConfirmationText?: boolean;
+  confirmationWord?: string;
 }
+
+/**
+ * AcceptMoveModal – универсальное модальное окно для подтверждения опасных действий.
+ *
+ * Компонент отображает заголовок, описание, иконку предупреждения и кнопки действия.
+ * Опционально может требовать ввода определённого слова для подтверждения действия,
+ * чтобы предотвратить случайное нажатие кнопки.
+ *
+ * @component
+ *
+ * @param {boolean} [requireConfirmationText=false] – Если true, пользователь должен ввести confirmationWord для активации кнопки "Удалить".
+ * @param {string} [confirmationWord='DELETE'] – Слово, которое пользователь должен ввести для подтверждения действия.
+ *
+ * @returns {JSX.Element}
+ */
 
 const AcceptMoveModal: React.FC<AcceptMoveModalProps> = ({
   visible,
@@ -19,8 +44,22 @@ const AcceptMoveModal: React.FC<AcceptMoveModalProps> = ({
   onConfirm,
   title,
   textBody,
+  requireConfirmationText,
+  confirmationWord,
 }) => {
   const darkModeFromStore = useSettingsStore(state => state.settings.darkMode);
+
+  const [inputValue, setInputValue] = useState('');
+
+  const isConfirmEnabled = requireConfirmationText
+    ? inputValue.trim().toLowerCase() ===
+      (confirmationWord || 'delete').toLowerCase()
+    : true;
+
+  const handleClose = () => {
+    setInputValue('');
+    onCloseAcceptModal();
+  };
 
   const styles = getStyles(darkModeFromStore);
   return (
@@ -41,6 +80,20 @@ const AcceptMoveModal: React.FC<AcceptMoveModalProps> = ({
                 <Text style={styles.text}>{textBody}</Text>
               </View>
             </View>
+            {requireConfirmationText && (
+              <View style={{marginTop: 20}}>
+                <Text style={styles.text}>
+                  Введите "{confirmationWord || 'DELETE'}" для подтверждения
+                </Text>
+                <TextInput
+                  value={inputValue}
+                  onChangeText={setInputValue}
+                  style={styles.input}
+                  placeholder="Введите слово"
+                  placeholderTextColor="#888"
+                />
+              </View>
+            )}
             <View style={styles.buttonsItem}>
               <Button
                 mode="elevated"
@@ -51,7 +104,11 @@ const AcceptMoveModal: React.FC<AcceptMoveModalProps> = ({
                     ? COLOR.dark.BUTTON_COLOR
                     : COLOR.light.BUTTON_COLOR
                 }
-                onPress={() => onConfirm()}>
+                disabled={!isConfirmEnabled}
+                onPress={() => {
+                  setInputValue('');
+                  onConfirm();
+                }}>
                 Удалить
               </Button>
               <Button
@@ -62,7 +119,7 @@ const AcceptMoveModal: React.FC<AcceptMoveModalProps> = ({
                     ? COLOR.dark.BUTTON_COLOR
                     : COLOR.light.BUTTON_COLOR
                 }
-                onPress={() => onCloseAcceptModal()}>
+                onPress={() => handleClose()}>
                 Отмена
               </Button>
             </View>
@@ -116,6 +173,14 @@ const getStyles = (darkMode: boolean) => {
       flexWrap: 'wrap',
       maxWidth: '86%',
       color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,
+    },
+    input: {
+      marginTop: 10,
+      borderWidth: 1,
+      borderColor: '#888',
+      borderRadius: 6,
+      padding: 8,
+      color: darkMode ? 'white' : 'black',
     },
   });
 };

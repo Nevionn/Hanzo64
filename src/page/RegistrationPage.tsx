@@ -8,12 +8,18 @@ import {
   ImageBackground,
   Alert,
 } from 'react-native';
+const {width, height} = Dimensions.get('window');
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {usePinCodeRequest} from '../hooks/usePinCodeRequest';
+import {usePhotoRequest} from '../hooks/usePhotoRequest';
+import {useAlbumsRequest} from '../hooks/useAlbumsRequest';
+
 import {COLOR} from '../shared/colorTheme';
+import {ModalText} from '../shared/textForModal';
 import {Button} from 'react-native-paper';
+
 import PinCode from '../components/PinCode';
-const {width, height} = Dimensions.get('window');
+import AcceptMoveModal from '../components/modals/AcceptMoveModal';
 
 /**
  * RegistrationPage – страница регистрации пользователя с установкой или подтверждением PIN-кода.
@@ -49,7 +55,11 @@ const {width, height} = Dimensions.get('window');
  */
 
 const RegistrationPage = () => {
-  const {savePinCode, skipPin, deletePinCode} = usePinCodeRequest();
+  const {savePinCode, skipPin, deletePinCode, forceDeletePinCode} =
+    usePinCodeRequest();
+  const {deleteAllAlbums} = useAlbumsRequest();
+  const {deleteAllPhotos} = usePhotoRequest();
+
   const route: any = useRoute();
   const navigation: any = useNavigation();
 
@@ -58,6 +68,8 @@ const RegistrationPage = () => {
   const [instruction, setInstruction] = useState<'delete' | ''>('');
   const [pinCode, setPinCode] = useState('');
   const [shouldResetPin, setShouldResetPin] = useState(false);
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const handlePinComplete = (pin: string) => {
     setPinCode(pin);
@@ -85,6 +97,18 @@ const RegistrationPage = () => {
     } catch (error) {
       Alert.alert('Введенный пин-код не совпадает с сохраненным');
       handleResetPin();
+    }
+  };
+
+  const handleForgotPinCode = async () => {
+    try {
+      await deleteAllAlbums();
+      await deleteAllPhotos();
+      await forceDeletePinCode();
+      setIsModalVisible(false);
+      onLoginSuccess();
+    } catch (e) {
+      console.error('Ошибка при форс удалении:', e);
     }
   };
 
@@ -116,56 +140,80 @@ const RegistrationPage = () => {
   );
 
   return (
-    <ImageBackground
-      style={styles.root}
-      source={require('../../assets/images/bg1.png')}>
-      <StatusBar
-        barStyle="light-content"
-        translucent
-        backgroundColor="transparent"
-      />
-      {!installationPinStage ? (
-        <View style={styles.greetingsItem}>
-          <Text style={styles.nameApp}>PHOVION64</Text>
-          <Text style={styles.text}>
-            Добро пожаловать в защищенную галерею{'\n'}
-            Для безопасности <Text style={styles.highlight}>
-              рекомендуется
-            </Text>{' '}
-            установить пин код
-          </Text>
-
-          <View style={styles.buttonsItem}>
-            <Button
-              style={styles.startButton}
-              labelStyle={styles.textButton}
-              mode="contained"
-              buttonColor={COLOR.dark.BUTTON_COLOR}
-              onPress={() => {
-                setInstallationPinStage(true);
-              }}>
-              Установить пин-код
-            </Button>
-            <Button
-              style={styles.startButton}
-              labelStyle={styles.textButton}
-              mode="contained"
-              buttonColor={COLOR.dark.BUTTON_COLOR_INACTIVE}
-              onPress={() => {
-                skipInstallPinCode();
-              }}>
-              Пропустить
-            </Button>
-          </View>
-        </View>
-      ) : (
-        <PinCode
-          onComplete={handlePinComplete}
-          inputMode={inputMode}
-          onReset={shouldResetPin ? () => setShouldResetPin(false) : undefined}
+    <>
+      <ImageBackground
+        style={styles.root}
+        source={require('../../assets/images/bg1.png')}>
+        <StatusBar
+          barStyle="light-content"
+          translucent
+          backgroundColor="transparent"
         />
-      )}
-    </ImageBackground>
+        {!installationPinStage ? (
+          <View style={styles.greetingsItem}>
+            <Text style={styles.nameApp}>PHOVION64</Text>
+            <Text style={styles.text}>
+              Добро пожаловать в защищенную галерею{'\n'}
+              Для безопасности{' '}
+              <Text style={styles.highlight}>рекомендуется</Text> установить пин
+              код
+            </Text>
+
+            <View style={styles.buttonsItem}>
+              <Button
+                style={styles.startButton}
+                labelStyle={styles.textButton}
+                mode="contained"
+                buttonColor={COLOR.dark.BUTTON_COLOR}
+                onPress={() => {
+                  setInstallationPinStage(true);
+                }}>
+                Установить пин-код
+              </Button>
+              <Button
+                style={styles.startButton}
+                labelStyle={styles.textButton}
+                mode="contained"
+                buttonColor={COLOR.dark.BUTTON_COLOR_INACTIVE}
+                onPress={() => {
+                  skipInstallPinCode();
+                }}>
+                Пропустить
+              </Button>
+            </View>
+          </View>
+        ) : (
+          <View style={styles.pinWrapper}>
+            <PinCode
+              onComplete={handlePinComplete}
+              inputMode={inputMode}
+              onReset={
+                shouldResetPin ? () => setShouldResetPin(false) : undefined
+              }
+            />
+
+            {instruction === 'delete' && (
+              <Button
+                mode="text"
+                style={styles.forgotButton}
+                labelStyle={styles.forgotButtonText}
+                onPress={() => setIsModalVisible(true)}>
+                Забыли PIN-код?
+              </Button>
+            )}
+          </View>
+        )}
+      </ImageBackground>
+      <AcceptMoveModal
+        visible={isModalVisible}
+        title={ModalText.forceDeletePinCode.title}
+        textBody={ModalText.forceDeletePinCode.textBody}
+        onCloseAcceptModal={() => setIsModalVisible(false)}
+        onConfirm={handleForgotPinCode}
+        requireConfirmationText={true}
+        confirmationWord="DELETE"
+      />
+    </>
   );
 };
 
@@ -204,6 +252,15 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     paddingVertical: 7,
     paddingHorizontal: 10,
+  },
+  pinWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  forgotButton: {},
+  forgotButtonText: {
+    color: 'aqua',
+    fontSize: 16,
   },
   nameApp: {
     color: COLOR.NAME_APP,

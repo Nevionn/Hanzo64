@@ -51,27 +51,26 @@ const useAddPinCodeToTable = () => {
 
     db.transaction(tx => {
       tx.executeSql(
-        'SELECT * FROM PinCodeTable WHERE isSkip = 1',
+        'SELECT * FROM PinCodeTable WHERE isSkip = 1 LIMIT 1',
         [],
         (_, results) => {
           if (results.rows.length > 0) {
             tx.executeSql(
-              'UPDATE PinCodeTable SET pinCode = ?, isActive = ?, isSkip = ? WHERE isSkip = 1',
-              [hashedPin, 1, 0],
-              () => console.log('Пин-код успешно обновлен в таблице.'),
-              error => console.error('Ошибка при обновлении пин-кода:', error),
+              'UPDATE PinCodeTable SET pinCode = ?, isActive = 1, isSkip = 0 WHERE id = ?',
+              [hashedPin, results.rows.item(0).id],
+              () => console.log('Пин-код успешно обновлен.'),
+              error => console.error('Ошибка обновления пин-кода:', error),
             );
           } else {
             tx.executeSql(
-              'INSERT INTO PinCodeTable (pinCode, isActive, isSkip) VALUES (?, ?, ?)',
-              [hashedPin, 1, 0],
-              () => console.log('Пин-код успешно добавлен в таблицу.'),
-              error => console.error('Ошибка при добавлении пин-кода:', error),
+              'INSERT INTO PinCodeTable (pinCode, isActive, isSkip) VALUES (?, 1, 0)',
+              [hashedPin],
+              () => console.log('Пин-код успешно добавлен.'),
+              error => console.error('Ошибка добавления пин-кода:', error),
             );
           }
         },
-        error =>
-          console.error('Ошибка при проверке пин-кода в таблице:', error),
+        error => console.error('Ошибка проверки пин-кода:', error),
       );
     });
   };
@@ -81,14 +80,23 @@ const useAddSkipPinCodeVallue = () => {
   return () => {
     db.transaction(tx => {
       tx.executeSql(
-        'INSERT INTO PinCodeTable (isSkip) VALUES (?)',
-        [1], // пишем в таблицу, что была пропущена регистрация пин кода
+        'SELECT * FROM PinCodeTable WHERE isSkip = 1 LIMIT 1',
+        [],
         (_, results) => {
-          console.log('установка пин кода пропущена');
+          if (results.rows.length === 0) {
+            tx.executeSql(
+              'INSERT INTO PinCodeTable (isSkip) VALUES (1)',
+              [],
+              () => console.log('Пин-код пропущен.'),
+              error => console.error('Ошибка вставки isSkip:', error),
+            );
+          } else {
+            console.log(
+              'Пропуск пин-кода уже существует, не добавляем дубликат.',
+            );
+          }
         },
-        error => {
-          console.error('Ошибка записи "isSkip" в таблицу:', error);
-        },
+        error => console.error('Ошибка проверки isSkip:', error),
       );
     });
   };
@@ -274,6 +282,27 @@ const useDeletePinCode = () => {
   };
 };
 
+const useForceDeletePinCode = () => {
+  return () => {
+    return new Promise((resolve, reject) => {
+      db.transaction(tx => {
+        tx.executeSql(
+          'DELETE FROM PinCodeTable',
+          [],
+          () => {
+            console.log('Все записи PinCodeTable удалены (force delete)');
+            resolve({success: true});
+          },
+          error => {
+            console.error('Ошибка force delete:', error);
+            reject({success: false});
+          },
+        );
+      });
+    });
+  };
+};
+
 export function usePinCodeRequest() {
   const savePinCode = useAddPinCodeToTable();
   const skipPin = useAddSkipPinCodeVallue();
@@ -284,6 +313,7 @@ export function usePinCodeRequest() {
   const incrementFailedAttempts = useIncrementFailedAttempts();
   const resetFailedAttempts = useResetFailedAttempts();
   const deletePinCode = useDeletePinCode();
+  const forceDeletePinCode = useForceDeletePinCode();
 
   return {
     savePinCode,
@@ -295,5 +325,6 @@ export function usePinCodeRequest() {
     incrementFailedAttempts,
     resetFailedAttempts,
     deletePinCode,
+    forceDeletePinCode,
   };
 }
