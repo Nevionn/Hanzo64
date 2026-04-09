@@ -1,5 +1,13 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, Switch, StyleSheet, Modal, StatusBar} from 'react-native';
+import {
+  View,
+  Text,
+  Switch,
+  StyleSheet,
+  Modal,
+  StatusBar,
+  Linking,
+} from 'react-native';
 import {Button, Divider, List} from 'react-native-paper';
 import {useSettingsStore} from '../../store/settings/useSettingsStore';
 
@@ -261,6 +269,17 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             </List.Accordion>
           </List.AccordionGroup>
 
+          <View style={styles.appInfoBlock}>
+            <Text
+              style={styles.githubLink}
+              onPress={() =>
+                Linking.openURL('https://github.com/Nevionn/Phovion64')
+              }>
+              GitHub
+            </Text>
+            <Text style={styles.versionText}>Версия: </Text>
+          </View>
+
           <View style={styles.buttonsItem}>
             <Button
               mode="elevated"
@@ -364,6 +383,24 @@ const getStyles = (darkMode: boolean) => {
     pickerItem: {
       height: 50,
       width: 190,
+    },
+    appInfoBlock: {
+      marginTop: 20,
+      alignItems: 'flex-start',
+    },
+    versionText: {
+      fontSize: 12,
+      fontFamily: TYPOGRAPHY.generalFont,
+      color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,
+    },
+    githubLink: {
+      fontSize: 12,
+      fontFamily: TYPOGRAPHY.generalFont,
+      color: darkMode
+        ? COLOR.dark.BUTTON_TEXT_GREEN
+        : COLOR.light.BUTTON_TEXT_GREEN,
+      textDecorationLine: 'underline',
+      marginBottom: 5,
     },
     buttonsItem: {
       flexDirection: 'row',
