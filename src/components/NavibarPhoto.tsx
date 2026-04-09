@@ -10,6 +10,10 @@ import {
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 
+import {ModalText} from '../shared/textForModal';
+import {COLOR} from '../shared/colorTheme';
+import {TYPOGRAPHY} from '../shared/typography';
+
 import {usePhotoRequest} from '../hooks/usePhotoRequest';
 import {useAlbumsRequest} from '../hooks/useAlbumsRequest';
 import {useSettingsStore} from '../store/settings/useSettingsStore';
@@ -23,8 +27,6 @@ import AcceptMoveModal from './modals/AcceptMoveModal';
 import RenameAlbumModal from './modals/RenameAlbumModal';
 
 import eventEmitter from '../utils/eventEmitter';
-import {ModalText} from '../shared/textForModal';
-import {COLOR} from '../shared/colorTheme';
 import {pickImage} from '../utils/camera';
 import {capturePhoto} from '../utils/camera';
 
@@ -269,6 +271,7 @@ const getStyles = (darkMode: boolean) => {
     },
     title: {
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
+      fontFamily: TYPOGRAPHY.generalFont,
       fontSize: 20,
       fontWeight: '500',
     },
@@ -278,6 +281,7 @@ const getStyles = (darkMode: boolean) => {
     },
     descriptionText: {
       color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,
+      fontFamily: TYPOGRAPHY.generalFont,
       fontSize: 14,
       lineHeight: 18,
     },

@@ -19,6 +19,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import eventEmitter from '../utils/eventEmitter';
 
 import {COLOR} from '../shared/colorTheme';
+import {TYPOGRAPHY} from '../shared/typography';
 
 import Sortable from 'react-native-sortables';
 import NavibarPhoto from '../components/NavibarPhoto';
@@ -236,6 +237,7 @@ const getStyles = (darkMode: boolean) => {
     },
     text: {
       textAlign: 'center',
+      fontFamily: TYPOGRAPHY.generalFont,
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
     },
   });

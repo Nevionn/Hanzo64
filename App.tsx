@@ -1,5 +1,6 @@
 import React, {useEffect} from 'react';
 import Navigator from './src/navigation/Navigator';
+
 import {bootstrapApp} from './src/app/bootstrap';
 import {logAllTables, logDatabaseTables} from './src/hooks/useBdHelper';
 // import {dropPinCodeTable} from './src/hooks/usePinCodeRequest';

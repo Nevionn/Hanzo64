@@ -4,6 +4,7 @@ import {Button, Divider, List} from 'react-native-paper';
 import {useSettingsStore} from '../../store/settings/useSettingsStore';
 
 import {COLOR} from '../../shared/colorTheme';
+import {TYPOGRAPHY} from '../../shared/typography';
 import {ModalText} from '../../shared/textForModal';
 
 import {useAlbumsRequest} from '../../hooks/useAlbumsRequest';
@@ -161,6 +162,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                     color: darkModeFromStore
                       ? COLOR.dark.BUTTON_TEXT_GREEN
                       : COLOR.light.BUTTON_TEXT_GREEN,
+                    fontFamily: TYPOGRAPHY.generalFont,
+                    fontSize: 14,
                   }}
                   onPress={setPinCode}
                   style={styles.accordionContentItem}
@@ -181,6 +184,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                       color: darkModeFromStore
                         ? COLOR.dark.alertColor
                         : COLOR.light.alertColor,
+                      fontFamily: TYPOGRAPHY.generalFont,
+                      fontSize: 14,
                     }}
                     onPress={deletePinCode}
                     style={styles.accordionContentItem}
@@ -246,6 +251,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                     color: darkModeFromStore
                       ? COLOR.dark.alertColor
                       : COLOR.light.alertColor,
+                    fontFamily: TYPOGRAPHY.generalFont,
+                    fontSize: 14,
                   }}
                   style={styles.accordionContentItem}
                   onPress={() => handleOpenAcceptModal()}
@@ -315,8 +322,8 @@ const getStyles = (darkMode: boolean) => {
         : COLOR.light.ACCORDION_ITEM_COLOR,
     },
     modalTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
+      fontSize: 20,
+      fontFamily: TYPOGRAPHY.generalFont,
       marginBottom: 20,
       textAlign: 'center',
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
@@ -372,12 +379,11 @@ const getStyles = (darkMode: boolean) => {
     },
     text: {
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
-      // backgroundColor: darkMode
-      //   ? COLOR.dark.SECONDARY_COLOR
-      //   : COLOR.light.SECONDARY_COLOR,
+      fontFamily: TYPOGRAPHY.generalFont,
     },
     smallText: {
       color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,
+      fontFamily: TYPOGRAPHY.generalFont,
     },
     dropdownIconColor: {
       color: 'red',

@@ -8,7 +8,10 @@ import {
   StatusBar,
 } from 'react-native';
 import {Button} from 'react-native-paper';
+
 import {COLOR} from '../../shared/colorTheme';
+import {TYPOGRAPHY} from '../../shared/typography';
+
 import {useAlbumsRequest} from '../../hooks/useAlbumsRequest';
 import {useSettingsStore} from '../../store/settings/useSettingsStore';
 import eventEmitter from '../../utils/eventEmitter';
@@ -142,8 +145,8 @@ const getStyles = (darkMode: boolean) => {
       elevation: 5,
     },
     title: {
+      fontFamily: TYPOGRAPHY.generalFont,
       fontSize: 18,
-      fontWeight: 'bold',
       marginBottom: 20,
       textAlign: 'center',
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
@@ -151,6 +154,7 @@ const getStyles = (darkMode: boolean) => {
     input: {
       borderWidth: 1,
       borderColor: darkMode ? '#ccc' : 'black',
+      fontFamily: TYPOGRAPHY.generalFont,
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
       padding: 10,
       borderRadius: 5,

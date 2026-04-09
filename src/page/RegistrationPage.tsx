@@ -15,7 +15,9 @@ import {usePhotoRequest} from '../hooks/usePhotoRequest';
 import {useAlbumsRequest} from '../hooks/useAlbumsRequest';
 
 import {COLOR} from '../shared/colorTheme';
+import {TYPOGRAPHY} from '../shared/typography';
 import {ModalText} from '../shared/textForModal';
+
 import {Button} from 'react-native-paper';
 
 import PinCode from '../components/PinCode';
@@ -261,6 +263,7 @@ const styles = StyleSheet.create({
   forgotButtonText: {
     color: 'aqua',
     fontSize: 16,
+    fontFamily: TYPOGRAPHY.generalFont,
   },
   nameApp: {
     color: COLOR.NAME_APP,

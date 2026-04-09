@@ -10,6 +10,7 @@ import {
   Easing,
 } from 'react-native';
 const {width, height} = Dimensions.get('window');
+import {TYPOGRAPHY} from '../shared/typography';
 
 interface PinInputProps {
   onComplete?: (pin: string) => void;
@@ -308,7 +309,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   text: {
-    fontSize: 22,
+    fontFamily: TYPOGRAPHY.generalFont,
+    fontSize: 20,
     color: '#00F0FF',
     textAlign: 'center',
     letterSpacing: 2,
@@ -341,7 +343,7 @@ const styles = StyleSheet.create({
   pinText: {
     fontSize: 24,
     color: '#00F0FF',
-    fontWeight: 'bold',
+    fontFamily: TYPOGRAPHY.generalFont,
   },
   buttonContainer: {
     justifyContent: 'center',
@@ -369,9 +371,9 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
   },
   buttonText: {
+    fontFamily: TYPOGRAPHY.generalFont,
     fontSize: 26,
     color: '#00F0FF',
-    fontWeight: 'bold',
   },
   confirmButton: {
     width: '80%',
@@ -389,9 +391,9 @@ const styles = StyleSheet.create({
     shadowRadius: 15,
   },
   confirmButtonText: {
+    fontFamily: TYPOGRAPHY.generalFont,
     fontSize: 18,
     color: '#020617',
-    fontWeight: 'bold',
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
@@ -408,7 +410,7 @@ const styles = StyleSheet.create({
   lockText: {
     color: '#00F0FF',
     fontSize: 20,
-    fontWeight: 'bold',
+    fontFamily: TYPOGRAPHY.generalFont,
   },
   lockTimer: {
     marginTop: 10,

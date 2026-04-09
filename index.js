@@ -5,15 +5,11 @@ import * as React from 'react';
 import {AppRegistry} from 'react-native';
 import App from './App';
 import {name as appName} from './app.json';
-import {DefaultTheme, Provider as PaperProvider} from 'react-native-paper';
+
+import {Provider as PaperProvider} from 'react-native-paper';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
-const theme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-  },
-};
+import {overrideTheme} from './src/shared/rnpTheme';
 
 if (!__DEV__) {
   console.log = () => {};
@@ -24,7 +20,7 @@ if (!__DEV__) {
 export default function Main() {
   return (
     <GestureHandlerRootView style={{flex: 1}}>
-      <PaperProvider theme={theme}>
+      <PaperProvider theme={overrideTheme}>
         <App />
       </PaperProvider>
     </GestureHandlerRootView>

@@ -1,7 +1,10 @@
 import React, {useState} from 'react';
 import {View, Text, Modal, StyleSheet, StatusBar} from 'react-native';
 import {TextInput, Button} from 'react-native-paper';
+
 import {COLOR} from '../../shared/colorTheme';
+import {TYPOGRAPHY} from '../../shared/typography';
+
 import {useSettingsStore} from '../../store/settings/useSettingsStore';
 
 interface NewAlbumModalProps {
@@ -150,13 +153,14 @@ const getStyles = (darkMode: boolean) =>
     },
     title: {
       fontSize: 18,
-      fontWeight: 'bold',
+      fontFamily: TYPOGRAPHY.generalFont,
       marginBottom: 20,
       textAlign: 'center',
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
     },
     inputView: {
       marginBottom: 20,
+      fontSize: 16,
       backgroundColor: darkMode
         ? COLOR.dark.SECONDARY_COLOR
         : COLOR.light.SECONDARY_COLOR,

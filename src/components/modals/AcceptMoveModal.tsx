@@ -8,7 +8,10 @@ import {
   TextInput,
 } from 'react-native';
 import {useSettingsStore} from '../../store/settings/useSettingsStore';
+
 import {COLOR} from '../../shared/colorTheme';
+import {TYPOGRAPHY} from '../../shared/typography';
+
 import {Button} from 'react-native-paper';
 import SvgAlert from '../icons/SvgAlert';
 
@@ -166,12 +169,14 @@ const getStyles = (darkMode: boolean) => {
     title: {
       textAlign: 'left',
       fontSize: 18,
+      fontFamily: TYPOGRAPHY.generalFont,
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
     },
     text: {
       textAlign: 'left',
       flexWrap: 'wrap',
       maxWidth: '86%',
+      fontFamily: TYPOGRAPHY.generalFont,
       color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,
     },
     input: {
@@ -180,6 +185,7 @@ const getStyles = (darkMode: boolean) => {
       borderColor: '#888',
       borderRadius: 6,
       padding: 8,
+      fontFamily: TYPOGRAPHY.generalFont,
       color: darkMode ? 'white' : 'black',
     },
   });

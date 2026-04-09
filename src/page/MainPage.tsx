@@ -21,6 +21,7 @@ import NewAlbumModal from '../components/modals/NewAlbumModal';
 import SettingsModal from '../components/modals/SettingsModal';
 
 import {COLOR} from '../shared/colorTheme';
+import {TYPOGRAPHY} from '../shared/typography';
 
 import {useAlbumsRequest} from '../hooks/useAlbumsRequest';
 import useMediaInformation from '../hooks/useMediaInformation';
@@ -304,10 +305,12 @@ const getStyles = (darkMode: boolean) => {
     },
     textNameAlbum: {
       fontSize: 14,
+      fontFamily: TYPOGRAPHY.titleFont,
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
     },
     textCountPhoto: {
-      fontSize: 12,
+      fontSize: 11,
+      fontFamily: TYPOGRAPHY.generalFont,
       color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,
     },
     emptyDataItem: {
@@ -317,10 +320,12 @@ const getStyles = (darkMode: boolean) => {
     text: {
       textAlign: 'center',
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
+      fontFamily: TYPOGRAPHY.generalFont,
     },
     textHelper: {
       textAlign: 'center',
       color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,
+      fontFamily: TYPOGRAPHY.generalFont,
     },
   });
 };

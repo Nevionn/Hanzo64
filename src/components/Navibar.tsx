@@ -8,6 +8,8 @@ import {
 } from 'react-native';
 import SvgSettings from './icons/SvgSettings';
 import {COLOR} from '../shared/colorTheme';
+import {TYPOGRAPHY} from '../shared/typography';
+
 import {useSettingsStore} from '../store/settings/useSettingsStore';
 
 interface NaviBarProps {
@@ -71,12 +73,11 @@ const getStyles = (darkMode: boolean) => {
     textHead: {
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.ICON,
       fontSize: 20,
-      fontWeight: 'bold',
+      fontFamily: TYPOGRAPHY.generalFont,
     },
     textAddNewAlbum: {
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.ICON,
       fontSize: 28,
-      fontWeight: 'bold',
     },
     touchArea: {
       alignItems: 'center',
