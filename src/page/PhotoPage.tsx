@@ -155,26 +155,28 @@ const PhotoPage = () => {
           <Text style={styles.text}>Чтение данных</Text>
         </View>
       ) : (
-        <ScrollView
-          ref={scrollRef}
-          contentContainerStyle={{paddingBottom: insets.bottom + 20}}
-          showsVerticalScrollIndicator={false}>
-          <Sortable.Grid
-            data={photos}
-            columns={3}
-            rowGap={2}
-            columnGap={2}
-            strategy={'insert'}
-            scrollableRef={scrollRef}
-            autoScrollEnabled={true}
-            autoScrollActivationOffset={80}
-            showDropIndicator
-            dropIndicatorStyle={styles.dropIndicator}
-            keyExtractor={item => item.id.toString()}
-            renderItem={renderPhotoItem}
-            onOrderChange={handleOrderChange}
-          />
-        </ScrollView>
+        photos?.length > 0 && (
+          <ScrollView
+            ref={scrollRef}
+            contentContainerStyle={{paddingBottom: insets.bottom + 20}}
+            showsVerticalScrollIndicator={false}>
+            <Sortable.Grid
+              data={photos}
+              columns={3}
+              rowGap={2}
+              columnGap={2}
+              strategy={'insert'}
+              scrollableRef={scrollRef}
+              autoScrollEnabled={true}
+              autoScrollActivationOffset={80}
+              showDropIndicator
+              dropIndicatorStyle={styles.dropIndicator}
+              keyExtractor={item => item.id.toString()}
+              renderItem={renderPhotoItem}
+              onOrderChange={handleOrderChange}
+            />
+          </ScrollView>
+        )
       )}
 
       <ImageViewer
