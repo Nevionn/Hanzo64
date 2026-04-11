@@ -40,7 +40,7 @@ git clone https://gitlab.com/web4450122/security-gallery.git
 
 cd security-gallery
 
-npm install
+npm install --legacy-peer-deps 
 
 npx react-native start
 
