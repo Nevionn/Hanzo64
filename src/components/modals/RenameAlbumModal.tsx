@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -8,16 +8,20 @@ import {
   StatusBar,
 } from 'react-native';
 import {Button} from 'react-native-paper';
+
 import {COLOR} from '../../shared/colorTheme';
+import {TYPOGRAPHY} from '../../shared/typography';
+
 import {useAlbumsRequest} from '../../hooks/useAlbumsRequest';
-import {useAppSettings, setButtonColor} from '../../utils/settingsContext';
+import {useSettingsStore} from '../../store/settings/useSettingsStore';
 import eventEmitter from '../../utils/eventEmitter';
 
 interface RenameAlbumModalProps {
   visible: boolean;
   onClose: () => void;
-  onSubmit: (newTitile: string) => void;
+  onSubmit: (newTitile: string, newDescription: string) => void;
   title: string;
+  description?: string;
   idAlbum: string;
 }
 
@@ -26,58 +30,90 @@ const RenameAlbumModal: React.FC<RenameAlbumModalProps> = ({
   onClose,
   onSubmit,
   title,
+  description,
   idAlbum,
 }) => {
-  const {appSettings} = useAppSettings();
+  const darkModeFromStore = useSettingsStore(state => state.settings.darkMode);
   const {renameAlbum} = useAlbumsRequest();
 
   const [titleAlbum, setTitleAlbum] = useState<string>(title);
+  const [descriptionAlbum, setDescriptionAlbum] = useState<string>(
+    description || '',
+  );
+
+  useEffect(() => {
+    if (visible) {
+      setTitleAlbum(title);
+      setDescriptionAlbum(description || '');
+    }
+  }, [visible, title, description]);
 
   const handleSave = () => {
-    if (title) {
-      renameAlbum(idAlbum, titleAlbum);
-      setTitleAlbum('');
+    if (titleAlbum.trim()) {
+      renameAlbum(idAlbum, titleAlbum, descriptionAlbum);
+
       eventEmitter.emit('albumsUpdated');
-      onSubmit(titleAlbum);
+      onSubmit(titleAlbum, descriptionAlbum);
       onClose();
     }
   };
 
   const handleCloseModal = () => {
     onClose();
-    setTitleAlbum(title);
   };
 
-  const styles = getStyles(appSettings.darkMode);
+  const styles = getStyles(darkModeFromStore);
 
   return (
     <Modal
       visible={visible}
       animationType="fade"
-      transparent={true}
+      transparent
       onRequestClose={handleCloseModal}>
       <StatusBar translucent backgroundColor="black" />
+
       <View style={styles.modalBackground}>
         <View style={styles.modalContainer}>
-          <Text style={styles.title}>Переименовать альбом</Text>
+          <Text style={styles.title}>Редактировать альбом</Text>
+
           <TextInput
             style={styles.input}
+            placeholder="Название"
             value={titleAlbum}
             onChangeText={setTitleAlbum}
           />
+
+          <TextInput
+            style={[styles.input, styles.textArea]}
+            placeholder="Описание"
+            value={descriptionAlbum}
+            onChangeText={setDescriptionAlbum}
+            multiline
+            numberOfLines={4}
+          />
+
           <View style={styles.buttonContainer}>
             <Button
               mode="elevated"
               textColor={COLOR.dark.TEXT_BRIGHT}
-              buttonColor={setButtonColor(appSettings.darkMode)}
-              onPress={() => handleSave()}>
+              buttonColor={
+                darkModeFromStore
+                  ? COLOR.dark.BUTTON_COLOR
+                  : COLOR.light.BUTTON_COLOR
+              }
+              onPress={handleSave}>
               Сохранить
             </Button>
+
             <Button
               mode="elevated"
               textColor={COLOR.dark.TEXT_BRIGHT}
-              buttonColor={setButtonColor(appSettings.darkMode)}
-              onPress={() => handleCloseModal()}>
+              buttonColor={
+                darkModeFromStore
+                  ? COLOR.dark.BUTTON_COLOR
+                  : COLOR.light.BUTTON_COLOR
+              }
+              onPress={handleCloseModal}>
               Отмена
             </Button>
           </View>
@@ -109,8 +145,8 @@ const getStyles = (darkMode: boolean) => {
       elevation: 5,
     },
     title: {
+      fontFamily: TYPOGRAPHY.generalFont,
       fontSize: 18,
-      fontWeight: 'bold',
       marginBottom: 20,
       textAlign: 'center',
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
@@ -118,10 +154,15 @@ const getStyles = (darkMode: boolean) => {
     input: {
       borderWidth: 1,
       borderColor: darkMode ? '#ccc' : 'black',
+      fontFamily: TYPOGRAPHY.generalFont,
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
       padding: 10,
       borderRadius: 5,
-      marginBottom: 20,
+      marginBottom: 15,
+    },
+    textArea: {
+      height: 100,
+      textAlignVertical: 'top',
     },
     buttonContainer: {
       flexDirection: 'row',

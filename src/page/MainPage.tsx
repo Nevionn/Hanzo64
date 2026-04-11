@@ -21,16 +21,17 @@ import NewAlbumModal from '../components/modals/NewAlbumModal';
 import SettingsModal from '../components/modals/SettingsModal';
 
 import {COLOR} from '../shared/colorTheme';
+import {TYPOGRAPHY} from '../shared/typography';
 
 import {useAlbumsRequest} from '../hooks/useAlbumsRequest';
-import {useSettingsRequest} from '../hooks/useSettingsRequest';
 import useMediaInformation from '../hooks/useMediaInformation';
-import {useAppSettings, setStatusBarTheme} from '../utils/settingsContext';
+import {useSettingsStore} from '../store/settings/useSettingsStore';
 import eventEmitter from '../utils/eventEmitter';
 
 interface Album {
   id: string;
   title: string;
+  description?: string;
   countPhoto: number;
   created_at: string;
   coverPhoto: string;
@@ -40,9 +41,9 @@ const MainPage: React.FC = () => {
   const navigation: any = useNavigation();
   const insets = useSafeAreaInsets();
 
+  const darkModeFromStore = useSettingsStore(state => state.settings.darkMode);
+
   const {addAlbum, getAllAlbums, saveAlbumsOrder} = useAlbumsRequest();
-  const {acceptSettings, getSettings} = useSettingsRequest();
-  const {appSettings, saveAppSettings} = useAppSettings();
   const {calcAllAlbums, calcAllPhotos} = useMediaInformation();
 
   const [albums, setAlbums] = useState<Album[]>([]);
@@ -55,13 +56,9 @@ const MainPage: React.FC = () => {
   const [isModalAddAlbumVisible, setModalAddAlbumVisible] = useState(false);
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
 
-  const styles = getStyles(appSettings.darkMode);
+  const styles = getStyles(darkModeFromStore);
 
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
-
-  useEffect(() => {
-    getSettings(saveAppSettings);
-  }, [appSettings.darkMode]);
 
   useEffect(() => {
     const updateAlbums = () => {
@@ -78,7 +75,7 @@ const MainPage: React.FC = () => {
     return () => {
       eventEmitter.off('albumsUpdated', updateAlbums);
     };
-  }, [appSettings.sortOrder]);
+  }, []);
 
   useEffect(() => {
     const fetchPhotoAndAlbumCount = async () => {
@@ -111,19 +108,20 @@ const MainPage: React.FC = () => {
   const openSettings = () => setIsSettingsModalVisible(true);
   const openCreateAlbumModal = () => setModalAddAlbumVisible(true);
 
-  const saveSettings = (newSettings: typeof appSettings) => {
-    saveAppSettings(newSettings);
-    acceptSettings(newSettings);
-  };
+  const filteredAlbums = albums.filter(album => {
+    const query = searchQuery.toLowerCase();
+    const titleMatch = album.title.toLowerCase().includes(query);
+    const descriptionMatch = album.description
+      ? album.description.toLowerCase().includes(query)
+      : false;
+    return titleMatch || descriptionMatch;
+  });
 
-  const filteredAlbums = albums.filter(album =>
-    album.title.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
-
-  const handleAddAlbum = (newAlbum: {title: string}) => {
+  const handleAddAlbum = (newAlbum: {title: string; description?: string}) => {
     const currentDate = new Date();
     const albumToInsert = {
       title: newAlbum.title,
+      description: newAlbum.description,
       countPhoto: 0,
       created_at: currentDate.toLocaleString(),
     };
@@ -192,7 +190,7 @@ const MainPage: React.FC = () => {
   return (
     <SafeAreaView style={styles.root}>
       <StatusBar
-        barStyle={setStatusBarTheme(appSettings.darkMode)}
+        barStyle={darkModeFromStore ? 'light-content' : 'dark-content'}
         translucent
         backgroundColor="transparent"
       />
@@ -201,10 +199,7 @@ const MainPage: React.FC = () => {
         openModalSettings={openSettings}
       />
 
-      <AlbumSearchBar
-        darkMode={appSettings.darkMode}
-        onSearch={setSearchQuery}
-      />
+      <AlbumSearchBar darkMode={darkModeFromStore} onSearch={setSearchQuery} />
 
       {filteredAlbums.length === 0 && searchQuery.length > 0 && (
         <View style={styles.emptyDataItem}>
@@ -222,7 +217,7 @@ const MainPage: React.FC = () => {
         <CounterMediaData
           albumCount={albumCount}
           photoCount={photoCount}
-          darkMode={appSettings.darkMode}
+          darkMode={darkModeFromStore}
         />
       )}
 
@@ -258,8 +253,7 @@ const MainPage: React.FC = () => {
       />
       <SettingsModal
         visible={isSettingsModalVisible}
-        onClose={() => setIsSettingsModalVisible(false)}
-        onSave={saveSettings}
+        onCloseSettingsModal={() => setIsSettingsModalVisible(false)}
         albumsExist={albums.length > 0}
       />
     </SafeAreaView>
@@ -311,10 +305,12 @@ const getStyles = (darkMode: boolean) => {
     },
     textNameAlbum: {
       fontSize: 14,
+      fontFamily: TYPOGRAPHY.titleFont,
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
     },
     textCountPhoto: {
-      fontSize: 12,
+      fontSize: 11,
+      fontFamily: TYPOGRAPHY.generalFont,
       color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,
     },
     emptyDataItem: {
@@ -324,10 +320,12 @@ const getStyles = (darkMode: boolean) => {
     text: {
       textAlign: 'center',
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
+      fontFamily: TYPOGRAPHY.generalFont,
     },
     textHelper: {
       textAlign: 'center',
       color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,
+      fontFamily: TYPOGRAPHY.generalFont,
     },
   });
 };

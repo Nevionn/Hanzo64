@@ -8,7 +8,9 @@ import {
 } from 'react-native';
 import SvgSettings from './icons/SvgSettings';
 import {COLOR} from '../shared/colorTheme';
-import {useAppSettings} from '../utils/settingsContext';
+import {TYPOGRAPHY} from '../shared/typography';
+
+import {useSettingsStore} from '../store/settings/useSettingsStore';
 
 interface NaviBarProps {
   openModalAlbum: () => void;
@@ -19,14 +21,14 @@ const NaviBar: React.FC<NaviBarProps> = ({
   openModalAlbum,
   openModalSettings,
 }) => {
-  const {appSettings} = useAppSettings();
+  const darkModeFromStore = useSettingsStore(state => state.settings.darkMode);
 
-  const styles = getStyles(appSettings.darkMode);
+  const styles = getStyles(darkModeFromStore);
 
   return (
     <>
       <View style={[styles.navibar]}>
-        {appSettings.darkMode ? (
+        {darkModeFromStore ? (
           <ImageBackground
             source={require('../../assets/images/navibar.png')}
             style={styles.backgroundImage}>
@@ -71,12 +73,11 @@ const getStyles = (darkMode: boolean) => {
     textHead: {
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.ICON,
       fontSize: 20,
-      fontWeight: 'bold',
+      fontFamily: TYPOGRAPHY.generalFont,
     },
     textAddNewAlbum: {
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.ICON,
       fontSize: 28,
-      fontWeight: 'bold',
     },
     touchArea: {
       alignItems: 'center',

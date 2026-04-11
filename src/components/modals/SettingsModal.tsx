@@ -1,91 +1,77 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, Switch, StyleSheet, Modal, StatusBar} from 'react-native';
+import {
+  View,
+  Text,
+  Switch,
+  StyleSheet,
+  Modal,
+  StatusBar,
+  Linking,
+} from 'react-native';
 import {Button, Divider, List} from 'react-native-paper';
+import {useSettingsStore} from '../../store/settings/useSettingsStore';
+
 import {COLOR} from '../../shared/colorTheme';
+import {TYPOGRAPHY} from '../../shared/typography';
 import {ModalText} from '../../shared/textForModal';
+
 import {useAlbumsRequest} from '../../hooks/useAlbumsRequest';
 import {usePhotoRequest} from '../../hooks/usePhotoRequest';
-import {useSettingsRequest} from '../../hooks/useSettingsRequest';
 import {usePinCodeRequest} from '../../hooks/usePinCodeRequest';
-import {
-  useAppSettings,
-  setButtonColor,
-  setButtonTextColorRecommendation,
-  setSvgIconColor,
-  setAlertColor,
-  setArrowAccordionColor,
-} from '../../utils/settingsContext';
+
 import {useNavigation} from '@react-navigation/native';
 import eventEmitter from '../../utils/eventEmitter';
+
 import AcceptMoveModal from './AcceptMoveModal';
 
 interface SettingsModalProps {
   visible: boolean;
-  onClose: () => void;
-  onSave: (settings: Settings) => void;
+  onCloseSettingsModal: () => void;
   albumsExist?: boolean;
 }
 
-interface Settings {
-  darkMode: boolean;
-}
+/**
+ * Компонент модального окна настроек приложения.
+ *
+ * Отображает:
+ * - Переключатель темной темы.
+ * - Блоки для "Безопасности" и "Очистки":
+ *   - Безопасность: установка/удаление ПИН-кода и опция удаления данных после 3 неверных попыток.
+ *   - Очистка: удаление всех альбомов.
+ *
+ * Используемые хуки:
+ * - useSettingsStore для состояния темы.
+ * - useAlbumsRequest, usePhotoRequest, usePinCodeRequest для работы с данными.
+ *
+ * Особенности:
+ * - Модальные подтверждения через AcceptMoveModal.
+ */
+
 const SettingsModal: React.FC<SettingsModalProps> = ({
   visible,
-  onClose,
-  onSave,
+  onCloseSettingsModal,
   albumsExist,
 }) => {
   const {deleteAllAlbums} = useAlbumsRequest();
   const {deleteAllPhotos} = usePhotoRequest();
-  const {checkActivePinCode} = usePinCodeRequest();
-  const {getSettings} = useSettingsRequest();
-  const {appSettings} = useAppSettings();
+  const {checkActivePinCode, toggleWipeOnFail, getWipeOnFail} =
+    usePinCodeRequest();
+
+  const darkModeFromStore = useSettingsStore(state => state.settings.darkMode);
+  const setSetting = useSettingsStore(state => state.setSetting);
 
   const navigation: any = useNavigation();
 
   const [safetyVisible, setSafetyVisible] = useState(true);
-  const [settings, setSettings] = useState<Settings>({
-    darkMode: true,
-  });
-
-  // Копия настроек для возврата в случае отмены
-  const [backupSettings, setBackupSettings] = useState<Settings>({
-    darkMode: false,
-  });
-
   const [isVisibleAcceptModal, setIsVisibleAcceptModal] = useState(false);
+  const [wipeOnFail, setWipeOnFail] = useState(false);
 
   const handleOpenAcceptModal = () => setIsVisibleAcceptModal(true);
   const handleCloseAcceptModal = () => setIsVisibleAcceptModal(false);
 
-  const toggleSwitch = (key: keyof Settings) => {
-    setSettings(prevSettings => ({
-      ...prevSettings,
-      [key]: !prevSettings[key],
-    }));
-  };
-
-  useEffect(() => {
-    // Сохраняем текущие настройки при открытии окна
-    if (visible) {
-      setBackupSettings(appSettings);
-      setSettings(appSettings);
-    }
-  }, [visible, appSettings]);
-
-  const handleSave = () => {
-    onSave(settings);
-    onClose();
-  };
-
-  const handleCloseSettingsModal = () => {
-    onClose();
-    setSettings(backupSettings); // Возвращаем исходные настройки
-  };
-
   const setPinCode = () => {
     try {
-      handleCloseSettingsModal();
+      onCloseSettingsModal();
       navigation.navigate('RegistrationPage', {
         installationPinStage: true,
         inputMode: 2,
@@ -97,7 +83,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const deletePinCode = () => {
     try {
-      handleCloseSettingsModal();
+      onCloseSettingsModal();
       navigation.navigate('RegistrationPage', {
         installationPinStage: true,
         inputMode: 1,
@@ -124,17 +110,20 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         setSafetyVisible(true);
       }
     });
-    getSettings(setSettings);
   }, []);
 
-  const styles = getStyles(appSettings.darkMode);
+  useEffect(() => {
+    getWipeOnFail(setWipeOnFail);
+  }, []);
+
+  const styles = getStyles(darkModeFromStore);
 
   return (
     <Modal
       visible={visible}
       animationType="fade"
       transparent={true}
-      onRequestClose={handleCloseSettingsModal}>
+      onRequestClose={onCloseSettingsModal}>
       <StatusBar translucent backgroundColor="black" />
       <View style={styles.modalBackground}>
         <View style={styles.modalContainer}>
@@ -142,8 +131,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           <View style={styles.setting}>
             <Text style={styles.smallText}>Темная тема</Text>
             <Switch
-              value={settings.darkMode}
-              onValueChange={() => toggleSwitch('darkMode')}
+              value={darkModeFromStore}
+              onValueChange={value => setSetting('darkMode', value)}
+              thumbColor={darkModeFromStore ? '#00F0FF' : '#999'}
             />
           </View>
           <Divider style={styles.divider} />
@@ -152,78 +142,155 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               style={styles.accordionItem}
               titleStyle={styles.text}
               title="Безопасность"
-              id="2"
-              theme={{
-                colors: setArrowAccordionColor(appSettings.darkMode),
-              }}
+              id="1"
               left={props => (
                 <List.Icon
                   {...props}
-                  color={setSvgIconColor(appSettings.darkMode)}
-                  icon="lock-open-plus-outline"
+                  icon="lock"
+                  color={darkModeFromStore ? COLOR.dark.ICON : COLOR.light.ICON}
                 />
-              )}>
-              <View style={styles.accordionContentItem}>
-                {safetyVisible ? (
-                  <Button
-                    textColor={setButtonTextColorRecommendation(
-                      appSettings.darkMode,
+              )}
+              theme={{
+                colors: darkModeFromStore
+                  ? {onSurfaceVariant: COLOR.dark.ICON}
+                  : {onSurfaceVariant: COLOR.light.ICON},
+              }}>
+              {safetyVisible ? (
+                <List.Item
+                  title="Установить ПИН-код"
+                  left={props => (
+                    <List.Icon {...props} icon="key-chain-variant" />
+                  )}
+                  theme={{
+                    colors: darkModeFromStore
+                      ? {onSurfaceVariant: COLOR.dark.ICON}
+                      : {onSurfaceVariant: COLOR.light.ICON},
+                  }}
+                  titleStyle={{
+                    color: darkModeFromStore
+                      ? COLOR.dark.BUTTON_TEXT_GREEN
+                      : COLOR.light.BUTTON_TEXT_GREEN,
+                    fontFamily: TYPOGRAPHY.generalFont,
+                    fontSize: 14,
+                  }}
+                  onPress={setPinCode}
+                  style={styles.accordionContentItem}
+                />
+              ) : (
+                <>
+                  <List.Item
+                    title="Удалить ПИН-код"
+                    left={props => (
+                      <List.Icon {...props} icon="key-alert-outline" />
                     )}
-                    mode="text"
-                    onPress={() => setPinCode()}>
-                    Установить ПИН-код
-                  </Button>
-                ) : (
-                  <Button
-                    textColor={setAlertColor(appSettings.darkMode)}
-                    mode="text"
-                    onPress={() => deletePinCode()}>
-                    Удалить ПИН-код
-                  </Button>
-                )}
-              </View>
+                    theme={{
+                      colors: darkModeFromStore
+                        ? {onSurfaceVariant: COLOR.dark.ICON}
+                        : {onSurfaceVariant: COLOR.light.ICON},
+                    }}
+                    titleStyle={{
+                      color: darkModeFromStore
+                        ? COLOR.dark.alertColor
+                        : COLOR.light.alertColor,
+                      fontFamily: TYPOGRAPHY.generalFont,
+                      fontSize: 14,
+                    }}
+                    onPress={deletePinCode}
+                    style={styles.accordionContentItem}
+                  />
+
+                  <List.Item
+                    style={[
+                      styles.accordionContentItem,
+                      {alignItems: 'flex-start'},
+                    ]}
+                    title={() => (
+                      <Text
+                        style={[
+                          styles.smallText,
+                          {flexShrink: 1, flexWrap: 'wrap'},
+                        ]}>
+                        Удалять данные после 3 неверных попыток
+                      </Text>
+                    )}
+                    right={() => (
+                      <Switch
+                        value={wipeOnFail}
+                        onValueChange={value => {
+                          setWipeOnFail(value);
+                          toggleWipeOnFail(value);
+                        }}
+                        thumbColor={wipeOnFail ? '#00F0FF' : '#999'}
+                      />
+                    )}
+                  />
+                </>
+              )}
             </List.Accordion>
             <List.Accordion
               style={styles.accordionItem}
               titleStyle={styles.text}
               title="Очистка"
-              id="3"
-              theme={{
-                colors: setArrowAccordionColor(appSettings.darkMode),
-              }}
+              id="2"
               left={props => (
                 <List.Icon
                   {...props}
-                  color={setSvgIconColor(appSettings.darkMode)}
-                  icon="delete-alert-outline"
+                  icon="delete"
+                  color={darkModeFromStore ? COLOR.dark.ICON : COLOR.light.ICON}
                 />
-              )}>
-              <View style={styles.accordionContentItem}>
-                {albumsExist && (
-                  <Button
-                    textColor={setAlertColor(appSettings.darkMode)}
-                    mode="text"
-                    onPress={() => handleOpenAcceptModal()}>
-                    Удалить все альбомы
-                  </Button>
-                )}
-              </View>
+              )}
+              theme={{
+                colors: darkModeFromStore
+                  ? {onSurfaceVariant: COLOR.dark.ICON}
+                  : {onSurfaceVariant: COLOR.light.ICON},
+              }}>
+              {albumsExist && (
+                <List.Item
+                  title="Удалить все альбомы"
+                  left={props => (
+                    <List.Icon {...props} icon="delete-alert-outline" />
+                  )}
+                  theme={{
+                    colors: darkModeFromStore
+                      ? {onSurfaceVariant: COLOR.dark.ICON}
+                      : {onSurfaceVariant: COLOR.light.ICON},
+                  }}
+                  titleStyle={{
+                    color: darkModeFromStore
+                      ? COLOR.dark.alertColor
+                      : COLOR.light.alertColor,
+                    fontFamily: TYPOGRAPHY.generalFont,
+                    fontSize: 14,
+                  }}
+                  style={styles.accordionContentItem}
+                  onPress={() => handleOpenAcceptModal()}
+                />
+              )}
             </List.Accordion>
           </List.AccordionGroup>
+
+          <View style={styles.appInfoBlock}>
+            <Text
+              style={styles.githubLink}
+              onPress={() =>
+                Linking.openURL('https://github.com/Nevionn/Phovion64')
+              }>
+              GitHub
+            </Text>
+            <Text style={styles.versionText}>Версия: </Text>
+          </View>
+
           <View style={styles.buttonsItem}>
             <Button
               mode="elevated"
               textColor={COLOR.dark.TEXT_BRIGHT}
-              buttonColor={setButtonColor(appSettings.darkMode)}
-              onPress={() => handleSave()}>
-              Сохранить
-            </Button>
-            <Button
-              mode="elevated"
-              textColor={COLOR.dark.TEXT_BRIGHT}
-              buttonColor={setButtonColor(appSettings.darkMode)}
-              onPress={() => handleCloseSettingsModal()}>
-              Отмена
+              buttonColor={
+                darkModeFromStore
+                  ? COLOR.dark.BUTTON_COLOR
+                  : COLOR.light.BUTTON_COLOR
+              }
+              onPress={() => onCloseSettingsModal()}>
+              Закрыть
             </Button>
           </View>
         </View>
@@ -274,8 +341,8 @@ const getStyles = (darkMode: boolean) => {
         : COLOR.light.ACCORDION_ITEM_COLOR,
     },
     modalTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
+      fontSize: 20,
+      fontFamily: TYPOGRAPHY.generalFont,
       marginBottom: 20,
       textAlign: 'center',
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
@@ -292,10 +359,21 @@ const getStyles = (darkMode: boolean) => {
       alignItems: 'flex-start',
     },
     securItem: {
-      flexDirection: 'column',
+      flexDirection: 'row',
       justifyContent: 'flex-start',
-      alignItems: 'flex-start',
+      alignItems: 'center',
       marginTop: 10,
+      paddingVertical: 10,
+      paddingHorizontal: 5,
+      borderRadius: 8,
+      backgroundColor: 'rgba(0, 240, 255, 0.05)',
+      borderWidth: 1,
+      borderColor: 'rgba(0,240,255,0.2)',
+    },
+    flexText: {
+      flex: 1,
+      flexWrap: 'wrap',
+      marginRight: 10,
     },
     mediaInformationItem: {
       justifyContent: 'center',
@@ -306,22 +384,43 @@ const getStyles = (darkMode: boolean) => {
       height: 50,
       width: 190,
     },
+    appInfoBlock: {
+      marginTop: 20,
+      alignItems: 'flex-start',
+    },
+    versionText: {
+      fontSize: 12,
+      fontFamily: TYPOGRAPHY.generalFont,
+      color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,
+    },
+    githubLink: {
+      fontSize: 12,
+      fontFamily: TYPOGRAPHY.generalFont,
+      color: darkMode
+        ? COLOR.dark.BUTTON_TEXT_GREEN
+        : COLOR.light.BUTTON_TEXT_GREEN,
+      textDecorationLine: 'underline',
+      marginBottom: 5,
+    },
     buttonsItem: {
       flexDirection: 'row',
-      justifyContent: 'space-around',
+      justifyContent: 'flex-end',
       marginTop: 20,
+    },
+    fullWidthButton: {
+      width: '100%',
+      alignItems: 'flex-start',
     },
     topSpacer: {
       height: 10,
     },
     text: {
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
-      // backgroundColor: darkMode
-      //   ? COLOR.dark.SECONDARY_COLOR
-      //   : COLOR.light.SECONDARY_COLOR,
+      fontFamily: TYPOGRAPHY.generalFont,
     },
     smallText: {
       color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,
+      fontFamily: TYPOGRAPHY.generalFont,
     },
     dropdownIconColor: {
       color: 'red',

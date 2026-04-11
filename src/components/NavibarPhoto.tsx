@@ -6,11 +6,17 @@ import {
   TouchableOpacity,
   StatusBar,
   Modal,
+  Linking,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 
+import {ModalText} from '../shared/textForModal';
+import {COLOR} from '../shared/colorTheme';
+import {TYPOGRAPHY} from '../shared/typography';
+
 import {usePhotoRequest} from '../hooks/usePhotoRequest';
 import {useAlbumsRequest} from '../hooks/useAlbumsRequest';
+import {useSettingsStore} from '../store/settings/useSettingsStore';
 
 import SvgLeftArrow from './icons/SvgLeftArrow';
 import SvgDotsVertical from './icons/SvgDotsVertical';
@@ -20,15 +26,13 @@ import SvgBidirectionalArrows from './icons/SvgBidirectionalArrows';
 import AcceptMoveModal from './modals/AcceptMoveModal';
 import RenameAlbumModal from './modals/RenameAlbumModal';
 
-import {useAppSettings, setSvgIconColor} from '../utils/settingsContext';
 import eventEmitter from '../utils/eventEmitter';
-import {ModalText} from '../shared/textForModal';
-import {COLOR} from '../shared/colorTheme';
 import {pickImage} from '../utils/camera';
 import {capturePhoto} from '../utils/camera';
 
 interface NaviBarPhotoProps {
   titleAlbum: string;
+  descriptionAlbum: string;
   idAlbum: string;
   sortPhotos: () => void;
   setUploadingPhotos: (value: boolean) => void;
@@ -36,18 +40,21 @@ interface NaviBarPhotoProps {
 
 const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
   titleAlbum,
+  descriptionAlbum,
   idAlbum,
   sortPhotos,
   setUploadingPhotos,
 }) => {
   const {deleteAlbum} = useAlbumsRequest();
-  const {appSettings} = useAppSettings();
   const {addPhoto, deleteAllPhotosCurrentAlbum} = usePhotoRequest();
+
+  const darkModeFromStore = useSettingsStore(state => state.settings.darkMode);
 
   const navigation: any = useNavigation();
   const statusBarHeight: any = StatusBar.currentHeight;
 
   const [title, setTitile] = useState(titleAlbum);
+  const [description, setDescription] = useState(descriptionAlbum);
 
   const [modalAction, setModalAction] = useState<'clear' | 'delete' | null>(
     null,
@@ -70,7 +77,9 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
 
   const handleCloseRenameAlbumModal = () => setIsRenameAlbumModal(false);
 
-  const updateTitleAlbum = (newTitle: string) => setTitile(newTitle);
+  const updateTitleAlbum = (newTitle: string, newDescription: string) => {
+    setTitile(newTitle), setDescription(newDescription);
+  };
 
   const deleteAlbumExpand = () => {
     deleteAllPhotosCurrentAlbum(idAlbum);
@@ -87,7 +96,33 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
     navigation.goBack();
   };
 
-  const styles = getStyles(appSettings.darkMode);
+  const renderDescription = (text: string) => {
+    if (!text) return null;
+
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+
+    return parts.map((part, index) => {
+      if (urlRegex.test(part)) {
+        return (
+          <Text
+            key={index}
+            style={styles.link}
+            onPress={() => Linking.openURL(part)}>
+            {part}
+          </Text>
+        );
+      }
+
+      return (
+        <Text key={index} style={styles.descriptionText}>
+          {part}
+        </Text>
+      );
+    });
+  };
+
+  const styles = getStyles(darkModeFromStore);
 
   return (
     <>
@@ -95,7 +130,9 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
         <View style={styles.manipulationItem}>
           <IconButton
             icon={() => (
-              <SvgLeftArrow color={setSvgIconColor(appSettings.darkMode)} />
+              <SvgLeftArrow
+                color={darkModeFromStore ? COLOR.dark.ICON : COLOR.light.ICON}
+              />
             )}
             size={30}
             onPress={() => navigation.goBack()}
@@ -104,7 +141,7 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
             <IconButton
               icon={() => (
                 <SvgBidirectionalArrows
-                  color={setSvgIconColor(appSettings.darkMode)}
+                  color={darkModeFromStore ? COLOR.dark.ICON : COLOR.light.ICON}
                 />
               )}
               size={30}
@@ -113,7 +150,7 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
             <IconButton
               icon={() => (
                 <SvgDotsVertical
-                  color={setSvgIconColor(appSettings.darkMode)}
+                  color={darkModeFromStore ? COLOR.dark.ICON : COLOR.light.ICON}
                 />
               )}
               size={30}
@@ -121,8 +158,15 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
             />
           </View>
         </View>
+
         <View style={styles.titleAlbumItem}>
           <Text style={styles.title}>{title}</Text>
+
+          {!!description && (
+            <Text style={styles.descriptionWrapper}>
+              {renderDescription(description)}
+            </Text>
+          )}
         </View>
       </View>
 
@@ -158,30 +202,33 @@ const NavibarPhoto: React.FC<NaviBarPhotoProps> = ({
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                setModalAction('clear'),
-                  handleOpenAcceptMoveModal(),
-                  toggleMiniModal();
+                setModalAction('clear');
+                handleOpenAcceptMoveModal();
+                toggleMiniModal();
               }}>
               <Text style={styles.modalItem}>Очистить</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                setModalAction('delete'),
-                  handleOpenAcceptMoveModal(),
-                  toggleMiniModal();
+                setModalAction('delete');
+                handleOpenAcceptMoveModal();
+                toggleMiniModal();
               }}>
               <Text style={styles.modalItem}>Удалить</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
       </Modal>
+
       <RenameAlbumModal
         visible={isRenameAlbumModal}
         onClose={handleCloseRenameAlbumModal}
         onSubmit={updateTitleAlbum}
         title={titleAlbum}
+        description={descriptionAlbum}
         idAlbum={idAlbum}
       />
+
       <AcceptMoveModal
         visible={isAcceptMoveModalVisible}
         onCloseAcceptModal={handleCloseAcceptMoveModal}
@@ -215,21 +262,32 @@ const getStyles = (darkMode: boolean) => {
       flexDirection: 'row',
     },
     rightItemContent: {
-      justifyContent: 'flex-start',
-      alignItems: 'center',
       flexDirection: 'row',
     },
     titleAlbumItem: {
-      justifyContent: 'flex-start',
-      alignItems: 'center',
-      flexDirection: 'row',
+      flexDirection: 'column',
       width: '100%',
+      paddingHorizontal: 24,
     },
     title: {
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
+      fontFamily: TYPOGRAPHY.generalFont,
       fontSize: 20,
-      fontWeight: 'medium',
-      marginLeft: 24,
+      fontWeight: '500',
+    },
+    descriptionWrapper: {
+      marginTop: 4,
+      flexWrap: 'wrap',
+    },
+    descriptionText: {
+      color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,
+      fontFamily: TYPOGRAPHY.generalFont,
+      fontSize: 14,
+      lineHeight: 18,
+    },
+    link: {
+      color: '#a855f7',
+      textDecorationLine: 'underline',
     },
     overlay: {
       flex: 1,

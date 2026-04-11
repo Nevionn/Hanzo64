@@ -1,6 +1,7 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {COLOR} from '../shared/colorTheme';
+import {TYPOGRAPHY} from '../shared/typography';
 
 interface CounterMediaDataProps {
   albumCount: number;
@@ -42,6 +43,7 @@ const getStyles = (darkMode: boolean) =>
       alignItems: 'center',
     },
     textDim: {
+      fontFamily: TYPOGRAPHY.generalFont,
       textAlign: 'center',
       color: darkMode ? COLOR.dark.TEXT_DIM : COLOR.light.TEXT_DIM,
     },

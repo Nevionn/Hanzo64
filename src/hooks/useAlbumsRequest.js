@@ -1,4 +1,5 @@
 import SQLite from 'react-native-sqlite-storage';
+import {connectionParamsDb} from '../services/database/databaseService';
 
 /**
  * Хранилище альбомов (SQLite)
@@ -15,7 +16,10 @@ import SQLite from 'react-native-sqlite-storage';
  * Закомментированные логи в DEV режиме могут бить по производительности. При необходимости раскомментировать
  */
 
-const db = SQLite.openDatabase({name: 'database.db', location: 'default'});
+const db = SQLite.openDatabase({
+  name: connectionParamsDb.name,
+  location: connectionParamsDb.location,
+});
 
 const initAlbumsTable = () => {
   db.transaction(tx => {
@@ -24,6 +28,7 @@ const initAlbumsTable = () => {
       CREATE TABLE IF NOT EXISTS AlbumsTable (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT,
+        description TEXT,
         countPhoto INTEGER,
         created_at TEXT,
         coverPhoto TEXT,
@@ -41,24 +46,27 @@ const initAlbumsTable = () => {
     );
   });
 
-  ensureSortOrderColumn();
+  ensureColumn('sortOrder', 'INTEGER');
+  ensureColumn('description', 'TEXT');
 };
 
 /**
- * Проверяет наличие колонки sortOrder.
+ * Метод для миграции.
  * Если приложение обновилось со старой схемы БД —
  * колонка будет добавлена без потери данных.
  */
 
-const ensureSortOrderColumn = () => {
+const ensureColumn = (columnName, columnType) => {
   db.transaction(tx => {
     tx.executeSql('PRAGMA table_info(AlbumsTable)', [], (_, result) => {
-      const hasSortOrder = Array.from({length: result.rows.length}, (_, i) =>
+      const hasColumn = Array.from({length: result.rows.length}, (_, i) =>
         result.rows.item(i),
-      ).some(col => col.name === 'sortOrder');
+      ).some(col => col.name === columnName);
 
-      if (!hasSortOrder) {
-        tx.executeSql('ALTER TABLE AlbumsTable ADD COLUMN sortOrder INTEGER');
+      if (!hasColumn) {
+        tx.executeSql(
+          `ALTER TABLE AlbumsTable ADD COLUMN ${columnName} ${columnType}`,
+        );
       }
     });
   });
@@ -99,10 +107,15 @@ const useAddNewAlbumToTable = () => {
         tx.executeSql(
           `
           INSERT INTO AlbumsTable
-            (title, countPhoto, created_at, sortOrder)
-          VALUES (?, ?, ?, 0)
+            (title, description, countPhoto, created_at, sortOrder)
+          VALUES (?, ?, ?, ?, 0)
           `,
-          [newAlbum.title, newAlbum.countPhoto, newAlbum.created_at],
+          [
+            newAlbum.title,
+            newAlbum.description,
+            newAlbum.countPhoto,
+            newAlbum.created_at,
+          ],
           (_, res) => {
             console.log(`✅ Альбом "${newAlbum.title}" добавлен с sortOrder=0`);
           },
@@ -225,21 +238,23 @@ const useGetCountAlbums = () => {
   };
 };
 
-/**
- * Переименование альбома.
- */
-
 const useRenameAlbum = () => {
-  return (id, newTitle) => {
+  return (id, newTitle, newDescription) => {
     db.transaction(tx => {
       tx.executeSql(
-        'UPDATE AlbumsTable SET title = ? WHERE id = ?',
-        [newTitle, id],
+        `
+        UPDATE AlbumsTable 
+        SET title = ?, description = ?
+        WHERE id = ?
+        `,
+        [newTitle, newDescription || '', id],
         (_, results) => {
-          console.log(`Альбом с id ${id} переименован в "${newTitle}".`);
+          console.log(
+            `Альбом ${id} обновлён: title="${newTitle}", description="${newDescription}"`,
+          );
         },
         error => {
-          console.error('Ошибка при изменении названия альбома:', error);
+          console.error('Ошибка при обновлении альбома:', error);
         },
       );
     });

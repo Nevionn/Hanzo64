@@ -1,13 +1,16 @@
 import React, {useState} from 'react';
 import {View, Text, Modal, StyleSheet, StatusBar} from 'react-native';
 import {TextInput, Button} from 'react-native-paper';
-import {useAppSettings, setButtonColor} from '../../utils/settingsContext';
+
 import {COLOR} from '../../shared/colorTheme';
+import {TYPOGRAPHY} from '../../shared/typography';
+
+import {useSettingsStore} from '../../store/settings/useSettingsStore';
 
 interface NewAlbumModalProps {
   visible: boolean;
   onClose: () => void;
-  onSubmit: (album: {title: string}) => void;
+  onSubmit: (album: {title: string; description?: string}) => void;
 }
 
 const NewAlbumModal: React.FC<NewAlbumModalProps> = ({
@@ -15,26 +18,34 @@ const NewAlbumModal: React.FC<NewAlbumModalProps> = ({
   onClose,
   onSubmit,
 }) => {
-  const {appSettings} = useAppSettings();
+  const darkModeFromStore = useSettingsStore(state => state.settings.darkMode);
 
   const [title, setTitle] = useState<string>('');
-  const [focused, setFocused] = useState(false);
+  const [description, setDescription] = useState<string>('');
+  const [focusedTitle, setFocusedTitle] = useState(false);
+  const [focusedDesc, setFocusedDesc] = useState(false);
+
+  const resetStatesInput = () => {
+    setTitle('');
+    setDescription('');
+    setFocusedTitle(false);
+    setFocusedDesc(false);
+  };
 
   const handleSave = () => {
     if (title) {
-      onSubmit({title});
-      setTitle('');
+      onSubmit({title, description});
       onClose();
+      resetStatesInput();
     }
   };
 
   const handleCloseModal = () => {
     onClose();
-    setTitle('');
-    setFocused(false);
+    resetStatesInput();
   };
 
-  const styles = getStyles(appSettings.darkMode);
+  const styles = getStyles(darkModeFromStore);
 
   return (
     <Modal
@@ -46,22 +57,44 @@ const NewAlbumModal: React.FC<NewAlbumModalProps> = ({
       <View style={styles.modalBackground}>
         <View style={styles.modalContainer}>
           <Text style={styles.title}>Создать новый альбом</Text>
+
           <TextInput
             mode="outlined"
             label="Название альбома"
             value={title}
             onChangeText={setTitle}
-            onFocus={() => setFocused(true)}
-            onBlur={() => setFocused(false)}
+            onFocus={() => setFocusedTitle(true)}
+            onBlur={() => setFocusedTitle(false)}
             textColor={styles.inputTextColor.color}
             outlineColor={styles.inputViewOutlineColor.color}
             style={styles.inputView}
             theme={{
               colors: {
-                onSurfaceVariant: focused
+                onSurfaceVariant: focusedTitle
                   ? styles.inputTextColor.color
                   : '#8e8e8e',
+                primary: styles.inputTextColor.color,
+              },
+            }}
+          />
 
+          <TextInput
+            mode="outlined"
+            label="Описание альбома"
+            value={description}
+            onChangeText={setDescription}
+            onFocus={() => setFocusedDesc(true)}
+            onBlur={() => setFocusedDesc(false)}
+            textColor={styles.inputTextColor.color}
+            outlineColor={styles.inputViewOutlineColor.color}
+            style={styles.inputView}
+            multiline
+            numberOfLines={3}
+            theme={{
+              colors: {
+                onSurfaceVariant: focusedDesc
+                  ? styles.inputTextColor.color
+                  : '#8e8e8e',
                 primary: styles.inputTextColor.color,
               },
             }}
@@ -71,14 +104,22 @@ const NewAlbumModal: React.FC<NewAlbumModalProps> = ({
             <Button
               mode="elevated"
               textColor={COLOR.dark.TEXT_BRIGHT}
-              buttonColor={setButtonColor(appSettings.darkMode)}
-              onPress={() => handleSave()}>
+              buttonColor={
+                darkModeFromStore
+                  ? COLOR.dark.BUTTON_COLOR
+                  : COLOR.light.BUTTON_COLOR
+              }
+              onPress={handleSave}>
               Создать
             </Button>
             <Button
               mode="elevated"
               textColor={COLOR.dark.TEXT_BRIGHT}
-              buttonColor={setButtonColor(appSettings.darkMode)}
+              buttonColor={
+                darkModeFromStore
+                  ? COLOR.dark.BUTTON_COLOR
+                  : COLOR.light.BUTTON_COLOR
+              }
               onPress={handleCloseModal}>
               Отмена
             </Button>
@@ -89,8 +130,8 @@ const NewAlbumModal: React.FC<NewAlbumModalProps> = ({
   );
 };
 
-const getStyles = (darkMode: boolean) => {
-  return StyleSheet.create({
+const getStyles = (darkMode: boolean) =>
+  StyleSheet.create({
     modalBackground: {
       flex: 1,
       justifyContent: 'center',
@@ -112,13 +153,14 @@ const getStyles = (darkMode: boolean) => {
     },
     title: {
       fontSize: 18,
-      fontWeight: 'bold',
+      fontFamily: TYPOGRAPHY.generalFont,
       marginBottom: 20,
       textAlign: 'center',
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
     },
     inputView: {
       marginBottom: 20,
+      fontSize: 16,
       backgroundColor: darkMode
         ? COLOR.dark.SECONDARY_COLOR
         : COLOR.light.SECONDARY_COLOR,
@@ -134,6 +176,5 @@ const getStyles = (darkMode: boolean) => {
       justifyContent: 'space-around',
     },
   });
-};
 
 export default NewAlbumModal;

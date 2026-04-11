@@ -13,12 +13,13 @@ import {
 } from 'react-native';
 import Animated, {useAnimatedRef} from 'react-native-reanimated';
 import {usePhotoRequest} from '../hooks/usePhotoRequest';
-import {useAppSettings, setStatusBarTheme} from '../utils/settingsContext';
+import {useSettingsStore} from '../store/settings/useSettingsStore';
 import {useRoute} from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import eventEmitter from '../utils/eventEmitter';
 
 import {COLOR} from '../shared/colorTheme';
+import {TYPOGRAPHY} from '../shared/typography';
 
 import Sortable from 'react-native-sortables';
 import NavibarPhoto from '../components/NavibarPhoto';
@@ -34,10 +35,11 @@ interface PhotoObjectArray {
 }
 
 const PhotoPage = () => {
-  const {appSettings} = useAppSettings();
   const {getPhoto, savePhotosOrder} = usePhotoRequest();
   const route: any = useRoute();
   const dataAlbum = route?.params;
+
+  const darkModeFromStore = useSettingsStore(state => state.settings.darkMode);
 
   const insets = useSafeAreaInsets();
 
@@ -50,7 +52,7 @@ const PhotoPage = () => {
   const [idAlbum, setIdAlbum] = useState(0);
   const [idPhoto, setIdPhoto] = useState(0);
 
-  const styles = getStyles(appSettings.darkMode);
+  const styles = getStyles(darkModeFromStore);
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
 
   const openImageViewer = (index: number, id: number) => {
@@ -119,12 +121,13 @@ const PhotoPage = () => {
   return (
     <SafeAreaView style={styles.root}>
       <StatusBar
-        barStyle={setStatusBarTheme(appSettings.darkMode)}
+        barStyle={darkModeFromStore ? 'light-content' : 'dark-content'}
         translucent
         backgroundColor="transparent"
       />
       <NavibarPhoto
         titleAlbum={dataAlbum.album.title}
+        descriptionAlbum={dataAlbum.album.description}
         idAlbum={dataAlbum.album.id}
         sortPhotos={reversePhotosSort}
         setUploadingPhotos={setUploadingPhotos}
@@ -152,26 +155,28 @@ const PhotoPage = () => {
           <Text style={styles.text}>Чтение данных</Text>
         </View>
       ) : (
-        <ScrollView
-          ref={scrollRef}
-          contentContainerStyle={{paddingBottom: insets.bottom + 20}}
-          showsVerticalScrollIndicator={false}>
-          <Sortable.Grid
-            data={photos}
-            columns={3}
-            rowGap={2}
-            columnGap={2}
-            strategy={'insert'}
-            scrollableRef={scrollRef}
-            autoScrollEnabled={true}
-            autoScrollActivationOffset={80}
-            showDropIndicator
-            dropIndicatorStyle={styles.dropIndicator}
-            keyExtractor={item => item.id.toString()}
-            renderItem={renderPhotoItem}
-            onOrderChange={handleOrderChange}
-          />
-        </ScrollView>
+        photos?.length > 0 && (
+          <ScrollView
+            ref={scrollRef}
+            contentContainerStyle={{paddingBottom: insets.bottom + 20}}
+            showsVerticalScrollIndicator={false}>
+            <Sortable.Grid
+              data={photos}
+              columns={3}
+              rowGap={2}
+              columnGap={2}
+              strategy={'insert'}
+              scrollableRef={scrollRef}
+              autoScrollEnabled={true}
+              autoScrollActivationOffset={80}
+              showDropIndicator
+              dropIndicatorStyle={styles.dropIndicator}
+              keyExtractor={item => item.id.toString()}
+              renderItem={renderPhotoItem}
+              onOrderChange={handleOrderChange}
+            />
+          </ScrollView>
+        )
       )}
 
       <ImageViewer
@@ -234,6 +239,7 @@ const getStyles = (darkMode: boolean) => {
     },
     text: {
       textAlign: 'center',
+      fontFamily: TYPOGRAPHY.generalFont,
       color: darkMode ? COLOR.dark.TEXT_BRIGHT : COLOR.light.TEXT_BRIGHT,
     },
   });

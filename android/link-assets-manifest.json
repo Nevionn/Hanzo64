@@ -6,6 +6,10 @@
       "sha1": "1cc231f6ba7e2c141e28db4eac92b211d4033df6"
     },
     {
+      "path": "assets/fonts/RussoOne-Regular.ttf",
+      "sha1": "4a12533ad9ee3d6c83da4ac659d78ef9fb702ab4"
+    },
+    {
       "path": "node_modules/react-native-vector-icons/Fonts/AntDesign.ttf",
       "sha1": "4e77868439280fb434d4697c7b911271406c81f3"
     },
