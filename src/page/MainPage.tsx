@@ -7,10 +7,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   StyleSheet,
-  ScrollView,
 } from 'react-native';
-import Animated, {useAnimatedRef} from 'react-native-reanimated';
-import Sortable from 'react-native-sortables';
+
+import DraggableGridView from 'react-native-drag-sort-gridview';
 import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 
@@ -41,219 +40,184 @@ const MainPage: React.FC = () => {
   const navigation: any = useNavigation();
   const insets = useSafeAreaInsets();
 
-  const darkModeFromStore = useSettingsStore(state => state.settings.darkMode);
+  const darkMode = useSettingsStore(state => state.settings.darkMode);
 
   const {addAlbum, getAllAlbums, saveAlbumsOrder} = useAlbumsRequest();
   const {calcAllAlbums, calcAllPhotos} = useMediaInformation();
 
   const [albums, setAlbums] = useState<Album[]>([]);
-  const [fetchingAlbums, setFetchingAlbums] = useState(false);
+  const [fetching, setFetching] = useState(false);
+
   const [albumCount, setAlbumCount] = useState(0);
   const [photoCount, setPhotoCount] = useState(0);
 
   const [searchQuery, setSearchQuery] = useState('');
 
-  const [isModalAddAlbumVisible, setModalAddAlbumVisible] = useState(false);
-  const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
+  const [addModal, setAddModal] = useState(false);
+  const [settingsModal, setSettingsModal] = useState(false);
 
-  const styles = getStyles(darkModeFromStore);
+  const [isDragging, setIsDragging] = useState(false);
 
-  const scrollRef = useAnimatedRef<Animated.ScrollView>();
+  const styles = getStyles(darkMode);
 
   useEffect(() => {
-    const updateAlbums = () => {
-      setFetchingAlbums(true);
-      getAllAlbums((fetchedAlbums: Album[]) => {
-        setAlbums(fetchedAlbums);
-        setFetchingAlbums(false);
+    const load = () => {
+      setFetching(true);
+      getAllAlbums((data: Album[]) => {
+        setAlbums(data);
+        setFetching(false);
       });
     };
 
-    updateAlbums();
-    eventEmitter.on('albumsUpdated', updateAlbums);
+    load();
+    eventEmitter.on('albumsUpdated', load);
 
     return () => {
-      eventEmitter.off('albumsUpdated', updateAlbums);
+      eventEmitter.off('albumsUpdated', load);
     };
   }, []);
 
   useEffect(() => {
-    const fetchPhotoAndAlbumCount = async () => {
-      try {
-        const [albumsCount, photosCount] = await Promise.all([
-          calcAllAlbums(),
-          calcAllPhotos(),
-        ]);
-        setAlbumCount(albumsCount);
-        setPhotoCount(photosCount);
-      } catch (error) {
-        console.error(
-          'Ошибка при получении количества альбомов и фотографий:',
-          error,
-        );
-      }
+    const fetchCounts = async () => {
+      const [a, p] = await Promise.all([calcAllAlbums(), calcAllPhotos()]);
+
+      setAlbumCount(a);
+      setPhotoCount(p);
     };
 
-    eventEmitter.on('albumsUpdated', fetchPhotoAndAlbumCount);
-    eventEmitter.on('photosUpdated', fetchPhotoAndAlbumCount);
-
-    fetchPhotoAndAlbumCount();
-
-    return () => {
-      eventEmitter.off('albumsUpdated', fetchPhotoAndAlbumCount);
-      eventEmitter.off('photosUpdated', fetchPhotoAndAlbumCount);
-    };
+    fetchCounts();
   }, []);
 
-  const openSettings = () => setIsSettingsModalVisible(true);
-  const openCreateAlbumModal = () => setModalAddAlbumVisible(true);
+  const openAlbum = (album: Album) => {
+    navigation.navigate('PhotoPage', {album});
+  };
 
   const filteredAlbums = albums.filter(album => {
-    const query = searchQuery.toLowerCase();
-    const titleMatch = album.title.toLowerCase().includes(query);
-    const descriptionMatch = album.description
-      ? album.description.toLowerCase().includes(query)
-      : false;
-    return titleMatch || descriptionMatch;
+    const q = searchQuery.toLowerCase();
+    return (
+      album.title.toLowerCase().includes(q) ||
+      (album.description?.toLowerCase().includes(q) ?? false)
+    );
   });
+
+  const isReorderEnabled = searchQuery.length === 0;
+  const gridData = isReorderEnabled ? albums : filteredAlbums;
+
+  const onOrderChanged = useCallback(
+    (orderedData: Album[], from: number, to: number) => {
+      setAlbums(orderedData);
+      saveAlbumsOrder(orderedData);
+      setIsDragging(false);
+    },
+    [saveAlbumsOrder],
+  );
 
   const handleAddAlbum = (newAlbum: {title: string; description?: string}) => {
     const currentDate = new Date();
+
     const albumToInsert = {
       title: newAlbum.title,
       description: newAlbum.description,
       countPhoto: 0,
       created_at: currentDate.toLocaleString(),
     };
+
     addAlbum(albumToInsert);
     getAllAlbums(setAlbums);
     eventEmitter.emit('albumsUpdated');
   };
 
-  const openAlbum = (album: Album) => {
-    navigation.navigate('PhotoPage', {album});
-  };
-
-  const handleOrderChange = useCallback(
-    ({fromIndex, toIndex}: {fromIndex: number; toIndex: number}) => {
-      setAlbums(prev => {
-        const updated = [...prev];
-        const [moved] = updated.splice(fromIndex, 1);
-        updated.splice(toIndex, 0, moved);
-
-        // сохраняем новый порядок в БД
-        saveAlbumsOrder(updated);
-
-        return updated;
-      });
-    },
-    [saveAlbumsOrder],
-  );
-
-  const isReorderEnabled = searchQuery.length === 0;
-  const gridData = isReorderEnabled ? albums : filteredAlbums;
-
-  const renderAlbumItem = useCallback(
+  const renderItem = useCallback(
     ({item}: {item: Album}) => (
       <TouchableOpacity
         style={styles.placeHolder}
-        onPress={() => openAlbum(item)}>
+        delayLongPress={200}
+        onLongPress={() => {
+          if (isReorderEnabled) {
+            setIsDragging(true);
+          }
+        }}
+        onPress={() => {
+          if (isDragging) {
+            setIsDragging(false);
+            return;
+          }
+          openAlbum(item);
+        }}>
         <View style={styles.imagePlace}>
-          {item.coverPhoto ? (
-            <Image
-              source={{uri: `data:image/jpeg;base64,${item.coverPhoto}`}}
-              style={styles.image}
-            />
-          ) : (
-            <Image
-              source={require('../../assets/images/not_img_default.png')}
-              style={styles.image}
-            />
-          )}
+          <Image
+            source={
+              item.coverPhoto
+                ? {uri: `data:image/jpeg;base64,${item.coverPhoto}`}
+                : require('../../assets/images/not_img_default.png')
+            }
+            style={styles.image}
+          />
         </View>
 
         <View style={styles.textImageHolder}>
           <Text style={styles.textNameAlbum}>
-            {item.title.length > 12
-              ? `${item.title.substring(0, 20)}...`
+            {item.title.length > 20
+              ? item.title.slice(0, 20) + '...'
               : item.title}
           </Text>
           <Text style={styles.textCountPhoto}>
-            {`фотографий ${item.countPhoto}`}
+            фотографий {item.countPhoto}
           </Text>
         </View>
       </TouchableOpacity>
     ),
-    [openAlbum, styles],
+    [isDragging, isReorderEnabled, styles],
   );
+
+  const keyExtractor = useCallback((item: Album) => `album-${item.id}`, []);
 
   return (
     <SafeAreaView style={styles.root}>
       <StatusBar
-        barStyle={darkModeFromStore ? 'light-content' : 'dark-content'}
+        barStyle={darkMode ? 'light-content' : 'dark-content'}
         translucent
         backgroundColor="transparent"
       />
+
       <NaviBar
-        openModalAlbum={openCreateAlbumModal}
-        openModalSettings={openSettings}
+        openModalAlbum={() => setAddModal(true)}
+        openModalSettings={() => setSettingsModal(true)}
       />
 
-      <AlbumSearchBar darkMode={darkModeFromStore} onSearch={setSearchQuery} />
-
-      {filteredAlbums.length === 0 && searchQuery.length > 0 && (
-        <View style={styles.emptyDataItem}>
-          <Text style={styles.text}>По поиску ничего не найдено</Text>
-        </View>
-      )}
-
-      {searchQuery.length > 0 && (
-        <Text style={styles.textHelper}>
-          Сортировка отключена во время поиска
-        </Text>
-      )}
+      <AlbumSearchBar darkMode={darkMode} onSearch={setSearchQuery} />
 
       {albums.length > 0 && (
         <CounterMediaData
           albumCount={albumCount}
           photoCount={photoCount}
-          darkMode={darkModeFromStore}
+          darkMode={darkMode}
         />
       )}
 
-      {fetchingAlbums ? (
+      {fetching ? (
         <ActivityIndicator size="large" color={COLOR.LOAD} style={{flex: 1}} />
       ) : (
-        <ScrollView
-          ref={scrollRef}
+        <DraggableGridView
+          style={{flex: 1}}
           contentContainerStyle={{paddingBottom: insets.bottom + 20}}
-          showsVerticalScrollIndicator={false}>
-          <Sortable.Grid
-            data={gridData}
-            columns={2}
-            rowGap={10}
-            columnGap={10}
-            strategy="insert"
-            scrollableRef={scrollRef}
-            autoScrollEnabled={isReorderEnabled}
-            autoScrollActivationOffset={80}
-            showDropIndicator={isReorderEnabled}
-            dropIndicatorStyle={styles.dropIndicator}
-            keyExtractor={item => String(item.id)}
-            renderItem={renderAlbumItem}
-            onOrderChange={isReorderEnabled ? handleOrderChange : undefined}
-          />
-        </ScrollView>
+          data={gridData}
+          isEditing={isDragging && isReorderEnabled}
+          numColumns={2}
+          itemHeight={240}
+          keyExtractor={keyExtractor}
+          renderItem={renderItem}
+          onOrderChanged={onOrderChanged}
+        />
       )}
-
       <NewAlbumModal
-        visible={isModalAddAlbumVisible}
-        onClose={() => setModalAddAlbumVisible(false)}
+        visible={addModal}
+        onClose={() => setAddModal(false)}
         onSubmit={handleAddAlbum}
       />
       <SettingsModal
-        visible={isSettingsModalVisible}
-        onCloseSettingsModal={() => setIsSettingsModalVisible(false)}
+        visible={settingsModal}
+        onCloseSettingsModal={() => setSettingsModal(false)}
         albumsExist={albums.length > 0}
       />
     </SafeAreaView>
@@ -271,28 +235,25 @@ const getStyles = (darkMode: boolean) => {
         ? COLOR.dark.MAIN_COLOR
         : COLOR.light.MAIN_COLOR,
     },
-    dropIndicator: {
-      backgroundColor: 'rgba(54, 135, 127, 0.5)',
-      borderColor: '#36877f',
-      borderStyle: 'solid',
-      borderWidth: 5,
-    },
     placeHolder: {
-      flexBasis: '45%',
-      margin: 10,
-      height: 220,
+      width: '80%', // 🔥 ВАЖНО вместо flexBasis
+      height: 240,
+      margin: 8,
       borderRadius: 10,
+      overflow: 'hidden', // 🔥 обязательно
     },
     imagePlace: {
-      flex: 1,
       width: '100%',
+      height: 180, // 🔥 фикс высота картинки
       borderWidth: 0.5,
       borderColor: 'white',
       borderRadius: 10,
+      overflow: 'hidden',
     },
     image: {
-      height: '100%',
       width: '100%',
+      height: '100%',
+      resizeMode: 'cover', // 🔥 ВАЖНО, иначе "линия"
       borderRadius: 10,
     },
     textImageHolder: {
